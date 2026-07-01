@@ -105,6 +105,35 @@ export function Section({
             </div>
           ))}
 
+          <div className="card-foot">
+            <span className="card-foot-label">
+              {reviewed ? `You marked this ${VERDICT_PILL[verdict!].label}` : "Reviewed this section?"}
+            </span>
+            <div className="card-foot-actions">
+              <button className="foot-btn" onClick={() => setCommenting((c) => !c)}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                Comment
+              </button>
+              <button
+                className={`foot-btn foot-approve ${verdict === "approved" ? "is-active" : ""}`}
+                onClick={() => onToggleVerdict("approved")}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="4 12.5 9.5 18 20 6" />
+                </svg>
+                Approve
+              </button>
+              <button
+                className={`foot-btn foot-reject ${verdict === "rejected" ? "is-active" : ""}`}
+                onClick={() => onToggleVerdict("rejected")}
+              >
+                ✕ Request changes
+              </button>
+            </div>
+          </div>
+
           {thread.length > 0 && (
             <div className="thread">
               <button className="thread-toggle" onClick={() => setThreadOpen((o) => !o)}>
