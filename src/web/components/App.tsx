@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChangeProposalDocument, Verdict } from "../../shared/document";
+import type { ChangeProposalDocument, Outcome, Verdict } from "../../shared/document";
 import { reduce, sectionThread, type Action } from "../state";
 import { saveDocument } from "../api";
 import { Header } from "./Header";
@@ -38,8 +38,8 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
 
   const dispatch = useCallback((action: Action) => setDoc((d) => reduce(d, action)), []);
 
-  const finalize = useCallback(async () => {
-    const next = reduce(doc, { kind: "finalize" });
+  const finalize = useCallback(async (outcome: Outcome) => {
+    const next = reduce(doc, { kind: "finalize", outcome });
     setDoc(next);
     setSaveState("saving");
     const r = await saveDocument(next);
@@ -51,12 +51,17 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
   }, [theme]);
 
   if (finalized) {
+    const discuss = doc.response.outcome === "discuss";
     return (
       <div className="done-screen" data-theme={theme}>
         <div className="done-card">
-          <div className="done-check">✓</div>
-          <h2>Review sent to the agent</h2>
-          <p>Your responses have been saved. You can close this tab and return to your agent.</p>
+          <div className="done-check">{discuss ? "💬" : "✓"}</div>
+          <h2>{discuss ? "Saved for discussion" : "Agreed — sent to the agent"}</h2>
+          <p>
+            {discuss
+              ? "Your notes are saved. The agent will reply and send back another round before going ahead."
+              : "The agent will go ahead with the proposed next step. You can close this tab and return to your agent."}
+          </p>
         </div>
       </div>
     );
@@ -71,7 +76,6 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
         theme={theme}
         saveState={saveState}
         onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-        onApproveAll={() => dispatch({ kind: "approveAll" })}
         onOpenFeedback={() => setComposerOpen(true)}
         onFinalize={finalize}
       />

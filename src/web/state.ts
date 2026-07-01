@@ -1,4 +1,4 @@
-import type { ChangeProposalDocument, DialogEntry, Verdict } from "../shared/document";
+import type { ChangeProposalDocument, DialogEntry, Outcome, Verdict } from "../shared/document";
 
 // Pure, deterministic reducer: (document, action) -> document. No time, no I/O, no React.
 // This is what makes the front end snapshot-testable: input doc + action sequence -> output doc.
@@ -12,7 +12,7 @@ export type Action =
   | { kind: "setAnswerOther"; questionId: string; other: string }
   | { kind: "setAnswerText"; questionId: string; text: string }
   | { kind: "setFeedback"; text: string }
-  | { kind: "finalize" };
+  | { kind: "finalize"; outcome: Outcome };
 
 /** Mark the round in-progress once the human touches anything (pending -> in-progress). */
 function touched(doc: ChangeProposalDocument): ChangeProposalDocument {
@@ -62,7 +62,7 @@ export function reduce(doc: ChangeProposalDocument, action: Action): ChangePropo
       return touched({ ...doc, response: { ...doc.response, feedback: action.text } });
     }
     case "finalize": {
-      return { ...doc, status: "finalized" };
+      return { ...doc, status: "finalized", response: { ...doc.response, outcome: action.outcome } };
     }
   }
 }

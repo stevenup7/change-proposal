@@ -54,10 +54,14 @@ describe("reducer is deterministic and pure", () => {
     expect(answeredCount(filled)).toBe(1);
   });
 
-  it("finalize sets status without stamping time (server does that)", () => {
-    const d = run([{ kind: "approveAll" }, { kind: "finalize" }]);
-    expect(d.status).toBe("finalized");
-    expect(d.response.finalizedAt).toBeUndefined();
+  it("finalize records the outcome and status, without stamping time (server does that)", () => {
+    const agreed = run([{ kind: "finalize", outcome: "approved" }]);
+    expect(agreed.status).toBe("finalized");
+    expect(agreed.response.outcome).toBe("approved");
+    expect(agreed.response.finalizedAt).toBeUndefined();
+
+    const discuss = run([{ kind: "finalize", outcome: "discuss" }]);
+    expect(discuss.response.outcome).toBe("discuss");
   });
 
   it("same action sequence yields identical output (determinism)", () => {

@@ -54,6 +54,17 @@ export type Proposal = z.infer<typeof proposalSchema>;
 export const verdicts = ["approved", "rejected", "changes-requested"] as const;
 export type Verdict = (typeof verdicts)[number];
 
+// Document-level intent chosen when the human closes the review. This — not the
+// per-section verdicts — is what the agent reads first. Per-section verdicts are
+// optional detail layered underneath, so the human never *has* to tick each one.
+//   approved → the human agrees; go ahead with whatever this proposal was gating.
+//              That is NOT necessarily "write code now" — it may mean draft the full
+//              plan, run the migration, etc. The agent decides the next step from
+//              the proposal's own content. Approval means agreement, not "implement".
+//   discuss  → do NOT go ahead; reply in the dialog and send back another round.
+export const outcomes = ["approved", "discuss"] as const;
+export type Outcome = (typeof outcomes)[number];
+
 // ---------------------------------------------------------------------------
 // Dialog region — the per-section conversation. Shared: the human appends via
 // the UI, the agent appends (author: "agent") when authoring the next round.
@@ -87,6 +98,7 @@ export const responseSchema = z
     review: z.record(z.enum(verdicts)).default({}),
     answers: z.record(answerSchema).default({}),
     feedback: z.string().default(""),
+    outcome: z.enum(outcomes).optional().describe("Overall intent, set when the human finalizes."),
     finalizedAt: z.string().optional(),
   })
   .strict();

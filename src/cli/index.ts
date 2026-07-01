@@ -97,7 +97,14 @@ program
 
     const finalized = await server.finished;
     const reviewed = Object.keys(finalized.response.review).length;
-    console.log(`\n  ✓ Finalized. ${reviewed} section(s) reviewed. Responses written to ${file}.`);
+    const outcome = finalized.response.outcome;
+    const verdict =
+      outcome === "approved"
+        ? "✓ Agreed — go ahead with the proposed next step (read the proposal for what that is)."
+        : outcome === "discuss"
+          ? "💬 Save & discuss — do NOT go ahead; reply in the dialog and iterate."
+          : "Finalized.";
+    console.log(`\n  ${verdict} ${reviewed} section(s) flagged. Responses written to ${file}.`);
     process.exit(0);
   });
 
