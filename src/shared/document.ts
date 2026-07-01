@@ -54,6 +54,25 @@ export type Proposal = z.infer<typeof proposalSchema>;
 export const verdicts = ["approved", "rejected", "changes-requested"] as const;
 export type Verdict = (typeof verdicts)[number];
 
+// ---------------------------------------------------------------------------
+// Dialog region — the per-section conversation. Shared: the human appends via
+// the UI, the agent appends (author: "agent") when authoring the next round.
+// Entries carry their round and are never wiped, so a section reads as one
+// thread across the whole review, not a fresh form each round.
+// ---------------------------------------------------------------------------
+
+export const authors = ["human", "agent"] as const;
+export type Author = (typeof authors)[number];
+
+export const dialogEntrySchema = z
+  .object({
+    round: z.number().int().min(1).describe("Round this entry was written in."),
+    author: z.enum(authors),
+    text: z.string().min(1),
+  })
+  .strict();
+export type DialogEntry = z.infer<typeof dialogEntrySchema>;
+
 export const answerSchema = z
   .object({
     choice: z.string().optional(),
@@ -66,7 +85,6 @@ export type Answer = z.infer<typeof answerSchema>;
 export const responseSchema = z
   .object({
     review: z.record(z.enum(verdicts)).default({}),
-    comments: z.record(z.array(z.string())).default({}),
     answers: z.record(answerSchema).default({}),
     feedback: z.string().default(""),
     finalizedAt: z.string().optional(),
@@ -87,19 +105,34 @@ export const documentSchema = z
     status: z.enum(statuses).default("pending"),
     round: z.number().int().min(1).default(1),
     proposal: proposalSchema,
-    response: responseSchema.default({
-      review: {},
-      comments: {},
-      answers: {},
-      feedback: "",
-    }),
+    // Per-section conversation, keyed by section id. Shared, cross-round, never wiped.
+    dialog: z.record(z.array(dialogEntrySchema)).default({}),
+    response: responseSchema.default({ review: {}, answers: {}, feedback: "" }),
+    // Prior rounds' response regions, oldest first. Archived by `startNextRound`.
+    history: z.array(responseSchema).default([]),
   })
   .strict();
 export type ChangeProposalDocument = z.infer<typeof documentSchema>;
 
 /** A fresh, empty response region (used when authoring or resetting a round). */
 export function emptyResponse(): ResponseRegion {
-  return { review: {}, comments: {}, answers: {}, feedback: "" };
+  return { review: {}, answers: {}, feedback: "" };
+}
+
+/**
+ * Begin the next review round: archive the current response into `history`,
+ * reset the live response, and bump `round`. The `dialog` is intentionally kept
+ * (it carries its own per-entry round), so the conversation survives iteration.
+ * Pure — the agent/CLI calls this before re-authoring the proposal for round N+1.
+ */
+export function startNextRound(doc: ChangeProposalDocument): ChangeProposalDocument {
+  return {
+    ...doc,
+    round: doc.round + 1,
+    status: "pending",
+    history: [...doc.history, doc.response],
+    response: emptyResponse(),
+  };
 }
 
 /** Parse + validate unknown JSON into a document. Throws ZodError on failure. */

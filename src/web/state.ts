@@ -1,4 +1,4 @@
-import type { ChangeProposalDocument, Verdict } from "../shared/document";
+import type { ChangeProposalDocument, DialogEntry, Verdict } from "../shared/document";
 
 // Pure, deterministic reducer: (document, action) -> document. No time, no I/O, no React.
 // This is what makes the front end snapshot-testable: input doc + action sequence -> output doc.
@@ -7,7 +7,7 @@ import type { ChangeProposalDocument, Verdict } from "../shared/document";
 export type Action =
   | { kind: "toggleVerdict"; sectionId: string; verdict: Verdict }
   | { kind: "approveAll" }
-  | { kind: "addComment"; sectionId: string; text: string }
+  | { kind: "addDialog"; sectionId: string; text: string }
   | { kind: "setAnswerChoice"; questionId: string; choice: string }
   | { kind: "setAnswerOther"; questionId: string; other: string }
   | { kind: "setAnswerText"; questionId: string; text: string }
@@ -33,12 +33,15 @@ export function reduce(doc: ChangeProposalDocument, action: Action): ChangePropo
       for (const s of doc.proposal.sections) review[s.id] = "approved";
       return touched({ ...doc, response: { ...doc.response, review } });
     }
-    case "addComment": {
+    case "addDialog": {
       const text = action.text.trim();
       if (!text) return doc;
-      const comments = { ...doc.response.comments };
-      comments[action.sectionId] = [...(comments[action.sectionId] ?? []), text];
-      return touched({ ...doc, response: { ...doc.response, comments } });
+      const dialog = { ...doc.dialog };
+      dialog[action.sectionId] = [
+        ...(dialog[action.sectionId] ?? []),
+        { round: doc.round, author: "human", text },
+      ];
+      return touched({ ...doc, dialog });
     }
     case "setAnswerChoice": {
       const answers = { ...doc.response.answers };
@@ -73,6 +76,16 @@ export function reviewedCount(doc: ChangeProposalDocument): number {
 export function reviewProgress(doc: ChangeProposalDocument): number {
   const total = doc.proposal.sections.length;
   return total === 0 ? 1 : reviewedCount(doc) / total;
+}
+
+/** The full conversation for a section, oldest first. Spans every round (dialog is never wiped). */
+export function sectionThread(doc: ChangeProposalDocument, sectionId: string): DialogEntry[] {
+  return doc.dialog[sectionId] ?? [];
+}
+
+/** How many distinct rounds a section's thread spans — drives the "N rounds" chip. */
+export function threadRounds(entries: DialogEntry[]): number {
+  return new Set(entries.map((e) => e.round)).size;
 }
 
 function isAnswered(a: { choice?: string; other?: string; text?: string } | undefined): boolean {

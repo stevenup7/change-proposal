@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeProposalDocument, Verdict } from "../../shared/document";
-import { reduce, type Action } from "../state";
+import { reduce, sectionThread, type Action } from "../state";
 import { saveDocument } from "../api";
 import { Header } from "./Header";
 import { Section } from "./Section";
@@ -82,7 +82,7 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
             key={section.id}
             section={section}
             verdict={doc.response.review[section.id]}
-            comments={doc.response.comments[section.id] ?? []}
+            thread={sectionThread(doc, section.id)}
             expanded={expanded[section.id] ?? true}
             onToggleExpand={() =>
               setExpanded((e) => ({ ...e, [section.id]: !(e[section.id] ?? true) }))
@@ -90,8 +90,8 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
             onToggleVerdict={(verdict: Verdict) =>
               dispatch({ kind: "toggleVerdict", sectionId: section.id, verdict })
             }
-            onAddComment={(text: string) =>
-              dispatch({ kind: "addComment", sectionId: section.id, text })
+            onAddDialog={(text: string) =>
+              dispatch({ kind: "addDialog", sectionId: section.id, text })
             }
           />
         ))}
