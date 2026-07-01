@@ -29,6 +29,10 @@ script — rebuild it:
 npm rebuild esbuild
 ```
 
+When you add or bump a dependency, run `npm audit` and clear what it reports before
+committing — the first cut shipped with known vulnerabilities, so a clean audit is part of
+"done" for any dependency change. This is meant to stay a small, few-dependency package.
+
 ## Commands
 
 | Command | What it does |
@@ -79,5 +83,8 @@ skill  →  CLI (author / review)  →  dumb self-terminating Hono server  →  
 
 ## Status
 
-**v1** (the spec's §7 first cut). Blocks implemented: `markdown`, `diff`, `callout`.
-Conflicts and specialized blocks are deferred.
+**v0.3.0** (past the spec's §7 first cut). On top of the first cut it now threads a
+per-section conversation across rounds (`dialog`), archives prior rounds into `history`,
+and finalizes to one of two outcomes — `approved` (agree & proceed) or `discuss` (save &
+iterate). Blocks implemented: `markdown`, `diff`, `callout`. Conflicts and specialized
+blocks are still deferred.

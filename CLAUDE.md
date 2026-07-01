@@ -8,17 +8,19 @@ An interface for coding assistants to generate **change proposal pages** — a s
 
 ## Current state
 
-**v1 built** (the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author`/`review`) → dumb self-terminating Hono server → deterministic React SPA. Blocks: `markdown`, `diff`, `callout`. Conflicts and specialized blocks are deferred.
+**v0.3.0** (past the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author` / `example` / `validate` / `review` / `iterate`) → dumb self-terminating Hono server → deterministic React SPA. Since the first cut it has grown a per-section conversation threaded across rounds (`dialog`), archived `history`, and a two-outcome finalize (`approved` = agree & proceed, `discuss` = save & iterate). Blocks: `markdown`, `diff`, `callout`. Conflicts and specialized blocks are still deferred. The tool version lives in `src/shared/version.ts` and must match `package.json`'s `version`.
 
 ## Commands
 
-- `npm install` — first-time setup. Note: esbuild's install script is gated by npm's allow-scripts; if tsx/vite fail, run `npm approve-scripts esbuild`.
+- `npm install` — first-time setup. If `tsx`/`vite` fail right after install, esbuild's native binary didn't finish its postinstall — run `npm rebuild esbuild`.
 - `npm run build` — build the SPA to `dist/web/` (required before `review` can serve the UI).
 - `npm test` — run the deterministic-reducer golden tests (`src/web/state.test.ts`). Run a single test with `npx vitest run -t "<name>"`.
 - `npm run typecheck` — `tsc --noEmit`.
 - `npm run example` — write a sample `proposal.json`.
+- `npm run validate` — validate `proposal.json` against the schema + version.
 - `npm run cli -- author` — print the versioned authoring guide + JSON schema (what the skill fetches).
 - `npm run review` (or `npx tsx src/cli/index.ts review <file>`) — validate a proposal, serve the UI on `:4179`, and block until the user finalizes.
+- `npm run cli -- iterate <file>` — archive the finished round into `history`, keep the `dialog`, and bump `round` for the next pass.
 
 ## Architecture invariants (don't regress these)
 
@@ -27,6 +29,7 @@ An interface for coding assistants to generate **change proposal pages** — a s
 - **Adding a block = add `src/shared/blocks/<name>.ts`** (schema + guide), register it in `src/shared/blocks/registry.ts`, and add a renderer keyed by the same `type` constant in `src/web/blocks/`. Schema/UI/guide derive from the registry — don't hand-maintain them separately.
 - **No fallbacks, force upgrade.** Strict/closed schemas (`.strict()`), version match is hard-checked, unknown block `type` is an error. Don't add tolerant/degrading paths.
 - **The file is the sole agent contract.** The server is dumb I/O and guards the proposal region as byte-identical read-only; keep logic in the deterministic front end.
+- **Audit dependencies whenever they change.** After any `npm install <pkg>` / dependency bump, run `npm audit` and resolve what it reports (`npm audit fix`, or a pinned upgrade) before committing — the initial cut shipped with known vulnerabilities, so treat a clean audit as part of "done" for any dependency change. Prefer adding a dependency only when it earns its keep; this stays a small, few-dependency package.
 
 ## Source of truth
 
