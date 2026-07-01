@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { ZodError } from "zod";
-import { documentSchema, checkVersion, type ChangeProposalDocument } from "../shared/document";
+import { documentSchema, checkVersion, startNextRound, type ChangeProposalDocument } from "../shared/document";
 import { authoringGuide, jsonSchema } from "../shared/guide";
 import { exampleDocument } from "../shared/example";
 import { VERSION } from "../shared/version";
@@ -51,6 +51,24 @@ program
     console.log(`✓ valid (v${v.toolVersion}) — ${doc.proposal.sections.length} sections, ${doc.proposal.questions.length} questions`);
   });
 
+// --- iterate: archive the finished round and open the next one --------------
+program
+  .command("iterate")
+  .description("Start the next round: archive response into history, keep dialog, bump round")
+  .argument("[file]", "proposal file", "proposal.json")
+  .action(async (file: string) => {
+    const path = resolve(process.cwd(), file);
+    const doc = await loadOrExit(file);
+    const v = checkVersion(doc);
+    if (!v.ok) {
+      console.error(`✗ version mismatch: document is v${v.docVersion}, tool is v${v.toolVersion}. Regenerate with the current skill.`);
+      process.exit(1);
+    }
+    const next = startNextRound(doc);
+    await writeFile(path, JSON.stringify(next, null, 2) + "\n", "utf8");
+    console.log(`✓ round ${doc.round} archived — now editing round ${next.round}. Revise the proposal, then \`review\`.`);
+  });
+
 // --- review: validate, serve the UI, wait for finalize ----------------------
 program
   .command("review")
@@ -79,7 +97,14 @@ program
 
     const finalized = await server.finished;
     const reviewed = Object.keys(finalized.response.review).length;
-    console.log(`\n  ✓ Finalized. ${reviewed} section(s) reviewed. Responses written to ${file}.`);
+    const outcome = finalized.response.outcome;
+    const verdict =
+      outcome === "approved"
+        ? "✓ Agreed — go ahead with the proposed next step (read the proposal for what that is)."
+        : outcome === "discuss"
+          ? "💬 Save & discuss — do NOT go ahead; reply in the dialog and iterate."
+          : "Finalized.";
+    console.log(`\n  ${verdict} ${reviewed} section(s) flagged. Responses written to ${file}.`);
     process.exit(0);
   });
 

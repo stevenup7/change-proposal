@@ -17,8 +17,14 @@ keep `--silent` so npm's banner never pollutes the CLI's stdout (it would corrup
    to write a sample you can adapt, then `npm run --silent cli -- validate proposal.json` to check it.
 3. **Open the review:** run `npm run --silent cli -- review proposal.json`. This serves the UI
    and blocks until the human finalizes. (Requires a built UI — run `npm run build` once first.)
-4. **Read the result:** when `review` returns (or the human says they're done), read
-   `proposal.json` back. `response.review` has per-section verdicts, `response.comments`
-   has notes, `response.answers` has question responses, `response.feedback` is global.
-5. **Iterate if needed:** if sections are `rejected`/`changes-requested`, revise the
-   `proposal` in place, reset `response` to empty, bump `round`, and run `review` again.
+4. **Read the result:** when `review` returns, read `proposal.json` back. Check
+   **`response.outcome` first** — `"approved"` means the human agrees, so go ahead with
+   whatever this proposal was gating (that may be implementing, or drafting the full plan,
+   running a migration, etc. — decide from the proposal's content, don't assume "write code
+   now"); `"discuss"` means do NOT go ahead, reply and iterate. Then `response.review` has per-section verdicts
+   (optional detail), `response.answers` has question responses, `response.feedback` is
+   global, and `dialog[sectionId]` is the per-section conversation (`{round, author, text}`).
+5. **Iterate when outcome is `discuss`** (or any section is `rejected`/`changes-requested`):
+   run `npm run --silent cli -- iterate proposal.json` — it archives the round into
+   `history`, keeps the `dialog`, and bumps `round`. Then revise the `proposal`, optionally
+   reply in `dialog` with `author: "agent"` entries on sections you changed, and `review` again.

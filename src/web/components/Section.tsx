@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { Section as SectionT, Verdict } from "../../shared/document";
+import type { Section as SectionT, DialogEntry, Verdict } from "../../shared/document";
+import { threadRounds } from "../state";
 import { accentVars } from "../theme";
 import { renderMarkdown } from "../markdown";
 import { BlockView } from "../blocks/registry";
@@ -7,11 +8,11 @@ import { BlockView } from "../blocks/registry";
 interface Props {
   section: SectionT;
   verdict: Verdict | undefined;
-  comments: string[];
+  thread: DialogEntry[];
   expanded: boolean;
   onToggleExpand: () => void;
   onToggleVerdict: (v: Verdict) => void;
-  onAddComment: (text: string) => void;
+  onAddDialog: (text: string) => void;
 }
 
 const VERDICT_PILL: Record<Verdict, { label: string; cls: string }> = {
@@ -23,23 +24,26 @@ const VERDICT_PILL: Record<Verdict, { label: string; cls: string }> = {
 export function Section({
   section,
   verdict,
-  comments,
+  thread,
   expanded,
   onToggleExpand,
   onToggleVerdict,
-  onAddComment,
+  onAddDialog,
 }: Props) {
   const accent = accentVars(section.accent);
   const [commenting, setCommenting] = useState(false);
+  const [threadOpen, setThreadOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const reviewed = verdict !== undefined;
+  const rounds = threadRounds(thread);
 
   const submitComment = () => {
     const t = draft.trim();
     if (!t) return;
-    onAddComment(t);
+    onAddDialog(t);
     setDraft("");
     setCommenting(false);
+    setThreadOpen(true);
   };
 
   return (
@@ -62,7 +66,7 @@ export function Section({
         </div>
 
         {verdict && <span className={`pill ${VERDICT_PILL[verdict].cls}`}>{VERDICT_PILL[verdict].label}</span>}
-        {comments.length > 0 && <span className="pill pill-primary">💬 {comments.length}</span>}
+        {thread.length > 0 && <span className="pill pill-primary">💬 {thread.length}</span>}
 
         <div className="card-actions" onClick={(e) => e.stopPropagation()}>
           <button
@@ -101,14 +105,58 @@ export function Section({
             </div>
           ))}
 
-          {comments.length > 0 && (
-            <ul className="comment-list">
-              {comments.map((c, i) => (
-                <li key={i} className="comment">
-                  {c}
-                </li>
-              ))}
-            </ul>
+          <div className="card-foot">
+            <span className="card-foot-label">
+              {reviewed ? `You marked this ${VERDICT_PILL[verdict!].label}` : "Reviewed this section?"}
+            </span>
+            <div className="card-foot-actions">
+              <button className="foot-btn" onClick={() => setCommenting((c) => !c)}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                Comment
+              </button>
+              <button
+                className={`foot-btn foot-approve ${verdict === "approved" ? "is-active" : ""}`}
+                onClick={() => onToggleVerdict("approved")}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="4 12.5 9.5 18 20 6" />
+                </svg>
+                Approve
+              </button>
+              <button
+                className={`foot-btn foot-reject ${verdict === "rejected" ? "is-active" : ""}`}
+                onClick={() => onToggleVerdict("rejected")}
+              >
+                ✕ Request changes
+              </button>
+            </div>
+          </div>
+
+          {thread.length > 0 && (
+            <div className="thread">
+              <button className="thread-toggle" onClick={() => setThreadOpen((o) => !o)}>
+                <span className={`chevron ${threadOpen ? "open" : ""}`}>▾</span>
+                Conversation
+                <span className="thread-count">
+                  {thread.length} note{thread.length === 1 ? "" : "s"} · {rounds} round{rounds === 1 ? "" : "s"}
+                </span>
+              </button>
+              {threadOpen && (
+                <ul className="thread-list">
+                  {thread.map((entry, i) => (
+                    <li key={i} className={`thread-entry thread-${entry.author}`}>
+                      <div className="thread-meta">
+                        <span className="thread-author">{entry.author === "agent" ? "Agent" : "You"}</span>
+                        <span className="thread-round">round {entry.round}</span>
+                      </div>
+                      <div className="thread-text">{entry.text}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
 
           {commenting && (

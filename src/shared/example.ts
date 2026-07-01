@@ -82,6 +82,8 @@ export function exampleDocument(): ChangeProposalDocument {
         },
       ],
     },
+    dialog: {},
     response: emptyResponse(),
+    history: [],
   };
 }
