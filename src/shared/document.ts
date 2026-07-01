@@ -93,10 +93,20 @@ export const answerSchema = z
   .strict();
 export type Answer = z.infer<typeof answerSchema>;
 
+// A single conflict-field pick. `side` is a chosen side id or "__other__"; `text`
+// carries the write-in when `side === "__other__"`. Mirrors answerSchema's shape.
+export const resolutionSchema = z
+  .object({ side: z.string(), text: z.string().optional() })
+  .strict();
+export type Resolution = z.infer<typeof resolutionSchema>;
+
 export const responseSchema = z
   .object({
     review: z.record(z.enum(verdicts)).default({}),
     answers: z.record(answerSchema).default({}),
+    // Conflict-block picks, keyed "<blockId>.<fieldId>". First response state a
+    // block collects itself (verdicts/answers aside) — the input-block frontier.
+    resolutions: z.record(resolutionSchema).default({}),
     feedback: z.string().default(""),
     outcome: z.enum(outcomes).optional().describe("Overall intent, set when the human finalizes."),
     finalizedAt: z.string().optional(),
@@ -128,7 +138,7 @@ export type ChangeProposalDocument = z.infer<typeof documentSchema>;
 
 /** A fresh, empty response region (used when authoring or resetting a round). */
 export function emptyResponse(): ResponseRegion {
-  return { review: {}, answers: {}, feedback: "" };
+  return { review: {}, answers: {}, resolutions: {}, feedback: "" };
 }
 
 /**

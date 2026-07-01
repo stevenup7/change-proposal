@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Section as SectionT, DialogEntry, Verdict } from "../../shared/document";
+import type { Section as SectionT, DialogEntry, Resolution, Verdict } from "../../shared/document";
 import { threadRounds } from "../state";
 import { accentVars } from "../theme";
 import { renderMarkdown } from "../markdown";
@@ -10,9 +10,11 @@ interface Props {
   verdict: Verdict | undefined;
   thread: DialogEntry[];
   expanded: boolean;
+  resolutions: Record<string, Resolution>;
   onToggleExpand: () => void;
   onToggleVerdict: (v: Verdict) => void;
   onAddDialog: (text: string) => void;
+  onResolve: (key: string, side: string, text?: string) => void;
 }
 
 const VERDICT_PILL: Record<Verdict, { label: string; cls: string }> = {
@@ -26,9 +28,11 @@ export function Section({
   verdict,
   thread,
   expanded,
+  resolutions,
   onToggleExpand,
   onToggleVerdict,
   onAddDialog,
+  onResolve,
 }: Props) {
   const accent = accentVars(section.accent);
   const [commenting, setCommenting] = useState(false);
@@ -101,7 +105,7 @@ export function Section({
         <div className="card-body">
           {section.blocks.map((block, i) => (
             <div className="block" key={i}>
-              <BlockView block={block} />
+              <BlockView block={block} resolutions={resolutions} onResolve={onResolve} />
             </div>
           ))}
 

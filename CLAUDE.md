@@ -8,7 +8,7 @@ An interface for coding assistants to generate **change proposal pages** — a s
 
 ## Current state
 
-**v0.3.0** (past the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author` / `example` / `validate` / `review` / `iterate`) → dumb self-terminating Hono server → deterministic React SPA. Since the first cut it has grown a per-section conversation threaded across rounds (`dialog`), archived `history`, and a two-outcome finalize (`approved` = agree & proceed, `discuss` = save & iterate). Blocks: `markdown`, `diff`, `callout`. Conflicts and specialized blocks are still deferred. The tool version lives in `src/shared/version.ts` and must match `package.json`'s `version`.
+**v0.4.0** (past the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author` / `example` / `validate` / `review` / `iterate`) → dumb self-terminating Hono server → deterministic React SPA. Since the first cut it has grown a per-section conversation threaded across rounds (`dialog`), archived `history`, and a two-outcome finalize (`approved` = agree & proceed, `discuss` = save & iterate). Blocks: `markdown`, `diff`, `callout`, and `conflict` — the first **input-collecting** block (a side-by-side decision whose picks land in `response.resolutions`; soft-gated, never blocks finalize). The handoff's modal conflict treatment and other specialized blocks remain deferred. The tool version lives in `src/shared/version.ts` and must match `package.json`'s `version`.
 
 ## Commands
 

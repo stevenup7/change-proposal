@@ -3,11 +3,12 @@ import type { BlockDef } from "./types";
 import { markdownDef, markdownSchema } from "./markdown";
 import { diffDef, diffSchema } from "./diff";
 import { calloutDef, calloutSchema } from "./callout";
+import { conflictDef, conflictSchema } from "./conflict";
 
 // The registry: adding a block = add its module and register it here (and a renderer in
 // web/blocks/ keyed by the same `type`). Schema, validation, and skill guidance are all
 // derived from this list — they cannot drift.
-export const blockDefs: BlockDef[] = [markdownDef, diffDef, calloutDef];
+export const blockDefs: BlockDef[] = [markdownDef, diffDef, calloutDef, conflictDef];
 
 // Discriminated union of every registered block. Strict/closed: an unknown `type` is a
 // validation error (no fallbacks — force upgrade).
@@ -15,6 +16,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   markdownSchema,
   diffSchema,
   calloutSchema,
+  conflictSchema,
 ]);
 
 export type Block = z.infer<typeof blockSchema>;

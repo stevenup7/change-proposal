@@ -44,6 +44,31 @@ export function exampleDocument(): ChangeProposalDocument {
               type: "markdown",
               text: "Reconcile each field independently:\n\n- remote-only change → **pull**\n- local-only change → **push**\n- both changed to the same value → **converge**\n- both changed differently → **conflict** (ask the user)",
             },
+            {
+              type: "conflict",
+              id: "merge",
+              title: "Both sides edited these — you decide which wins",
+              fields: [
+                {
+                  id: "title",
+                  label: "Task title",
+                  allowOther: true,
+                  sides: [
+                    { id: "steady", label: "Steady (local)", value: "Buy oat milk" },
+                    { id: "google", label: "Google", value: "Buy almond milk" },
+                  ],
+                },
+                {
+                  id: "due",
+                  label: "Due date",
+                  allowOther: false,
+                  sides: [
+                    { id: "steady", label: "Steady (local)", value: "Fri 4 Jul" },
+                    { id: "google", label: "Google", value: "Sat 5 Jul" },
+                  ],
+                },
+              ],
+            },
           ],
         },
         {

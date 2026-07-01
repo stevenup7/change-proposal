@@ -23,7 +23,9 @@ keep `--silent` so npm's banner never pollutes the CLI's stdout (it would corrup
    running a migration, etc. — decide from the proposal's content, don't assume "write code
    now"); `"discuss"` means do NOT go ahead, reply and iterate. Then `response.review` has per-section verdicts
    (optional detail), `response.answers` has question responses, `response.feedback` is
-   global, and `dialog[sectionId]` is the per-section conversation (`{round, author, text}`).
+   global, `dialog[sectionId]` is the per-section conversation (`{round, author, text}`), and
+   `response.resolutions` holds any `conflict`-block picks (keyed `"<blockId>.<fieldId>"` →
+   `{side, text?}`; a field may be left unresolved for you to decide).
 5. **Iterate when outcome is `discuss`** (or any section is `rejected`/`changes-requested`):
    run `npm run --silent cli -- iterate proposal.json` — it archives the round into
    `history`, keeps the `dialog`, and bumps `round`. Then revise the `proposal`, optionally

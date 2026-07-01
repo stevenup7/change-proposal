@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeProposalDocument, Outcome, Verdict } from "../../shared/document";
-import { reduce, sectionThread, type Action } from "../state";
+import { reduce, sectionThread, conflictStats, type Action } from "../state";
 import { saveDocument } from "../api";
 import { Header } from "./Header";
 import { Section } from "./Section";
@@ -68,6 +68,8 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
   }
 
   const p = doc.proposal;
+  const conflicts = conflictStats(doc);
+  const unresolvedConflicts = conflicts.total - conflicts.resolved;
 
   return (
     <div className="app">
@@ -75,6 +77,7 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
         doc={doc}
         theme={theme}
         saveState={saveState}
+        unresolvedConflicts={unresolvedConflicts}
         onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
         onOpenFeedback={() => setComposerOpen(true)}
         onFinalize={finalize}
@@ -88,6 +91,7 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
             verdict={doc.response.review[section.id]}
             thread={sectionThread(doc, section.id)}
             expanded={expanded[section.id] ?? true}
+            resolutions={doc.response.resolutions}
             onToggleExpand={() =>
               setExpanded((e) => ({ ...e, [section.id]: !(e[section.id] ?? true) }))
             }
@@ -96,6 +100,9 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
             }
             onAddDialog={(text: string) =>
               dispatch({ kind: "addDialog", sectionId: section.id, text })
+            }
+            onResolve={(key, side, text) =>
+              dispatch({ kind: "setResolution", key, side, text })
             }
           />
         ))}
