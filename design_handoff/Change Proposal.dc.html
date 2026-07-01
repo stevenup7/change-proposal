@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#0c0f14">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect x="300" y="170" width="600" height="120" rx="18" fill="#12161d" stroke="#262d38" stroke-width="2"/>
+    <rect x="300" y="330" width="600" height="120" rx="18" fill="#12161d" stroke="#262d38" stroke-width="2"/>
+    <rect x="300" y="490" width="600" height="120" rx="18" fill="#12161d" stroke="#262d38" stroke-width="2"/>
+    <rect x="300" y="170" width="6" height="120" rx="3" fill="#5a9cf8"/>
+    <rect x="300" y="330" width="6" height="120" rx="3" fill="#b07cf0"/>
+    <rect x="300" y="490" width="6" height="120" rx="3" fill="#4ec07a"/>
+    <polyline points="780 232 815 267 870 200" fill="none" stroke="#4ec07a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0}
+  :root{
+    --bg:#0c0f14; --surface:#12161d; --surface-2:#1a1f28; --surface-3:#222834;
+    --border:#262d38; --border-strong:#3a434f;
+    --text:#e7ebf1; --text-dim:#9aa4b4; --text-faint:#6b7585;
+    --add:#4ec07a; --add-bg:rgba(78,192,122,.13); --add-line:rgba(78,192,122,.07);
+    --del:#f0726b; --del-bg:rgba(240,114,107,.13); --del-line:rgba(240,114,107,.07);
+    --mod:#e0a93f; --mod-bg:rgba(224,169,63,.14);
+    --conflict:#b07cf0; --conflict-bg:rgba(176,124,240,.15);
+    --primary:#5a9cf8; --primary-bg:rgba(90,156,248,.14);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.28);
+  }
+  [data-theme="light"]{
+    --bg:#f4f6f9; --surface:#ffffff; --surface-2:#f3f5f8; --surface-3:#eaeef3;
+    --border:#e2e6ec; --border-strong:#cdd4de;
+    --text:#1a1f28; --text-dim:#5b6573; --text-faint:#8c97a6;
+    --add:#1a7f43; --add-bg:rgba(26,127,67,.10); --add-line:rgba(26,127,67,.05);
+    --del:#cf2f2f; --del-bg:rgba(207,47,47,.09); --del-line:rgba(207,47,47,.045);
+    --mod:#9a6a00; --mod-bg:rgba(154,106,0,.10);
+    --conflict:#7b3fe4; --conflict-bg:rgba(123,63,228,.10);
+    --primary:#1f6fdc; --primary-bg:rgba(31,111,220,.10);
+    --shadow:0 1px 2px rgba(15,30,55,.08),0 8px 22px rgba(15,30,55,.08);
+  }
+  #cp-desc{max-height:88px;opacity:1;overflow:hidden;transition:max-height .34s cubic-bezier(.4,0,.2,1),opacity .22s ease}
+  #cp-desc[data-collapsed="1"]{max-height:0;opacity:0}
+  @keyframes mp-in{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes mp-fade{from{opacity:0}to{opacity:1}}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:6px;border:3px solid transparent;background-clip:content-box}
+</style>
+</helmet>
+<div data-theme="{{ themeAttr }}" style="font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased">
+
+
+  <!-- ===== STICKY HEADER ===== -->
+  <header style="position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)">
+    <div style="max-width:980px;margin:0 auto;padding:0 28px">
+      <div style="display:flex;align-items:center;gap:13px;padding:15px 0 0">
+        <div style="flex:none;width:32px;height:32px;border-radius:9px;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--primary);font-weight:600">◇</div>
+        <h1 style="flex:1;min-width:0;margin:0;font-size:21px;font-weight:600;letter-spacing:-.02em;line-height:1.2">Fix: importing from Google Tasks overwrites your local edits</h1>
+        <button onClick="{{ toggleTheme }}" title="Toggle theme" aria-label="Toggle dark or light theme" style="flex:none;width:34px;height:34px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center" style-hover="background:var(--surface-3);color:var(--text)">{{ themeIcon }}</button>
+      </div>
+      <div id="cp-desc">
+        <p style="margin:9px 0 0 45px;font-size:13.5px;line-height:1.5;color:var(--text-dim);max-width:680px">Replace the one-way mirror with a <strong style="color:var(--text);font-weight:600">3-way merge</strong> plus opt-in write-back. Non-conflicting edits reconcile automatically in both directions; genuine conflicts surface a resolution modal instead of silently clobbering your edit.</p>
+      </div>
+
+      <!-- progress + actions -->
+      <div style="display:flex;align-items:center;gap:14px;margin-top:14px;padding-bottom:14px">
+        <button onClick="{{ toggleAll }}" title="{{ allToggleTitle }}" aria-label="{{ allToggleTitle }}" style="flex:none;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:none;border:none;color:var(--text-faint);cursor:pointer" style-hover="color:var(--text)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:{{ allChev }};transition:transform .25s cubic-bezier(.4,0,.2,1)"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div role="progressbar" aria-label="Sections reviewed" style="flex:1;min-width:80px;height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden">
+          <div style="height:100%;border-radius:3px;background:var(--primary);transition:width .35s cubic-bezier(.4,0,.2,1);width:{{ progressPct }}"></div>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dim);white-space:nowrap">{{ progressText }}</span>
+        <div style="flex:none;display:flex;align-items:center;gap:9px;margin-left:4px">
+          <button onClick="{{ openFeedback }}" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-dim);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap" style-hover="color:var(--text);border-color:var(--text-faint)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>Send feedback</button>
+          <button onClick="{{ approveAll }}" style="padding:7px 15px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap">Approve all</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== BODY ===== -->
+  <main style="max-width:980px;margin:0 auto;padding:22px 28px 48px;display:flex;flex-direction:column;gap:14px">
+
+    <div style="display:flex;align-items:center;gap:10px;margin:0 2px 2px">
+      <span style="display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);font-weight:700"><span style="width:6px;height:6px;border-radius:50%;background:var(--primary)"></span>Core changes</span>
+      <span style="font-size:11.5px;color:var(--text-faint)">— review carefully</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint)">schema · logic · code</span>
+    </div>
+
+    <!-- ===================== DB SCHEMA ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--mod);border-radius:11px;box-shadow:var(--shadow);overflow:hidden;opacity:{{ dbCardOpacity }};transition:opacity .3s ease" role="region" aria-label="Database schema — review section" data-screen-label="Database schema">
+      <div onClick="{{ dbToggle }}" role="button" aria-expanded="{{ dbOpen }}" aria-label="Database schema — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ dbChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--mod-bg);color:var(--mod);font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.03em">DB</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Database schema</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">Task model — 4 new columns, 1 migration</div>
+          <sc-if value="{{ dbCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ dbSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ dbReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ dbPillBg }};color:{{ dbPillFg }}">{{ dbPillText }}</span></sc-if>
+        <sc-if value="{{ dbHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on Database schema" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ dbCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ dbComment }}" title="Comment on Database schema" aria-label="Comment on Database schema" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ dbApprove }}" title="Approve Database schema" aria-label="Approve Database schema" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ dbApproveBorder }};background:{{ dbApproveBg }};color:{{ dbApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ dbReject }}" title="Request changes to Database schema" aria-label="Request changes to Database schema" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ dbRejectBorder }};background:{{ dbRejectBg }};color:{{ dbRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ dbOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border-top:1px solid var(--border);padding:17px">
+          <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border)">
+            <button onClick="{{ setDbDiagram }}" style="padding:7px 12px;border:none;background:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;color:{{ dbDiagFg }};border-bottom:2px solid {{ dbDiagBorder }};margin-bottom:-1px">Schema diagram</button>
+            <button onClick="{{ setDbColumns }}" style="padding:7px 12px;border:none;background:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;color:{{ dbColFg }};border-bottom:2px solid {{ dbColBorder }};margin-bottom:-1px">Columns</button>
+          </div>
+
+          <sc-if value="{{ dbDiagram }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:0 0 15px;font-size:13px;line-height:1.55;color:var(--text-dim)">The 4 new columns give each <strong style="color:var(--text)">Task</strong> a local snapshot of its remote Google source — the <strong style="color:var(--text)">merge base</strong> that <span style="font-family:'IBM Plex Mono',monospace;color:var(--conflict)">reconcile()</span> diffs against.</p>
+            <div style="overflow-x:auto;padding:8px 2px 6px">
+              <div style="display:flex;align-items:center;min-width:680px">
+
+                <!-- User entity -->
+                <div data-entity="User" style="flex:none;width:182px;border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--surface-2);box-shadow:var(--shadow);transition:box-shadow .15s ease,transform .15s ease">
+                  <div style="padding:9px 12px;background:var(--surface-3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--text)">User</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;color:var(--text-faint);background:var(--surface);padding:2px 5px;border-radius:4px">TABLE</span>
+                  </div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px">
+                    <div style="display:flex;align-items:center;gap:8px;padding:6px 12px"><span data-tip="Primary key" aria-label="Primary key" style="flex:none;width:16px;font-size:8px;font-weight:700;color:var(--mod);cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">PK</span><span style="color:var(--text)">id</span><span style="margin-left:auto;color:var(--text-faint);font-size:9.5px">String</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--border)"><span style="flex:none;width:16px"></span><span style="color:var(--text-dim)">email</span><span style="margin-left:auto;color:var(--text-faint);font-size:9.5px">String</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--border)"><span style="flex:none;width:16px"></span><span style="color:var(--text-dim)">refreshToken</span><span style="margin-left:auto;color:var(--text-faint);font-size:9.5px">String</span></div>
+                  </div>
+                </div>
+
+                <!-- connector: User 1—∞ Task -->
+                <div style="flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 3px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);background:var(--surface);padding:2px 7px;border-radius:5px;border:1px solid var(--border)">owns</span>
+                  <div style="display:flex;align-items:center;width:100%;gap:3px">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--primary)">1</span>
+                    <div style="flex:1;height:2px;background:var(--primary);opacity:.55;border-radius:2px"></div>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--primary)">∞</span>
+                  </div>
+                </div>
+
+                <!-- Task entity (changed) -->
+                <div style="flex:none;width:218px;border:1.5px solid color-mix(in srgb,var(--add) 50%,var(--border));border-radius:11px;overflow:hidden;background:var(--surface-2);box-shadow:0 0 0 3px var(--add-bg),var(--shadow)">
+                  <div style="padding:9px 12px;background:var(--add-line);border-bottom:1px solid color-mix(in srgb,var(--add) 30%,transparent);display:flex;align-items:center;justify-content:space-between">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;color:var(--text)">Task</span>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;color:var(--add);background:var(--add-bg);padding:2px 5px;border-radius:4px;font-weight:600">CHANGED</span>
+                  </div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px">
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px"><span data-tip="Primary key" aria-label="Primary key" style="flex:none;width:16px;font-size:8px;font-weight:700;color:var(--mod);cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">PK</span><span style="color:var(--text)">id</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border)"><span data-tip="Foreign key → User" data-highlight="User" aria-label="Foreign key referencing User" style="flex:none;width:16px;font-size:8px;font-weight:700;color:var(--primary);cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">FK</span><span style="color:var(--text-dim)">userId</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border)"><span style="flex:none;width:16px"></span><span style="color:var(--text-dim)">description</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border)"><span style="flex:none;width:16px"></span><span style="color:var(--text-dim)">status</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border)"><span data-tip="Foreign key → GoogleTaskItem" data-highlight="GoogleTaskItem" aria-label="Foreign key referencing GoogleTaskItem" style="flex:none;width:16px;font-size:8px;font-weight:700;color:var(--primary);cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">FK</span><span style="color:var(--text-dim)">externalId</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border);background:var(--add-line)"><span data-tip="New snapshot column" aria-label="New snapshot column" style="flex:none;width:16px;color:var(--add);font-weight:700;cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">+</span><span style="color:var(--add)">externalListId</span><span style="margin-left:auto;font-size:8px;color:var(--add);font-weight:700">NEW</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border);background:var(--add-line)"><span data-tip="New snapshot column" aria-label="New snapshot column" style="flex:none;width:16px;color:var(--add);font-weight:700;cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">+</span><span style="color:var(--add)">externalTitle</span><span style="margin-left:auto;font-size:8px;color:var(--add);font-weight:700">NEW</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border);background:var(--add-line)"><span data-tip="New snapshot column" aria-label="New snapshot column" style="flex:none;width:16px;color:var(--add);font-weight:700;cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">+</span><span style="color:var(--add)">externalDue</span><span style="margin-left:auto;font-size:8px;color:var(--add);font-weight:700">NEW</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-top:1px solid var(--border);background:var(--add-line)"><span data-tip="New snapshot column" aria-label="New snapshot column" style="flex:none;width:16px;color:var(--add);font-weight:700;cursor:default;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 38%,transparent);text-underline-offset:2px">+</span><span style="color:var(--add)">externalStatus</span><span style="margin-left:auto;font-size:8px;color:var(--add);font-weight:700">NEW</span></div>
+                  </div>
+                </div>
+
+                <!-- connector: Task 1—1 Google (external, dashed) -->
+                <div style="flex:none;width:82px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 3px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--mod);background:var(--mod-bg);padding:2px 7px;border-radius:5px">snapshot</span>
+                  <div style="display:flex;align-items:center;width:100%;gap:3px">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mod)">1</span>
+                    <div style="flex:1;border-top:2px dashed var(--mod);opacity:.7"></div>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mod)">▷</span>
+                  </div>
+                </div>
+
+                <!-- Google external source -->
+                <div data-entity="GoogleTaskItem" style="flex:none;width:172px;border:1.5px dashed var(--border-strong);border-radius:11px;overflow:hidden;background:transparent;transition:box-shadow .15s ease,transform .15s ease">
+                  <div style="padding:9px 12px;background:var(--surface);border-bottom:1px dashed var(--border-strong);display:flex;align-items:center;justify-content:space-between">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--text-dim)">GoogleTaskItem</span>
+                  </div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px">
+                    <div style="padding:6px 12px;color:var(--text-faint)">id</div>
+                    <div style="padding:6px 12px;border-top:1px dashed var(--border);color:var(--text-faint)">listId</div>
+                    <div style="padding:6px 12px;border-top:1px dashed var(--border);color:var(--text-faint)">title</div>
+                    <div style="padding:6px 12px;border-top:1px dashed var(--border);color:var(--text-faint)">due</div>
+                    <div style="padding:6px 12px;border-top:1px dashed var(--border);color:var(--text-faint)">status</div>
+                  </div>
+                  <div style="padding:6px 12px;border-top:1px dashed var(--border-strong);font-size:8px;letter-spacing:.07em;color:var(--text-faint);text-align:center">EXTERNAL · GOOGLE API</div>
+                </div>
+
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ dbColumns }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint);margin-bottom:10px">model Task <span style="color:var(--text-dim)">— prisma/schema.prisma</span></div>
+          <div style="border:1px solid var(--border);border-radius:9px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:12.5px">
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0;background:var(--surface-2);border-bottom:1px solid var(--border);padding:8px 13px;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint)"><span>column</span><span>type</span><span>change</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0;padding:7px 13px;color:var(--text-faint)"><span>id · externalId · description</span><span>String</span><span style="font-size:10px">unchanged</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0;padding:7px 13px;color:var(--text-faint);border-bottom:1px dashed var(--border)"><span>softDeadline · status</span><span>—</span><span style="font-size:10px">unchanged</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0;padding:8px 13px;background:var(--add-line);color:var(--text)"><span style="color:var(--add)">+ externalListId</span><span>String?</span><span style="font-size:9.5px;color:var(--add);font-weight:600">NEW</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0;padding:8px 13px;background:var(--add-line);color:var(--text)"><span style="color:var(--add)">+ externalTitle</span><span>String?</span><span style="font-size:9.5px;color:var(--add);font-weight:600">NEW</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0;padding:8px 13px;background:var(--add-line);color:var(--text)"><span style="color:var(--add)">+ externalDue</span><span>DateTime? @db.Date</span><span style="font-size:9.5px;color:var(--add);font-weight:600">NEW</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0;padding:8px 13px;background:var(--add-line);color:var(--text)"><span style="color:var(--add)">+ externalStatus</span><span>TaskStatus?</span><span style="font-size:9.5px;color:var(--add);font-weight:600">NEW</span></div>
+          </div>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:13px">
+
+            <!-- INFO -->
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:9px;background:var(--primary-bg);border:1px solid color-mix(in srgb,var(--primary) 28%,transparent)">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:color-mix(in srgb,var(--primary) 22%,transparent);color:var(--primary);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;line-height:1;margin-top:1px">i</span>
+              <div style="font-size:12.5px;line-height:1.5;color:var(--text)"><strong style="color:var(--primary);font-weight:600">Info</strong> — All four columns are nullable and <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dim)">external*</span>-prefixed; they shadow the Google source and are never shown to the user directly.</div>
+            </div>
+
+            <!-- WARNING -->
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:9px;background:var(--mod-bg);border:1px solid color-mix(in srgb,var(--mod) 28%,transparent)">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:color-mix(in srgb,var(--mod) 22%,transparent);color:var(--mod);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;line-height:1;margin-top:1px">!</span>
+              <div style="font-size:12.5px;line-height:1.5;color:var(--text)"><strong style="color:var(--mod);font-weight:600">Warning</strong> — These columns store the <strong>last-synced Google snapshot</strong> — the merge base. Without it there's nothing to diff against, which is the root of the bug.</div>
+            </div>
+
+            <!-- SAFE / SUCCESS -->
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:9px;background:var(--add-bg);border:1px solid color-mix(in srgb,var(--add) 28%,transparent)">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:color-mix(in srgb,var(--add) 22%,transparent);color:var(--add);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;line-height:1;margin-top:1px">✓</span>
+              <div style="font-size:12.5px;line-height:1.5;color:var(--text)"><strong style="color:var(--add);font-weight:600">Safe</strong> — The migration is additive and nullable, so it runs on existing data with no backfill step required.</div>
+            </div>
+
+            <!-- CAUTION / DANGER -->
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:9px;background:var(--del-bg);border:1px solid color-mix(in srgb,var(--del) 28%,transparent)">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:color-mix(in srgb,var(--del) 22%,transparent);color:var(--del);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;line-height:1;margin-top:1px">✕</span>
+              <div style="font-size:12.5px;line-height:1.5;color:var(--text)"><strong style="color:var(--del);font-weight:600">Caution</strong> — Legacy rows (null snapshot) seed their base from current values on first sync — a one-time reconciliation that <strong>can't be undone</strong>.</div>
+            </div>
+
+            <!-- DECISION -->
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:9px;background:var(--conflict-bg);border:1px solid color-mix(in srgb,var(--conflict) 28%,transparent)">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:color-mix(in srgb,var(--conflict) 22%,transparent);color:var(--conflict);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;line-height:1;margin-top:1px">⚑</span>
+              <div style="font-size:12.5px;line-height:1.5;color:var(--text)"><strong style="color:var(--conflict);font-weight:600">Decision</strong> — On that first sync, existing divergences resolve in <strong>Steady's</strong> favour by default. Confirm that's the behaviour you want before this ships.</div>
+            </div>
+
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== BUSINESS LOGIC ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--conflict);border-radius:11px;box-shadow:0 0 0 1px color-mix(in srgb,var(--conflict) 30%,transparent),0 6px 22px color-mix(in srgb,var(--conflict) 13%,transparent),var(--shadow);overflow:hidden;opacity:{{ logicCardOpacity }};transition:opacity .3s ease" role="region" aria-label="Business logic — review section" data-screen-label="Business logic">
+      <div onClick="{{ logicToggle }}" role="button" aria-expanded="{{ logicOpen }}" aria-label="Business logic — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ logicChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--conflict-bg);color:var(--conflict);font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600">fx</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Business logic <span style="font-weight:400;color:var(--text-faint);font-size:12px">— reconcile()</span></div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">3-way merge decision matrix · 1 conflict path</div>
+          <sc-if value="{{ logicCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ logicSummary }}</div></sc-if>
+        </div>
+        <span style="flex:none;display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--conflict-bg);color:var(--conflict)"><span style="width:5px;height:5px;border-radius:50%;background:var(--conflict)"></span>needs your decision</span>
+        <sc-if value="{{ logicReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ logicPillBg }};color:{{ logicPillFg }}">{{ logicPillText }}</span></sc-if>
+        <sc-if value="{{ logicHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on Business logic" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ logicCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ logicComment }}" title="Comment on Business logic" aria-label="Comment on Business logic" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ logicApprove }}" title="Approve Business logic" aria-label="Approve Business logic" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ logicApproveBorder }};background:{{ logicApproveBg }};color:{{ logicApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ logicReject }}" title="Request changes to Business logic" aria-label="Request changes to Business logic" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ logicRejectBorder }};background:{{ logicRejectBg }};color:{{ logicRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ logicOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border-top:1px solid var(--border);padding:17px;display:flex;flex-direction:column;gap:10px">
+          <p style="margin:0 0 1px;font-size:13px;line-height:1.55;color:var(--text-dim)">How <span style="font-family:'IBM Plex Mono',monospace;color:var(--text)">reconcile()</span> should behave. For each field it three-way compares <strong style="color:var(--text)">base</strong> (last-synced), <strong style="color:var(--text)">google</strong> (now) and <strong style="color:var(--text)">steady</strong> (now), then acts per the rules below — four are pinned-down rules, the conflict path needs a UI decision.</p>
+          <sc-for list="{{ logicRules }}" as="r" hint-placeholder-count="5">
+            <div onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:94px 1fr auto;align-items:center;gap:13px;padding:11px 13px;border:1px solid {{ r.border }};border-radius:9px;background:{{ r.bg }};cursor:{{ r.cursor }}">
+              <span style="justify-self:start;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:{{ r.tagFg }};background:{{ r.tagBg }};padding:3px 9px;border-radius:6px;white-space:nowrap">{{ r.tag }}</span>
+              <div style="min-width:0">
+                <div style="font-size:13px;color:var(--text);font-weight:500">{{ r.title }}</div>
+                <div style="font-size:12px;color:var(--text-dim);margin-top:2px;line-height:1.45">{{ r.desc }}</div>
+              </div>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.03em;color:{{ r.fidFg }};background:{{ r.fidBg }};padding:3px 8px;border-radius:999px;white-space:nowrap">{{ r.fidLabel }}</span>
+            </div>
+          </sc-for>
+          <div>
+            <button onClick="{{ toggleLogicTable }}" style="padding:6px 11px;border-radius:7px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap" style-hover="color:var(--text);border-color:var(--text-faint)">{{ logicTableBtnLabel }}</button>
+            <sc-if value="{{ logicTableOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:11px;border:1px solid var(--border);border-radius:9px;overflow:hidden;font-size:12.5px">
+                <div style="display:grid;grid-template-columns:1.1fr 1.1fr 2fr;background:var(--surface-2);border-bottom:1px solid var(--border)">
+                  <div style="padding:9px 13px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-faint)">google vs base</div>
+                  <div style="padding:9px 13px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-faint);border-left:1px solid var(--border)">steady vs base</div>
+                  <div style="padding:9px 13px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-faint);border-left:1px solid var(--border)">action</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1.1fr 1.1fr 2fr;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace"><div style="padding:9px 13px;color:var(--text-dim)">unchanged</div><div style="padding:9px 13px;color:var(--text-dim);border-left:1px solid var(--border)">unchanged</div><div style="padding:9px 13px;border-left:1px solid var(--border);color:var(--text-faint)">no-op</div></div>
+                <div style="display:grid;grid-template-columns:1.1fr 1.1fr 2fr;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace"><div style="padding:9px 13px;color:var(--primary)">changed</div><div style="padding:9px 13px;color:var(--text-dim);border-left:1px solid var(--border)">unchanged</div><div style="padding:9px 13px;border-left:1px solid var(--border);color:var(--primary)">← pull google → steady</div></div>
+                <div style="display:grid;grid-template-columns:1.1fr 1.1fr 2fr;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace"><div style="padding:9px 13px;color:var(--text-dim)">unchanged</div><div style="padding:9px 13px;color:var(--add);border-left:1px solid var(--border)">changed</div><div style="padding:9px 13px;border-left:1px solid var(--border);color:var(--add)">→ push steady → google</div></div>
+                <div style="display:grid;grid-template-columns:1.1fr 1.1fr 2fr;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace"><div style="padding:9px 13px;color:var(--primary)">changed</div><div style="padding:9px 13px;color:var(--add);border-left:1px solid var(--border)">changed → same</div><div style="padding:9px 13px;border-left:1px solid var(--border);color:var(--text-dim)">converged · advance base</div></div>
+                <div onClick="{{ openModal }}" style="display:grid;grid-template-columns:1.1fr 1.1fr 2fr;font-family:'IBM Plex Mono',monospace;background:var(--conflict-bg);cursor:pointer" style-hover="background:color-mix(in srgb,var(--conflict) 22%,transparent)"><div style="padding:9px 13px;color:var(--conflict)">changed</div><div style="padding:9px 13px;color:var(--conflict);border-left:1px solid color-mix(in srgb,var(--conflict) 30%,transparent)">changed → diff</div><div style="padding:9px 13px;border-left:1px solid color-mix(in srgb,var(--conflict) 30%,transparent);color:var(--conflict);font-weight:600;display:flex;align-items:center;gap:6px">⚑ conflict → open modal <span style="font-size:9px;opacity:.7">click to preview</span></div></div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== CODE CHANGES ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:11px;box-shadow:var(--shadow);overflow:hidden;opacity:{{ codeCardOpacity }};transition:opacity .3s ease" role="region" aria-label="Code changes — review section" data-screen-label="Code changes">
+      <div onClick="{{ codeToggle }}" role="button" aria-expanded="{{ codeOpen }}" aria-label="Code changes — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ codeChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--primary-bg);color:var(--primary);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">&lt;/&gt;</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Code changes</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">5 modules affected · exact diffs + guidance</div>
+          <sc-if value="{{ codeCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ codeSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ codeReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ codePillBg }};color:{{ codePillFg }}">{{ codePillText }}</span></sc-if>
+        <sc-if value="{{ codeHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on Code changes" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ codeCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ codeComment }}" title="Comment on Code changes" aria-label="Comment on Code changes" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ codeApprove }}" title="Approve Code changes" aria-label="Approve Code changes" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ codeApproveBorder }};background:{{ codeApproveBg }};color:{{ codeApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ codeReject }}" title="Request changes to Code changes" aria-label="Request changes to Code changes" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ codeRejectBorder }};background:{{ codeRejectBg }};color:{{ codeRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ codeOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border-top:1px solid var(--border);padding:17px;display:flex;flex-direction:column;gap:9px">
+          <p style="margin:0 0 3px;font-size:12.5px;line-height:1.55;color:var(--text-dim)">What the implementing agent should change, per module. Where the change is pinned down it carries an <strong style="color:var(--text);font-weight:600">exact diff</strong>; the rest are <strong style="color:var(--text);font-weight:600">described as guidance</strong> for the agent to work out.</p>
+          <sc-for list="{{ codeModules }}" as="m" hint-placeholder-count="5">
+            <div style="border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface-2)">
+              <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:11px;padding:11px 13px">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:{{ m.badgeFg }};background:{{ m.badgeBg }};padding:2px 6px;border-radius:4px">{{ m.badge }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.path }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.03em;color:{{ m.fidFg }};background:{{ m.fidBg }};padding:3px 8px;border-radius:999px;white-space:nowrap">{{ m.fidLabel }}</span>
+              </div>
+              <div style="padding:0 13px 13px 38px">
+                <p style="margin:0;font-size:12.5px;line-height:1.5;color:var(--text-dim)">{{ m.summary }}</p>
+                <sc-for list="{{ m.bullets }}" as="b" hint-placeholder-count="2">
+                  <div style="display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.5;color:var(--text-dim);margin-top:5px"><span style="color:{{ m.dotColor }};flex:none;font-family:'IBM Plex Mono',monospace">→</span><span>{{ b }}</span></div>
+                </sc-for>
+                <sc-if value="{{ m.hasDiff }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ m.toggleDiff }}" style="margin-top:11px;padding:6px 11px;border-radius:7px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap" style-hover="color:var(--text);border-color:var(--text-faint)">{{ m.diffBtnLabel }}</button>
+                  <sc-if value="{{ m.diffOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.65">
+                      <sc-for list="{{ m.diffLines }}" as="ln" hint-placeholder-count="6">
+                        <div style="display:flex;background:{{ ln.bg }}"><span style="width:42px;text-align:right;padding-right:12px;flex:none;color:{{ ln.numColor }}">{{ ln.num }}</span><span style="color:{{ ln.color }};white-space:pre-wrap">{{ ln.text }}</span></div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </section>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:22px 2px 2px">
+      <span style="display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);font-weight:600"><span style="width:5px;height:5px;border-radius:50%;background:var(--border-strong)"></span>Supporting</span>
+      <span style="font-size:11px;color:var(--text-faint)">— skim</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint)">api · types · ui · tests · deps · build</span>
+    </div>
+
+    <!-- ===================== API ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:11px;overflow:hidden;opacity:{{ apiCardOpacity }};transition:opacity .3s ease" role="region" aria-label="API changes — review section" data-screen-label="API changes">
+      <div onClick="{{ apiToggle }}" role="button" aria-expanded="{{ apiOpen }}" aria-label="API changes — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ apiChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--add-bg);color:var(--add);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">/</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">API changes</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">1 new route · 1 extended response</div>
+          <sc-if value="{{ apiCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ apiSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ apiReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ apiPillBg }};color:{{ apiPillFg }}">{{ apiPillText }}</span></sc-if>
+        <sc-if value="{{ apiHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on API changes" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ apiCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ apiComment }}" title="Comment on API changes" aria-label="Comment on API changes" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ apiApprove }}" title="Approve API changes" aria-label="Approve API changes" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ apiApproveBorder }};background:{{ apiApproveBg }};color:{{ apiApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ apiReject }}" title="Request changes to API changes" aria-label="Request changes to API changes" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ apiRejectBorder }};background:{{ apiRejectBg }};color:{{ apiRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ apiOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--border);padding:17px;display:flex;flex-direction:column;gap:12px">
+          <div style="border:1px solid color-mix(in srgb,var(--add) 30%,transparent);border-radius:9px;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--add-line)">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:#fff;background:var(--add);padding:3px 8px;border-radius:5px">POST</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text)">/google/tasks/resolve-conflicts</span>
+              <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:var(--add)">NEW</span>
+            </div>
+            <div style="padding:13px;display:grid;grid-template-columns:1fr 1fr;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.6">
+              <div><div style="font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">request</div><div style="color:var(--text-dim)">{ taskId, resolutions:<br>&nbsp;&nbsp;{ field, choice:<br>&nbsp;&nbsp;&nbsp;'steady'|'google' }[] }</div></div>
+              <div style="border-left:1px solid var(--border);padding-left:16px"><div style="font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">response</div><div style="color:var(--text-dim)">{ task: Task,<br>&nbsp;&nbsp;resolved: number }</div></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2)">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--mod);background:var(--mod-bg);padding:3px 8px;border-radius:5px">GET</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text)">/google/tasks/import</span>
+            <span style="margin-left:auto;font-size:11.5px;color:var(--text-dim)">response now includes <span style="font-family:'IBM Plex Mono',monospace;color:var(--conflict)">conflicts[]</span></span>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== TYPES ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:11px;overflow:hidden;opacity:{{ typesCardOpacity }};transition:opacity .3s ease" role="region" aria-label="Types &amp; interfaces — review section" data-screen-label="Types &amp; interfaces">
+      <div onClick="{{ typesToggle }}" role="button" aria-expanded="{{ typesOpen }}" aria-label="Types and interfaces — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ typesChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--surface-3);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">T</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Types &amp; interfaces</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">@steady/shared — 1 schema extended, 1 added</div>
+          <sc-if value="{{ typesCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ typesSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ typesReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ typesPillBg }};color:{{ typesPillFg }}">{{ typesPillText }}</span></sc-if>
+        <sc-if value="{{ typesHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on Types &amp; interfaces" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ typesCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ typesComment }}" title="Comment on Types &amp; interfaces" aria-label="Comment on Types and interfaces" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ typesApprove }}" title="Approve Types &amp; interfaces" aria-label="Approve Types and interfaces" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ typesApproveBorder }};background:{{ typesApproveBg }};color:{{ typesApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ typesReject }}" title="Request changes to Types &amp; interfaces" aria-label="Request changes to Types and interfaces" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ typesRejectBorder }};background:{{ typesRejectBg }};color:{{ typesRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ typesOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--border);padding:17px;display:grid;grid-template-columns:1fr 1fr;gap:13px">
+          <div style="border:1px solid var(--border);border-radius:9px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7">
+            <div style="padding:8px 12px;background:var(--surface-2);color:var(--text-dim);font-size:11px">GoogleTasksImportResponseSchema <span style="color:var(--mod)">·ext</span></div>
+            <div style="padding:10px 12px"><span style="color:var(--text-faint)">{ tasks, imported,</span><br><span style="color:var(--add)">+ conflicts: Conflict[]</span> <span style="color:var(--text-faint)">}</span></div>
+          </div>
+          <div style="border:1px solid color-mix(in srgb,var(--add) 30%,transparent);border-radius:9px;overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7">
+            <div style="padding:8px 12px;background:var(--add-line);color:var(--add);font-size:11px">ConflictResolutionSchema <span>·new</span></div>
+            <div style="padding:10px 12px;color:var(--text-dim)">{ taskId, field,<br>&nbsp;&nbsp;steadyVal, googleVal }</div>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== UI ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:11px;overflow:hidden;opacity:{{ uiCardOpacity }};transition:opacity .3s ease" role="region" aria-label="UI components — review section" data-screen-label="UI components">
+      <div onClick="{{ uiToggle }}" role="button" aria-expanded="{{ uiOpen }}" aria-label="UI components — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ uiChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--primary-bg);color:var(--primary);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">UI</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">UI components</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">1 new modal · anatomy · states · placement</div>
+          <sc-if value="{{ uiCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ uiSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ uiReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ uiPillBg }};color:{{ uiPillFg }}">{{ uiPillText }}</span></sc-if>
+        <sc-if value="{{ uiHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on UI components" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ uiCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ uiComment }}" title="Comment on UI components" aria-label="Comment on UI components" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ uiApprove }}" title="Approve UI components" aria-label="Approve UI components" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ uiApproveBorder }};background:{{ uiApproveBg }};color:{{ uiApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ uiReject }}" title="Request changes to UI components" aria-label="Request changes to UI components" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ uiRejectBorder }};background:{{ uiRejectBg }};color:{{ uiRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ uiOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--border);padding:17px">
+          <!-- component header -->
+          <div style="display:flex;align-items:flex-start;gap:13px;margin-bottom:15px">
+            <div style="flex:1;min-width:0">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--text)">GoogleConflictsModal.tsx <span style="font-size:9.5px;color:var(--add);font-weight:600;background:var(--add-bg);padding:1px 5px;border-radius:4px">NEW</span></div>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--text-dim);max-width:560px">A modal that lists every conflicting field with both values side by side and lets the reviewer keep one per field. Built on the existing <span style="font-family:'IBM Plex Mono',monospace;color:var(--text)">Overlay variant="modal"</span>.</p>
+            </div>
+            <button onClick="{{ openModal }}" style="flex:none;padding:8px 14px;border-radius:8px;border:1px solid var(--primary);background:var(--primary-bg);color:var(--primary);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer">Preview live →</button>
+          </div>
+
+          <!-- tabs -->
+          <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border)">
+            <button onClick="{{ setUiAnatomy }}" style="padding:7px 12px;border:none;background:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;color:{{ uiAnatomyFg }};border-bottom:2px solid {{ uiAnatomyBorder }};margin-bottom:-1px">Anatomy</button>
+            <button onClick="{{ setUiStates }}" style="padding:7px 12px;border:none;background:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;color:{{ uiStatesFg }};border-bottom:2px solid {{ uiStatesBorder }};margin-bottom:-1px">Interaction states</button>
+            <button onClick="{{ setUiPlacement }}" style="padding:7px 12px;border:none;background:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;color:{{ uiPlacementFg }};border-bottom:2px solid {{ uiPlacementBorder }};margin-bottom:-1px">Where it lives</button>
+          </div>
+
+          <!-- ANATOMY -->
+          <sc-if value="{{ uiAnatomy }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start">
+              <!-- annotated wireframe -->
+              <div style="position:relative;border:1px dashed var(--border-strong);border-radius:10px;padding:18px;background:var(--surface-2)">
+                <div style="border-radius:9px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow)">
+                  <div style="position:relative;padding:13px 14px;border-bottom:1px solid var(--border)">
+                    <div style="font-size:12.5px;font-weight:600;color:var(--text)">Resolve sync conflicts</div>
+                    <div style="font-size:10.5px;color:var(--text-faint);margin-top:2px;font-family:'IBM Plex Mono',monospace">Buy oat milk · 2 fields differ</div>
+                    <span style="position:absolute;top:-9px;left:-9px;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">1</span>
+                  </div>
+                  <div style="position:relative;padding:12px 14px;border-bottom:1px solid var(--border)">
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint);margin-bottom:7px">title</div>
+                    <div style="display:flex;gap:7px">
+                      <div style="flex:1;border:1px solid color-mix(in srgb,var(--primary) 45%,transparent);background:var(--primary-bg);border-radius:7px;padding:7px 9px">
+                        <div style="font-size:8.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--primary);font-family:'IBM Plex Mono',monospace">google</div>
+                        <div style="font-size:11.5px;color:var(--text);margin-top:2px">Buy oat milk</div>
+                      </div>
+                      <div style="flex:1;border:1px solid var(--border);border-radius:7px;padding:7px 9px">
+                        <div style="font-size:8.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-faint);font-family:'IBM Plex Mono',monospace">steady</div>
+                        <div style="font-size:11.5px;color:var(--text-dim);margin-top:2px">Buy oat + soy milk</div>
+                      </div>
+                    </div>
+                    <span style="position:absolute;top:34px;left:-9px;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">2</span>
+                    <span style="position:absolute;top:34px;right:-9px;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">3</span>
+                  </div>
+                  <div style="position:relative;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:11px 14px;background:var(--surface-2);border-radius:0 0 8px 8px">
+                    <span style="margin-right:auto;font-size:10.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace">1 of 2 chosen</span>
+                    <div style="height:24px;width:58px;border-radius:6px;border:1px solid var(--border);background:var(--surface)"></div>
+                    <div style="height:24px;width:74px;border-radius:6px;background:var(--primary);opacity:.4"></div>
+                    <span style="position:absolute;bottom:-9px;left:-9px;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">4</span>
+                  </div>
+                </div>
+              </div>
+              <!-- legend -->
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="flex:none;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">1</span><div><div style="font-size:12.5px;font-weight:600;color:var(--text)">Header</div><div style="font-size:12px;color:var(--text-dim);line-height:1.45">Task name + count of differing fields, so the reviewer knows the scope before choosing.</div></div></div>
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="flex:none;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">2</span><div><div style="font-size:12.5px;font-weight:600;color:var(--text)">Field row — both values</div><div style="font-size:12px;color:var(--text-dim);line-height:1.45">One row per conflicting field; Google and Steady values shown side by side, never auto-merged.</div></div></div>
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="flex:none;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">3</span><div><div style="font-size:12.5px;font-weight:600;color:var(--text)">Choice — pick one</div><div style="font-size:12px;color:var(--text-dim);line-height:1.45">Selecting a side highlights it and marks that field resolved; selection is required, no default.</div></div></div>
+                <div style="display:flex;gap:10px;align-items:flex-start"><span style="flex:none;width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace">4</span><div><div style="font-size:12.5px;font-weight:600;color:var(--text)">Footer — Cancel / Resolve</div><div style="font-size:12px;color:var(--text-dim);line-height:1.45">Resolve stays disabled until every field has a choice; the counter mirrors progress.</div></div></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- INTERACTION STATES -->
+          <sc-if value="{{ uiStates }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <p style="margin:0 0 14px;font-size:12.5px;line-height:1.5;color:var(--text-dim)">The component is a small state machine — the implementing agent should cover all four:</p>
+              <div style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px">
+                <div style="flex:1;min-width:150px;border:1px solid var(--border);border-radius:9px;padding:12px;background:var(--surface-2)">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:.04em">idle</div>
+                  <div style="font-size:12px;color:var(--text-dim);line-height:1.45;margin-top:6px">Conflicts loaded, nothing chosen yet. Resolve disabled.</div>
+                </div>
+                <div style="flex:none;display:flex;align-items:center;padding:0 6px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace">→</div>
+                <div style="flex:1;min-width:150px;border:1px solid color-mix(in srgb,var(--primary) 35%,transparent);border-radius:9px;padding:12px;background:var(--primary-bg)">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--primary);letter-spacing:.04em">choosing</div>
+                  <div style="font-size:12px;color:var(--text-dim);line-height:1.45;margin-top:6px">User picks per field; the "N of M chosen" counter advances.</div>
+                </div>
+                <div style="flex:none;display:flex;align-items:center;padding:0 6px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace">→</div>
+                <div style="flex:1;min-width:150px;border:1px solid var(--border);border-radius:9px;padding:12px;background:var(--surface-2)">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:.04em">submitting</div>
+                  <div style="font-size:12px;color:var(--text-dim);line-height:1.45;margin-top:6px">POST in flight; buttons disabled, spinner on Resolve.</div>
+                </div>
+                <div style="flex:none;display:flex;align-items:center;padding:0 6px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace">→</div>
+                <div style="flex:1;min-width:150px;border:1px solid color-mix(in srgb,var(--add) 35%,transparent);border-radius:9px;padding:12px;background:var(--add-bg)">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--add);letter-spacing:.04em">resolved</div>
+                  <div style="font-size:12px;color:var(--text-dim);line-height:1.45;margin-top:6px">Modal closes, toast "N resolved", task list refreshes.</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;margin-top:13px;padding:10px 13px;border:1px solid color-mix(in srgb,var(--conflict) 30%,transparent);border-radius:9px;background:var(--conflict-bg)">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:var(--conflict);background:color-mix(in srgb,var(--conflict) 16%,transparent);padding:3px 8px;border-radius:999px">EDGE</span>
+                <span style="font-size:12px;color:var(--text-dim);line-height:1.45">If the POST fails, return to <span style="font-family:'IBM Plex Mono',monospace;color:var(--text)">choosing</span> with choices intact and an inline error — never lose the user's picks.</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- WHERE IT LIVES -->
+          <sc-if value="{{ uiPlacement }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <p style="margin:0 0 13px;font-size:12.5px;line-height:1.5;color:var(--text-dim)">Same component, mounted at two trigger points — both fed by the <span style="font-family:'IBM Plex Mono',monospace;color:var(--text)">useGoogleImport</span> hook:</p>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:start;padding:13px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2)">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:var(--primary);background:var(--primary-bg);padding:3px 7px;border-radius:5px;white-space:nowrap">SortingRoom</span>
+                  <div><div style="font-size:12.5px;color:var(--text)">Opens automatically after an import</div><div style="font-size:12px;color:var(--text-dim);margin-top:2px;line-height:1.45">When the import response comes back with a non-empty <span style="font-family:'IBM Plex Mono',monospace;color:var(--conflict)">conflicts[]</span>, the modal pops before the user starts sorting.</div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:start;padding:13px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2)">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:var(--primary);background:var(--primary-bg);padding:3px 7px;border-radius:5px;white-space:nowrap">Tasks</span>
+                  <div><div style="font-size:12.5px;color:var(--text)">Opened from the sync banner</div><div style="font-size:12px;color:var(--text-dim);margin-top:2px;line-height:1.45">A persistent "N conflicts need review" banner lets the user open the same modal on demand after a background sync.</div></div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== TESTS ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:11px;overflow:hidden;opacity:{{ testsCardOpacity }};transition:opacity .3s ease" role="region" aria-label="Tests — review section" data-screen-label="Tests">
+      <div onClick="{{ testsToggle }}" role="button" aria-expanded="{{ testsOpen }}" aria-label="Tests — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ testsChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--add-bg);color:var(--add);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">✓</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Tests <span style="font-weight:400;color:var(--text-faint);font-size:12px">— 9 proposed</span></div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">unit · integration · e2e</div>
+          <sc-if value="{{ testsCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ testsSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ testsReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ testsPillBg }};color:{{ testsPillFg }}">{{ testsPillText }}</span></sc-if>
+        <sc-if value="{{ testsHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on Tests" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ testsCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ testsComment }}" title="Comment on Tests" aria-label="Comment on Tests" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ testsApprove }}" title="Approve Tests" aria-label="Approve Tests" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ testsApproveBorder }};background:{{ testsApproveBg }};color:{{ testsApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ testsReject }}" title="Request changes to Tests" aria-label="Request changes to Tests" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ testsRejectBorder }};background:{{ testsRejectBg }};color:{{ testsRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ testsOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--border);padding:17px;display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;background:var(--surface-3);color:var(--text-dim)">unit</span><span style="font-size:11px;color:var(--text-faint)">reconcile.spec.ts · 5 cases</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace">
+              <div style="display:flex;gap:9px;align-items:center"><span style="color:var(--add)">＋</span> google-only change pulls into steady</div>
+              <div style="display:flex;gap:9px;align-items:center"><span style="color:var(--add)">＋</span> steady-only change pushes to google</div>
+              <div style="display:flex;gap:9px;align-items:center"><span style="color:var(--add)">＋</span> identical edits converge, no write</div>
+              <div style="display:flex;gap:9px;align-items:center"><span style="color:var(--conflict)">＋</span> divergent edits flagged as conflict</div>
+              <div style="display:flex;gap:9px;align-items:center"><span style="color:var(--add)">＋</span> null base backfills without clobbering</div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;background:var(--surface-3);color:var(--text-dim)">integration</span><span style="font-size:11px;color:var(--text-faint)">resolve-conflicts.test.ts · 2 cases</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace">
+              <div style="display:flex;gap:9px;align-items:center"><span style="color:var(--add)">＋</span> applies 'steady' choice, advances base</div>
+              <div style="display:flex;gap:9px;align-items:center"><span style="color:var(--add)">＋</span> applies 'google' choice, writes back</div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:11px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;background:var(--surface-3);color:var(--text-dim)">e2e</span><span style="font-size:11px;color:var(--text-faint)">conflict-modal.cy.ts · 2 scenarios</span></div>
+            <div style="display:flex;flex-direction:column;gap:11px">
+
+              <!-- scenario 1 -->
+              <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface-2)">
+                <div style="display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--border)">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:var(--add);background:var(--add-bg);padding:2px 7px;border-radius:5px">＋ NEW</span>
+                  <span style="font-size:13px;font-weight:600;color:var(--text)">A local edit survives a re-import</span>
+                </div>
+                <div style="padding:12px 13px;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:grid;grid-template-columns:54px 1fr;gap:11px;align-items:baseline"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--text-faint)">GIVEN</span><span style="font-size:12.5px;color:var(--text-dim);line-height:1.5">a task imported from Google, then renamed locally in Steady.</span></div>
+                  <div style="display:grid;grid-template-columns:54px 1fr;gap:11px;align-items:baseline"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--primary)">WHEN</span><span style="font-size:12.5px;color:var(--text-dim);line-height:1.5">the same Google list is imported a second time.</span></div>
+                  <div style="display:grid;grid-template-columns:54px 1fr;gap:11px;align-items:baseline"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--add)">THEN</span><span style="font-size:12.5px;color:var(--text-dim);line-height:1.5">the conflict modal appears showing both titles — the local edit is <strong style="color:var(--text);font-weight:600">never silently overwritten</strong>.</span></div>
+                </div>
+                <div style="display:flex;gap:9px;align-items:flex-start;padding:10px 13px;border-top:1px solid var(--border);background:var(--conflict-bg)">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--conflict);background:color-mix(in srgb,var(--conflict) 16%,transparent);padding:3px 7px;border-radius:999px;white-space:nowrap;margin-top:1px">WHY</span>
+                  <span style="font-size:12px;color:var(--text-dim);line-height:1.45">This is the exact bug being fixed. The old one-way mirror clobbered local edits with no warning — this test is the regression guard that proves it can't happen again.</span>
+                </div>
+              </div>
+
+              <!-- scenario 2 -->
+              <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface-2)">
+                <div style="display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--border)">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;color:var(--add);background:var(--add-bg);padding:2px 7px;border-radius:5px">＋ NEW</span>
+                  <span style="font-size:13px;font-weight:600;color:var(--text)">A resolution sticks after reload</span>
+                </div>
+                <div style="padding:12px 13px;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:grid;grid-template-columns:54px 1fr;gap:11px;align-items:baseline"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--text-faint)">GIVEN</span><span style="font-size:12.5px;color:var(--text-dim);line-height:1.5">an open conflict modal where the user picks the Steady value and confirms.</span></div>
+                  <div style="display:grid;grid-template-columns:54px 1fr;gap:11px;align-items:baseline"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--primary)">WHEN</span><span style="font-size:12.5px;color:var(--text-dim);line-height:1.5">the app is reloaded and the list re-imported.</span></div>
+                  <div style="display:grid;grid-template-columns:54px 1fr;gap:11px;align-items:baseline"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--add)">THEN</span><span style="font-size:12.5px;color:var(--text-dim);line-height:1.5">the chosen value remains and the conflict <strong style="color:var(--text);font-weight:600">does not reappear</strong>.</span></div>
+                </div>
+                <div style="display:flex;gap:9px;align-items:flex-start;padding:10px 13px;border-top:1px solid var(--border);background:var(--conflict-bg)">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--conflict);background:color-mix(in srgb,var(--conflict) 16%,transparent);padding:3px 7px;border-radius:999px;white-space:nowrap;margin-top:1px">WHY</span>
+                  <span style="font-size:12px;color:var(--text-dim);line-height:1.45">Proves the merge base actually advanced server-side. Without it a "resolution" could be UI-only state that silently re-conflicts on the next sync.</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== DEPS ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:11px;overflow:hidden;opacity:{{ depsCardOpacity }};transition:opacity .3s ease" role="region" aria-label="Libraries &amp; imports — review section" data-screen-label="Libraries &amp; imports">
+      <div onClick="{{ depsToggle }}" role="button" aria-expanded="{{ depsOpen }}" aria-label="Libraries and imports — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ depsChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--surface-3);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600">pkg</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Libraries &amp; imports</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">No new dependencies</div>
+          <sc-if value="{{ depsCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ depsSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ depsReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ depsPillBg }};color:{{ depsPillFg }}">{{ depsPillText }}</span></sc-if>
+        <sc-if value="{{ depsHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on Libraries &amp; imports" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ depsCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ depsComment }}" title="Comment on Libraries &amp; imports" aria-label="Comment on Libraries and imports" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ depsApprove }}" title="Approve Libraries &amp; imports" aria-label="Approve Libraries and imports" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ depsApproveBorder }};background:{{ depsApproveBg }};color:{{ depsApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ depsReject }}" title="Request changes to Libraries &amp; imports" aria-label="Request changes to Libraries and imports" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ depsRejectBorder }};background:{{ depsRejectBg }};color:{{ depsRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ depsOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--border);padding:17px">
+          <div style="display:flex;align-items:center;gap:11px;padding:13px;border-radius:9px;background:var(--add-line);border:1px solid color-mix(in srgb,var(--add) 26%,transparent)">
+            <span style="font-size:16px;color:var(--add)">✓</span>
+            <div style="font-size:12.5px;line-height:1.5;color:var(--text)">Zero new packages. Reuses existing <span style="font-family:'IBM Plex Mono',monospace;color:var(--text-dim)">@prisma/client</span>, <span style="font-family:'IBM Plex Mono',monospace;color:var(--text-dim)">zod</span>, and the in-house <span style="font-family:'IBM Plex Mono',monospace;color:var(--text-dim)">Overlay</span> primitive. Lockfile untouched.</div>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== BUILD ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--border-strong);border-radius:11px;overflow:hidden;opacity:{{ buildCardOpacity }};transition:opacity .3s ease" role="region" aria-label="Build &amp; migration — review section" data-screen-label="Build &amp; migration">
+      <div onClick="{{ buildToggle }}" role="button" aria-expanded="{{ buildOpen }}" aria-label="Build and migration — expand or collapse" style="display:flex;align-items:center;gap:13px;padding:15px 17px;cursor:pointer;user-select:none">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ buildChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--mod-bg);color:var(--mod);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">⚙</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Build &amp; migration</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">1 migration to generate &amp; run</div>
+          <sc-if value="{{ buildCollapsed }}" hint-placeholder-val="{{ false }}"><div style="font-size:11.5px;color:var(--text-faint);line-height:1.4;margin-top:5px;max-width:600px">{{ buildSummary }}</div></sc-if>
+        </div>
+        <sc-if value="{{ buildReviewed }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:{{ buildPillBg }};color:{{ buildPillFg }}">{{ buildPillText }}</span></sc-if>
+        <sc-if value="{{ buildHasComment }}" hint-placeholder-val="{{ false }}"><span title="Comments on Build &amp; migration" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--primary-bg);color:var(--primary)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>{{ buildCommentCount }}</span></sc-if>
+        <div style="flex:none;display:flex;gap:5px" onClick="{{ stop }}">
+          <button onClick="{{ buildComment }}" title="Comment on Build &amp; migration" aria-label="Comment on Build and migration" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="color:var(--primary);border-color:color-mix(in srgb,var(--primary) 45%,transparent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></button>
+          <button onClick="{{ buildApprove }}" title="Approve Build &amp; migration" aria-label="Approve Build and migration" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ buildApproveBorder }};background:{{ buildApproveBg }};color:{{ buildApproveFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 12.5 9.5 18 20 6"></polyline></svg></button>
+          <button onClick="{{ buildReject }}" title="Request changes to Build &amp; migration" aria-label="Request changes to Build and migration" style="width:28px;height:28px;border-radius:7px;border:1px solid {{ buildRejectBorder }};background:{{ buildRejectBg }};color:{{ buildRejectFg }};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      </div>
+      <sc-if value="{{ buildOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--border);padding:17px">
+          <div style="border-radius:9px;background:#05070a;border:1px solid var(--border);overflow:hidden;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.85">
+            <div style="padding:7px 13px;background:rgba(255,255,255,.03);color:#7d8694;font-size:10.5px;border-bottom:1px solid var(--border);display:flex;gap:6px"><span style="color:#f0726b">●</span><span style="color:#e0a93f">●</span><span style="color:#4ec07a">●</span><span style="margin-left:6px">terminal</span></div>
+            <div style="padding:11px 13px;color:#c9d1da">
+              <div><span style="color:#4ec07a">$</span> npx prisma migrate dev --name task_google_snapshot</div>
+              <div style="color:#7d8694">  ✔ generated 1 migration · 4 columns added</div>
+              <div style="margin-top:3px"><span style="color:#4ec07a">$</span> npx prisma generate</div>
+              <div style="color:#7d8694">  ✔ Prisma Client rebuilt · Task type updated</div>
+              <div style="margin-top:3px"><span style="color:#4ec07a">$</span> pnpm --filter @steady/shared build</div>
+              <div style="color:#7d8694">  ✔ schemas emitted</div>
+            </div>
+          </div>
+          <p style="margin:11px 2px 0;font-size:12px;line-height:1.5;color:var(--text-faint)">Migration is <span style="color:var(--add)">additive &amp; nullable</span> — safe on existing data, no backfill step required. First sync per legacy row seeds the base automatically.</p>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- ===================== QUESTIONS FROM THE AGENT ===================== -->
+    <section style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:11px;box-shadow:0 0 0 1px color-mix(in srgb,var(--primary) 22%,transparent),var(--shadow);overflow:hidden;margin-top:8px" role="region" aria-label="Questions from the agent" data-screen-label="Questions from the agent">
+      <button onClick="{{ toggleQuestions }}" aria-expanded="{{ questionsOpen }}" style="display:flex;align-items:center;gap:13px;padding:15px 17px;width:100%;box-sizing:border-box;background:transparent;border:none;text-align:left;cursor:pointer;font-family:inherit;color:inherit">
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:14px;color:var(--text-faint);transition:transform .2s cubic-bezier(.4,0,.2,1);transform:{{ qChev }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:22px;padding:0 7px;border-radius:6px;background:var(--primary-bg);color:var(--primary);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700">?</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">Questions from the agent</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:1px">A few calls it needs from you before it starts implementing.</div>
+        </div>
+        <span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dim);white-space:nowrap">{{ qProgressText }}</span>
+      </button>
+      <sc-if value="{{ questionsOpen }}" hint-placeholder-val="{{ true }}">
+      <div style="border-top:1px solid var(--border);padding:17px;display:flex;flex-direction:column;gap:11px">
+        <sc-for list="{{ questions }}" as="q" hint-placeholder-count="4">
+          <div style="border:1px solid var(--border);border-radius:10px;background:var(--surface-2);padding:14px">
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:11px">
+              <div style="flex:1;min-width:0;font-size:13.5px;line-height:1.5;color:var(--text);font-weight:500">{{ q.prompt }}</div>
+              <span style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:4px 8px;border-radius:999px;background:{{ q.statusBg }};color:{{ q.statusFg }};white-space:nowrap;margin-top:1px">{{ q.statusText }}</span>
+            </div>
+
+            <sc-if value="{{ q.isChoice }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="4">
+                  <button onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:10px;text-align:left;padding:9px 12px;border-radius:8px;border:1.5px solid {{ o.border }};background:{{ o.bg }};color:{{ o.fg }};font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;cursor:pointer">
+                    <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:{{ o.letterBg }};color:{{ o.letterFg }};font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700">{{ o.letter }}</span>
+                    {{ o.label }}
+                  </button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ q.otherOpen }}" hint-placeholder-val="{{ false }}">
+                <input onInput="{{ q.onOther }}" placeholder="Describe your preference — feel free to reference the options above (e.g. “like B, but…”)…" style="margin-top:8px;width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border-strong);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;outline:none">
+              </sc-if>
+            </sc-if>
+
+            <sc-if value="{{ q.isText }}" hint-placeholder-val="{{ false }}">
+              <textarea onInput="{{ q.onText }}" placeholder="Type your answer for the agent…" style="width:100%;box-sizing:border-box;min-height:64px;resize:vertical;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 11px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;line-height:1.5;outline:none"></textarea>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+    </section>
+
+  </main>
+
+  <!-- ===== COMPOSER ===== -->
+  <sc-if value="{{ composerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeComposer }}" style="position:fixed;inset:0;z-index:60;background:rgba(4,6,10,.5);display:flex;align-items:flex-end;justify-content:center;animation:mp-fade .15s ease">
+      <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="Message composer" style="width:100%;max-width:980px;margin:0 28px 28px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:var(--shadow);padding:16px;animation:mp-in .2s cubic-bezier(.4,0,.2,1)">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"><span style="font-size:13px;font-weight:600">{{ composerTitle }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint)">{{ composerTag }}</span></div>
+        <sc-if value="{{ composerShowPicker }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:8px;margin-bottom:11px">
+            <button onClick="{{ pickQuestion }}" style="flex:1;display:flex;align-items:center;gap:8px;text-align:left;padding:9px 11px;border-radius:8px;border:1.5px solid {{ pickQBorder }};background:{{ pickQBg }};cursor:pointer">
+              <span style="flex:none;width:18px;height:18px;border-radius:50%;background:{{ pickQDot }};color:{{ pickQDotFg }};font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">?</span>
+              <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:12.5px;font-weight:600;color:{{ pickQFg }}">Ask a question</span><span style="font-size:10.5px;color:var(--text-faint)">non-blocking · expects an answer</span></span>
+            </button>
+            <button onClick="{{ pickChanges }}" style="flex:1;display:flex;align-items:center;gap:8px;text-align:left;padding:9px 11px;border-radius:8px;border:1.5px solid {{ pickCBorder }};background:{{ pickCBg }};cursor:pointer">
+              <span style="flex:none;width:18px;height:18px;border-radius:50%;background:{{ pickCDot }};color:{{ pickCDotFg }};font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">!</span>
+              <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:12.5px;font-weight:600;color:{{ pickCFg }}">Request changes</span><span style="font-size:10.5px;color:var(--text-faint)">blocks approval · agent revises</span></span>
+            </button>
+          </div>
+        </sc-if>
+        <textarea ref="{{ composerRef }}" placeholder="{{ composerPlaceholder }}" style="width:100%;box-sizing:border-box;min-height:84px;resize:vertical;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:11px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.5;outline:none"></textarea>
+        <div style="display:flex;gap:9px;margin-top:11px;justify-content:flex-end"><button onClick="{{ closeComposer }}" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border-strong);background:none;color:var(--text-dim);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer">Cancel</button><button onClick="{{ sendComposer }}" style="padding:8px 16px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer">{{ composerSendLabel }}</button></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== CONFLICT MODAL ===== -->
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:70;background:rgba(4,6,10,.62);display:flex;align-items:center;justify-content:center;padding:24px;animation:mp-fade .15s ease">
+      <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="Resolve sync conflict" style="width:100%;max-width:520px;background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;animation:mp-in .22s cubic-bezier(.4,0,.2,1)">
+        <div style="padding:18px 20px 14px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:9px"><span style="display:inline-flex;width:24px;height:24px;border-radius:6px;background:var(--conflict-bg);color:var(--conflict);align-items:center;justify-content:center;font-size:13px">⚑</span><h2 style="margin:0;font-size:15.5px;font-weight:600">Resolve sync conflict</h2></div>
+          <p style="margin:9px 0 0;font-size:12.5px;line-height:1.5;color:var(--text-dim)">This task changed in <strong style="color:var(--text)">both</strong> Steady and Google since the last sync. Pick which value to keep per field.</p>
+        </div>
+        <div style="padding:18px 20px;display:flex;flex-direction:column;gap:18px">
+          <!-- title field -->
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">title</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+              <button onClick="{{ chooseTitleSteady }}" style="text-align:left;padding:11px 12px;border-radius:9px;border:1.5px solid {{ titleSteadyBorder }};background:{{ titleSteadyBg }};cursor:pointer">
+                <div style="font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--add);font-weight:600;margin-bottom:5px">STEADY (yours)</div>
+                <div style="font-size:13px;color:var(--text);line-height:1.35">Email Q3 board deck to investors</div>
+              </button>
+              <button onClick="{{ chooseTitleGoogle }}" style="text-align:left;padding:11px 12px;border-radius:9px;border:1.5px solid {{ titleGoogleBorder }};background:{{ titleGoogleBg }};cursor:pointer">
+                <div style="font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--primary);font-weight:600;margin-bottom:5px">GOOGLE</div>
+                <div style="font-size:13px;color:var(--text);line-height:1.35">Send board deck</div>
+              </button>
+            </div>
+          </div>
+          <!-- due field -->
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">due date</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+              <button onClick="{{ chooseDueSteady }}" style="text-align:left;padding:11px 12px;border-radius:9px;border:1.5px solid {{ dueSteadyBorder }};background:{{ dueSteadyBg }};cursor:pointer">
+                <div style="font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--add);font-weight:600;margin-bottom:5px">STEADY (yours)</div>
+                <div style="font-size:13px;color:var(--text);font-family:'IBM Plex Mono',monospace">Jul 14, 2026</div>
+              </button>
+              <button onClick="{{ chooseDueGoogle }}" style="text-align:left;padding:11px 12px;border-radius:9px;border:1.5px solid {{ dueGoogleBorder }};background:{{ dueGoogleBg }};cursor:pointer">
+                <div style="font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--primary);font-weight:600;margin-bottom:5px">GOOGLE</div>
+                <div style="font-size:13px;color:var(--text);font-family:'IBM Plex Mono',monospace">Jul 10, 2026</div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px">
+          <span style="font-size:11.5px;color:var(--text-faint)">{{ resolveHint }}</span>
+          <div style="flex:1"></div>
+          <button onClick="{{ closeModal }}" style="padding:9px 15px;border-radius:8px;border:1px solid var(--border-strong);background:none;color:var(--text-dim);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer">Cancel</button>
+          <button onClick="{{ closeModal }}" style="padding:9px 17px;border-radius:8px;border:none;background:{{ resolveBtnBg }};color:{{ resolveBtnFg }};font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:{{ resolveBtnCursor }}">Apply resolution</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:820},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.ids = ['db','logic','code','api','types','ui','tests','deps','build'];
+    this.state = {
+      open: { db:true, logic:true, code:true, api:false, types:false, ui:false, tests:false, deps:false, build:false },
+      review: {},
+      dbTab: 'diagram',
+      uiTab: 'anatomy',
+      codeTab: 'high',
+      modalOpen: false,
+      composerOpen: false,
+      composerMode: 'question',
+      composerTarget: null,
+      comments: {},
+      theme: props.theme || 'dark',
+      choice: {}, // title/due -> 'steady'|'google'
+      codeDiffOpen: {},
+      logicTableOpen: false,
+      answers: {},
+      questionsOpen: true,
+    };
+  }
+
+  componentDidMount() {
+    this._descCollapsed = false;
+    this._onScroll = () => {
+      const el = document.getElementById('cp-desc');
+      if (!el) return;
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      // Hysteresis: the desc lives inside the sticky header, so collapsing it
+      // removes its height from layout and shifts scrollY. Re-expand only near
+      // the very top so that shift can never bounce us back across the threshold.
+      if (!this._descCollapsed && y > 90) {
+        this._descCollapsed = true;
+        el.setAttribute('data-collapsed', '1');
+      } else if (this._descCollapsed && y < 8) {
+        this._descCollapsed = false;
+        el.removeAttribute('data-collapsed');
+      }
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+    this._setupTips();
+  }
+
+  componentWillUnmount() {
+    if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
+    this._teardownTips();
+  }
+
+  _setupTips() {
+    if (this._tipEl) return;
+    const tip = document.createElement('div');
+    tip.setAttribute('role', 'tooltip');
+    Object.assign(tip.style, {
+      position: 'fixed', zIndex: '200', pointerEvents: 'none', opacity: '0',
+      padding: '5px 9px', borderRadius: '6px', border: '1px solid transparent',
+      fontFamily: "'IBM Plex Sans',system-ui,sans-serif", fontSize: '11px',
+      lineHeight: '1.35', fontWeight: '500', maxWidth: '240px', whiteSpace: 'normal',
+      boxShadow: '0 4px 16px rgba(0,0,0,.32)', transition: 'opacity .12s ease',
+    });
+    document.body.appendChild(tip);
+    this._tipEl = tip;
+    this._tipTimer = null;
+
+    const show = (target) => {
+      const text = target.getAttribute('data-tip');
+      if (!text) return;
+      const wrap = document.querySelector('[data-theme]');
+      if (wrap) {
+        const cs = getComputedStyle(wrap);
+        tip.style.background = (cs.getPropertyValue('--surface-3') || '#222834').trim();
+        tip.style.color = (cs.getPropertyValue('--text') || '#e7ebf1').trim();
+        tip.style.borderColor = (cs.getPropertyValue('--border-strong') || '#3a434f').trim();
+      }
+      tip.textContent = text;
+      const r = target.getBoundingClientRect();
+      const tr = tip.getBoundingClientRect();
+      let left = r.left + r.width / 2 - tr.width / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - tr.width - 8));
+      let top = r.top - tr.height - 8;
+      if (top < 8) top = r.bottom + 8;
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+      tip.style.opacity = '1';
+    };
+
+    this._tipOver = (e) => {
+      const t = e.target.closest && e.target.closest('[data-tip]');
+      if (!t) return;
+      clearTimeout(this._tipTimer);
+      this._tipTimer = setTimeout(() => show(t), 90);
+      this._highlight(t.getAttribute('data-highlight'));
+    };
+    this._tipOut = (e) => {
+      const t = e.target.closest && e.target.closest('[data-tip]');
+      if (!t) return;
+      clearTimeout(this._tipTimer);
+      this._tipEl.style.opacity = '0';
+      this._unhighlight();
+    };
+    document.addEventListener('mouseover', this._tipOver);
+    document.addEventListener('mouseout', this._tipOut);
+  }
+
+  _teardownTips() {
+    clearTimeout(this._tipTimer);
+    if (this._tipOver) document.removeEventListener('mouseover', this._tipOver);
+    if (this._tipOut) document.removeEventListener('mouseout', this._tipOut);
+    if (this._tipEl && this._tipEl.parentNode) this._tipEl.parentNode.removeChild(this._tipEl);
+    this._tipEl = null;
+    this._unhighlight();
+  }
+
+  _highlight(name) {
+    this._unhighlight();
+    if (!name) return;
+    const el = document.querySelector('[data-entity="' + name + '"]');
+    if (!el) return;
+    this._hlEl = el;
+    this._hlPrev = el.style.boxShadow;
+    el.style.boxShadow = '0 0 0 2px var(--primary), 0 6px 22px color-mix(in srgb,var(--primary) 24%,transparent)';
+  }
+
+  _unhighlight() {
+    if (this._hlEl) { this._hlEl.style.boxShadow = this._hlPrev || ''; this._hlEl = null; this._hlPrev = null; }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.theme !== this.props.theme && this.props.theme) {
+      this.setState({ theme: this.props.theme });
+    }
+  }
+
+  toggle(id) { this.setState(s => ({ open: { ...s.open, [id]: !s.open[id] } })); }
+  setReview(id, val) { this.setState(s => ({ review: { ...s.review, [id]: s.review[id] === val ? null : val } })); }
+  choose(field, val) { this.setState(s => ({ choice: { ...s.choice, [field]: val } })); }
+  toggleCodeDiff(i) { this.setState(s => ({ codeDiffOpen: { ...s.codeDiffOpen, [i]: !s.codeDiffOpen[i] } })); }
+  setChoice(id, key) { this.setState(s => ({ answers: { ...s.answers, [id]: { ...(s.answers[id] || {}), choice: key } } })); }
+  setAnswerField(id, field, val) { this.setState(s => ({ answers: { ...s.answers, [id]: { ...(s.answers[id] || {}), [field]: val } } })); }
+
+  renderVals() {
+    const S = this.state;
+    const out = {};
+
+    const chev = (on) => on ? 'rotate(0deg)' : 'rotate(-90deg)';
+
+    const summaries = {
+      db: 'Adds a per-task snapshot of its Google source so edits can be merged instead of overwritten.',
+      logic: 'Swaps the one-way mirror for a 3-way merge — auto-reconciles clean edits, flags real conflicts.',
+      code: 'Five modules touched: the reconcile rewrite, Google write-back, a resolve endpoint, and UI wiring.',
+      api: 'One new endpoint to apply conflict resolutions; the import response now carries conflicts[].',
+      types: 'Extends the import-response schema and adds a Conflict resolution type in @steady/shared.',
+      ui: 'A modal showing both values per conflicting field, letting the reviewer keep one.',
+      tests: 'Nine tests across unit, integration, and e2e — every merge branch plus the headline regression.',
+      deps: 'No new packages — built entirely on libraries already in the project.',
+      build: 'One database migration to generate and run before deploy.',
+    };
+
+    const names = {
+      db: 'Database schema', logic: 'Business logic', code: 'Code changes',
+      api: 'API changes', types: 'Types & interfaces', ui: 'UI components',
+      tests: 'Tests', deps: 'Libraries & imports', build: 'Build & migration',
+    };
+
+    this.ids.forEach(id => {
+      const r = S.review[id];
+      out[id + 'Open'] = !!S.open[id];
+      out[id + 'Collapsed'] = !S.open[id];
+      out[id + 'Summary'] = summaries[id] || '';
+      out[id + 'Chev'] = chev(S.open[id]);
+      out[id + 'Toggle'] = () => this.toggle(id);
+      out[id + 'Reviewed'] = !!r;
+      out[id + 'Approve'] = (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setReview(id, 'approved'); };
+      out[id + 'Reject'] = (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setReview(id, 'rejected'); };
+      // status pill
+      out[id + 'PillText'] = r === 'approved' ? 'approved' : r === 'rejected' ? 'changes' : '';
+      out[id + 'PillBg'] = r === 'approved' ? 'var(--add-bg)' : 'var(--del-bg)';
+      out[id + 'PillFg'] = r === 'approved' ? 'var(--add)' : 'var(--del)';
+      // approve button styling
+      const ap = r === 'approved';
+      out[id + 'ApproveBg'] = ap ? 'var(--add)' : 'var(--surface-2)';
+      out[id + 'ApproveFg'] = ap ? '#04130a' : 'var(--text-faint)';
+      out[id + 'ApproveBorder'] = ap ? 'var(--add)' : 'var(--border)';
+      // reject button styling
+      const rj = r === 'rejected';
+      out[id + 'RejectBg'] = rj ? 'var(--del)' : 'var(--surface-2)';
+      out[id + 'RejectFg'] = rj ? '#fff' : 'var(--text-faint)';
+      out[id + 'RejectBorder'] = rj ? 'var(--del)' : 'var(--border)';
+      // reviewed sections recede so attention flows to what's left
+      out[id + 'CardOpacity'] = r ? '0.58' : '1';
+      // per-section comments
+      const cList = S.comments[id] || [];
+      out[id + 'HasComment'] = cList.length > 0;
+      out[id + 'CommentCount'] = cList.length;
+      out[id + 'Comment'] = (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ composerOpen: true, composerMode: 'comment', composerTarget: id }); };
+    });
+
+    // progress
+    const reviewed = this.ids.filter(i => S.review[i]).length;
+    out.progressText = reviewed + ' / ' + this.ids.length + ' sections reviewed';
+    out.progressPct = Math.round(reviewed / this.ids.length * 100) + '%';
+
+    // theme
+    out.themeAttr = S.theme;
+    out.themeIcon = S.theme === 'dark' ? '☀' : '☾';
+    out.toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+
+    // collapse / expand all sections
+    const allOpen = this.ids.every(i => S.open[i]);
+    out.allChev = allOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+    out.allToggleTitle = allOpen ? 'Collapse all sections' : 'Expand all sections';
+    out.toggleAll = () => {
+      const open = {};
+      this.ids.forEach(i => open[i] = !allOpen);
+      this.setState({ open });
+    };
+
+    // db tabs
+    out.dbDiagram = S.dbTab === 'diagram';
+    out.dbColumns = S.dbTab === 'columns';
+    out.setDbDiagram = () => this.setState({ dbTab: 'diagram' });
+    out.setDbColumns = () => this.setState({ dbTab: 'columns' });
+    out.dbDiagFg = S.dbTab === 'diagram' ? 'var(--text)' : 'var(--text-faint)';
+    out.dbDiagBorder = S.dbTab === 'diagram' ? 'var(--primary)' : 'transparent';
+    out.dbColFg = S.dbTab === 'columns' ? 'var(--text)' : 'var(--text-faint)';
+    out.dbColBorder = S.dbTab === 'columns' ? 'var(--primary)' : 'transparent';
+
+    // ui component explainer tabs
+    const uiTabs = ['anatomy', 'states', 'placement'];
+    uiTabs.forEach(t => {
+      const on = S.uiTab === t;
+      const cap = t.charAt(0).toUpperCase() + t.slice(1);
+      out['ui' + cap] = on;
+      out['setUi' + cap] = () => this.setState({ uiTab: t });
+      out['ui' + cap + 'Fg'] = on ? 'var(--text)' : 'var(--text-faint)';
+      out['ui' + cap + 'Border'] = on ? 'var(--primary)' : 'transparent';
+    });
+
+    // business logic — described merge rules, with the exact decision table on demand
+    const ruleDefs = [
+      { tag: 'no-op', accent: 'var(--text-faint)', title: 'Neither side changed', desc: 'The field still matches the snapshot on both sides — do nothing.', fid: 'exact' },
+      { tag: '← pull', accent: 'var(--primary)', title: 'Only Google changed', desc: 'Copy Google’s new value into Steady.', fid: 'exact' },
+      { tag: 'push →', accent: 'var(--add)', title: 'Only Steady changed', desc: 'Write Steady’s value back to Google.', fid: 'exact' },
+      { tag: 'converge', accent: 'var(--text-dim)', title: 'Both changed to the same value', desc: 'Keep the value and just advance the merge base.', fid: 'exact' },
+      { tag: '⚑ conflict', accent: 'var(--conflict)', title: 'Both changed, to different values', desc: 'Don’t guess — surface a resolution modal and let the user choose per field.', fid: 'decision', onModal: true },
+    ];
+    out.logicRules = ruleDefs.map(r => ({
+      tag: r.tag,
+      title: r.title,
+      desc: r.desc,
+      tagFg: r.accent,
+      tagBg: 'color-mix(in srgb,' + r.accent + ' 13%,transparent)',
+      border: r.fid === 'decision' ? 'color-mix(in srgb,var(--conflict) 35%,transparent)' : 'var(--border)',
+      bg: r.fid === 'decision' ? 'var(--conflict-bg)' : 'var(--surface-2)',
+      cursor: r.onModal ? 'pointer' : 'default',
+      onClick: r.onModal ? ((e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ modalOpen: true }); }) : (() => {}),
+      fidLabel: r.fid === 'decision' ? 'NEEDS DECISION' : 'EXACT RULE',
+      fidFg: r.fid === 'decision' ? 'var(--conflict)' : 'var(--text-faint)',
+      fidBg: r.fid === 'decision' ? 'color-mix(in srgb,var(--conflict) 16%,transparent)' : 'var(--surface-3)',
+    }));
+    out.logicTableOpen = !!S.logicTableOpen;
+    out.toggleLogicTable = () => this.setState(s => ({ logicTableOpen: !s.logicTableOpen }));
+    out.logicTableBtnLabel = S.logicTableOpen ? '− hide exact decision table' : '+ view exact decision table';
+
+    // code changes — per-module guidance, with exact diffs where pinned down
+    const diffLine = (kind, num, text) => {
+      const map = {
+        hunk: { bg: 'var(--surface-2)', color: 'var(--text-faint)', numColor: 'var(--text-faint)' },
+        del:  { bg: 'var(--del-line)',  color: 'var(--del)',        numColor: 'var(--del)' },
+        add:  { bg: 'var(--add-line)',  color: 'var(--add)',        numColor: 'var(--add)' },
+        ctx:  { bg: 'transparent',      color: 'var(--text-dim)',   numColor: 'var(--text-faint)' },
+      }[kind];
+      return { num, text, bg: map.bg, color: map.color, numColor: map.numColor };
+    };
+    const modulesRaw = [
+      { badge: 'MOD', fid: 'exact', path: 'services/google-tasks.service.ts',
+        summary: 'Replace the one-way mirrorPatch with a pure reconcile() and apply its result in both directions — this is the only change pinned to exact lines.',
+        bullets: [],
+        diff: [
+          diffLine('hunk', '@@', '@@ reconcile imported task fields @@'),
+          diffLine('del', '29', '− if (title && title !== task.description)'),
+          diffLine('del', '30', '−   patch.description = title;   // clobbers your edit'),
+          diffLine('del', '31', '− if (item.due && due !== softDeadlineDate(task))'),
+          diffLine('del', '32', '−   patch.softDeadline = due;'),
+          diffLine('add', '29', '+ const r = reconcile(base, google, steady);'),
+          diffLine('add', '30', '+ if (r.steadyPatch) await updateTask(task.id, r.steadyPatch);'),
+          diffLine('add', '31', '+ if (r.googlePatch) await patchGoogleTask(uid, listId, gid, r.googlePatch);'),
+          diffLine('add', '32', '+ if (r.conflicts.length) out.conflicts.push(...r.conflicts);'),
+          diffLine('add', '33', '+ await writeSnapshot(task.id, r.newSnapshot);'),
+          diffLine('ctx', '34', '  return out;'),
+        ] },
+      { badge: 'MOD', fid: 'guidance', path: 'integrations/google.ts',
+        summary: 'Give the Google Tasks client write-back capability — today it only reads.',
+        bullets: [
+          'Add patchGoogleTask(uid, listId, taskId, patch) wrapping the tasks.patch call.',
+          'Request the read/write tasks scope in the OAuth flow, not tasks.readonly.',
+        ] },
+      { badge: 'NEW', fid: 'guidance', path: 'routes/google.resolve-conflicts.ts',
+        summary: 'New endpoint that applies the resolutions the user picked in the modal.',
+        bullets: [
+          'Accept { taskId, resolutions: { field, choice }[] }.',
+          'Write each chosen value, push to Google when ‘google’ is picked, advance the merge base, and return the updated task.',
+        ] },
+      { badge: 'NEW', fid: 'guidance', path: 'web/components/GoogleConflictsModal.tsx',
+        summary: 'Modal surfacing each conflicting field with both values side by side.',
+        bullets: [
+          'Show steady vs google per field and let the user pick one each.',
+          'Emit onResolve(choices); build on the existing Overlay variant="modal".',
+        ] },
+      { badge: 'MOD', fid: 'guidance', path: 'web/hooks/useGoogleImport.ts',
+        summary: 'Wire conflicts into the existing import flow.',
+        bullets: [
+          'Read conflicts[] off the import response and open the modal when it is non-empty.',
+          'POST the chosen resolutions to /resolve-conflicts, then refresh tasks.',
+        ] },
+    ];
+    out.codeModules = modulesRaw.map((m, i) => ({
+      badge: m.badge,
+      path: m.path,
+      summary: m.summary,
+      bullets: m.bullets || [],
+      badgeFg: m.badge === 'NEW' ? 'var(--add)' : 'var(--mod)',
+      badgeBg: m.badge === 'NEW' ? 'var(--add-bg)' : 'var(--mod-bg)',
+      dotColor: m.badge === 'NEW' ? 'var(--add)' : 'var(--mod)',
+      fid: m.fid,
+      fidLabel: m.fid === 'exact' ? 'EXACT DIFF' : 'GUIDANCE',
+      fidFg: m.fid === 'exact' ? 'var(--primary)' : 'var(--text-faint)',
+      fidBg: m.fid === 'exact' ? 'var(--primary-bg)' : 'var(--surface-3)',
+      hasDiff: !!(m.diff && m.diff.length),
+      diffLines: m.diff || [],
+      diffOpen: !!S.codeDiffOpen[i],
+      diffBtnLabel: S.codeDiffOpen[i] ? '− hide exact diff' : '+ view exact diff',
+      toggleDiff: () => this.toggleCodeDiff(i),
+    }));
+
+    // open questions from the agent — free-text + multiple-choice (with an "Other" write-in)
+    const qDefs = [
+      { id: 'conflictDefault', kind: 'choice',
+        prompt: 'When the same field changed on both sides to different values, what should happen by default?',
+        options: ['Always open the resolution modal', 'Last-write-wins by timestamp', 'Always keep the Steady value'] },
+      { id: 'scope', kind: 'text',
+        prompt: 'Do we already hold read/write scope on the Google Tasks API, or will existing users need to re-consent?' },
+      { id: 'legacySeed', kind: 'choice',
+        prompt: 'How should legacy rows with no snapshot be seeded on their first sync?',
+        options: ['Adopt current Steady values', 'Pull the values from Google', 'Prompt the user per row'] },
+      { id: 'modalTrigger', kind: 'choice',
+        prompt: 'Where should the conflict modal be triggered from?',
+        options: ['Automatically after an import', 'Only from the sync banner', 'Both places'] },
+      { id: 'extraFields', kind: 'text',
+        prompt: 'Beyond title and due date, any other fields you want conflict-managed (notes, status, …)?' },
+    ];
+    const A = S.answers || {};
+    const qAnswered = (q) => {
+      const a = A[q.id] || {};
+      return q.kind === 'choice'
+        ? (a.choice != null && (a.choice !== 'other' || (a.other || '').trim().length > 0))
+        : (a.text || '').trim().length > 0;
+    };
+    out.questions = qDefs.map(q => {
+      const a = A[q.id] || {};
+      const isChoice = q.kind === 'choice';
+      const answered = qAnswered(q);
+      const rawOpts = isChoice ? [
+        ...q.options.map((label, i) => ({ key: String(i), label, selected: a.choice === String(i) })),
+        { key: 'other', label: 'Other…', selected: a.choice === 'other' },
+      ] : [];
+      return {
+        id: q.id, prompt: q.prompt, isChoice, isText: !isChoice,
+        kindLabel: isChoice ? 'multiple choice' : 'free text',
+        opts: rawOpts.map((o, i) => ({
+          letter: o.key === 'other' ? '+' : String.fromCharCode(65 + i),
+          label: o.label,
+          onClick: () => this.setChoice(q.id, o.key),
+          border: o.selected ? 'var(--primary)' : 'var(--border)',
+          bg: o.selected ? 'var(--primary-bg)' : 'var(--surface)',
+          fg: o.selected ? 'var(--primary)' : 'var(--text-dim)',
+          letterBg: o.selected ? 'var(--primary)' : 'var(--surface-3)',
+          letterFg: o.selected ? '#fff' : 'var(--text-faint)',
+        })),
+        otherOpen: isChoice && a.choice === 'other',
+        onOther: (e) => this.setAnswerField(q.id, 'other', e.target.value),
+        onText: (e) => this.setAnswerField(q.id, 'text', e.target.value),
+        statusText: answered ? 'answered' : (isChoice ? 'pick one' : 'awaiting answer'),
+        statusFg: answered ? 'var(--add)' : 'var(--text-faint)',
+        statusBg: answered ? 'var(--add-bg)' : 'var(--surface-3)',
+      };
+    });
+    const qDone = qDefs.filter(qAnswered).length;
+    out.qProgressText = qDone + ' of ' + qDefs.length + ' answered';
+    out.questionsOpen = S.questionsOpen !== false;
+    out.qChev = out.questionsOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+    out.toggleQuestions = () => this.setState(s => ({ questionsOpen: s.questionsOpen === false }));
+
+    // modal + composer
+    out.modalOpen = S.modalOpen;
+    out.openModal = (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ modalOpen: true }); };
+    out.closeModal = () => this.setState({ modalOpen: false });
+    out.composerOpen = S.composerOpen;
+    out.closeComposer = () => this.setState({ composerOpen: false });
+    out.composerRef = (el) => { this._composerEl = el; };
+    out.sendComposer = () => {
+      const text = this._composerEl ? this._composerEl.value.trim() : '';
+      if (S.composerMode === 'comment' && S.composerTarget && text) {
+        const list = S.comments[S.composerTarget] || [];
+        this.setState({ comments: { ...S.comments, [S.composerTarget]: [...list, text] }, composerOpen: false });
+      } else {
+        this.setState({ composerOpen: false });
+      }
+    };
+    out.askQuestion = () => this.setState({ composerOpen: true, composerMode: 'question', composerTarget: null });
+    out.requestChanges = () => this.setState({ composerOpen: true, composerMode: 'changes', composerTarget: null });
+    out.openFeedback = () => this.setState({ composerOpen: true, composerMode: 'question', composerTarget: null });
+    out.pickQuestion = () => this.setState({ composerMode: 'question' });
+    out.pickChanges = () => this.setState({ composerMode: 'changes' });
+    // feedback-type picker shows for global feedback, hidden for per-section comments
+    out.composerShowPicker = S.composerMode === 'question' || S.composerMode === 'changes';
+    const qOn = S.composerMode === 'question';
+    out.pickQBorder = qOn ? 'var(--primary)' : 'var(--border)';
+    out.pickQBg = qOn ? 'var(--primary-bg)' : 'var(--surface-2)';
+    out.pickQFg = qOn ? 'var(--primary)' : 'var(--text-dim)';
+    out.pickQDot = qOn ? 'var(--primary)' : 'var(--surface-3)';
+    out.pickQDotFg = qOn ? '#fff' : 'var(--text-faint)';
+    const cOn = S.composerMode === 'changes';
+    out.pickCBorder = cOn ? 'var(--del)' : 'var(--border)';
+    out.pickCBg = cOn ? 'var(--del-bg)' : 'var(--surface-2)';
+    out.pickCFg = cOn ? 'var(--del)' : 'var(--text-dim)';
+    out.pickCDot = cOn ? 'var(--del)' : 'var(--surface-3)';
+    out.pickCDotFg = cOn ? '#fff' : 'var(--text-faint)';
+    const cName = S.composerTarget ? names[S.composerTarget] : '';
+    out.composerTitle = S.composerMode === 'comment' ? ('Comment on ' + cName) : 'Send feedback';
+    out.composerTag = S.composerMode === 'comment' ? ('· ' + cName) : '→ coding agent';
+    out.composerSendLabel = S.composerMode === 'comment' ? 'Post comment' : 'Send to agent';
+    out.composerPlaceholder = S.composerMode === 'question'
+      ? 'e.g. Do we already have write scope on the Google Tasks API?'
+      : S.composerMode === 'comment'
+      ? 'Leave a note on this section for the agent…'
+      : 'e.g. Prefer last-write-wins over a modal for the due-date field…';
+    out.approveAll = () => { const review = {}; this.ids.forEach(i => review[i] = 'approved'); this.setState({ review }); };
+    out.stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+
+    // conflict choices
+    const mk = (field, who, activeColor) => {
+      const on = S.choice[field] === who;
+      out[field + cap(who) + 'Border'] = on ? activeColor : 'var(--border)';
+      out[field + cap(who) + 'Bg'] = on ? 'color-mix(in srgb,' + activeColor + ' 14%,transparent)' : 'var(--surface-2)';
+    };
+    mk('title', 'steady', 'var(--add)'); mk('title', 'google', 'var(--primary)');
+    mk('due', 'steady', 'var(--add)'); mk('due', 'google', 'var(--primary)');
+    out.chooseTitleSteady = () => this.choose('title', 'steady');
+    out.chooseTitleGoogle = () => this.choose('title', 'google');
+    out.chooseDueSteady = () => this.choose('due', 'steady');
+    out.chooseDueGoogle = () => this.choose('due', 'google');
+    const resolved = ['title','due'].filter(f => S.choice[f]).length;
+    const ready = resolved === 2;
+    out.resolveHint = resolved + ' / 2 fields chosen';
+    out.resolveBtnBg = ready ? 'var(--conflict)' : 'var(--surface-3)';
+    out.resolveBtnFg = ready ? '#fff' : 'var(--text-faint)';
+    out.resolveBtnCursor = ready ? 'pointer' : 'not-allowed';
+
+    return out;
+    function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  }
+}
+</script>
+</body>
+</html>
