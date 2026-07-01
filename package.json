@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Interactive change-proposal review surface for coding agents",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "bin": {
     "change-proposal": "./bin/change-proposal.js"
   },
