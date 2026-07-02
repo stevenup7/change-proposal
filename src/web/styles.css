@@ -422,6 +422,282 @@ body {
   color: var(--del);
 }
 
+/* ---- Table block ---- */
+.table-caption {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-bottom: 10px;
+}
+.table-caption em,
+.table-caption span {
+  color: var(--text-dim);
+}
+.table-grid {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+}
+.table-row {
+  display: grid;
+  gap: 0 14px;
+  padding: 7px 13px;
+  color: var(--text);
+}
+.table-head {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 13px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.table-row.tone-faint {
+  color: var(--text-faint);
+}
+.table-row.tone-add,
+.table-row.tone-del,
+.table-row.tone-mod {
+  padding: 8px 13px;
+}
+.table-row.tone-add {
+  background: var(--add-line);
+}
+.table-row.tone-add > span:first-child {
+  color: var(--add);
+}
+.table-row.tone-del {
+  background: var(--del-line);
+}
+.table-row.tone-del > span:first-child {
+  color: var(--del);
+}
+.table-row.tone-mod {
+  background: var(--mod-bg);
+}
+.table-row.tone-mod > span:first-child {
+  color: var(--mod);
+}
+
+/* ---- Schema block ---- */
+.schema-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.schema-tab {
+  padding: 7px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-faint);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.schema-tab.is-active {
+  color: var(--text);
+  border-bottom-color: var(--primary);
+}
+.schema-intro {
+  margin-bottom: 15px;
+}
+.schema-scroll {
+  overflow-x: auto;
+  padding: 8px 2px 6px;
+}
+.schema-strip {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  min-width: 100%;
+}
+.schema-entity {
+  flex: none;
+  min-width: 182px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.15s ease;
+}
+.schema-entity.is-changed {
+  border: 1.5px solid color-mix(in srgb, var(--add) 50%, var(--border));
+  box-shadow: 0 0 0 3px var(--add-bg), var(--shadow);
+  min-width: 218px;
+}
+.schema-entity.is-external {
+  border: 1.5px dashed var(--border-strong);
+  background: transparent;
+  box-shadow: none;
+}
+.schema-entity.is-highlight {
+  box-shadow: 0 0 0 2px var(--primary), var(--shadow);
+}
+.schema-entity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+}
+.schema-entity.is-changed .schema-entity-head {
+  background: var(--add-line);
+  border-bottom-color: color-mix(in srgb, var(--add) 30%, transparent);
+}
+.schema-entity.is-external .schema-entity-head {
+  background: var(--surface);
+  border-bottom: 1px dashed var(--border-strong);
+}
+.schema-entity-name {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.schema-entity.is-external .schema-entity-name {
+  color: var(--text-dim);
+}
+.schema-entity-badge {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  background: var(--surface);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+.schema-entity.is-changed .schema-entity-badge {
+  color: var(--add);
+  background: var(--add-bg);
+  font-weight: 600;
+}
+.schema-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  border-top: 1px solid var(--border);
+}
+.schema-entity.is-external .schema-field:not(:first-child) {
+  border-top-style: dashed;
+}
+.schema-field:first-child {
+  border-top: none;
+}
+.schema-field.is-new {
+  background: var(--add-line);
+}
+.schema-tag {
+  flex: none;
+  width: 16px;
+  font-size: 8px;
+  font-weight: 700;
+  cursor: default;
+}
+.schema-tag-pk,
+.schema-tag-fk,
+.schema-tag-new {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, currentColor 38%, transparent);
+  text-underline-offset: 2px;
+}
+.schema-tag-pk {
+  color: var(--mod);
+}
+.schema-tag-fk {
+  color: var(--primary);
+}
+.schema-tag-new {
+  color: var(--add);
+  font-size: 11px;
+}
+.schema-field-name {
+  color: var(--text-dim);
+}
+.schema-field:first-child .schema-field-name {
+  color: var(--text);
+}
+.schema-field.is-new .schema-field-name {
+  color: var(--add);
+}
+.schema-entity.is-external .schema-field-name {
+  color: var(--text-faint);
+}
+.schema-field-type {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 9.5px;
+}
+.schema-field-newchip {
+  margin-left: auto;
+  font-size: 8px;
+  color: var(--add);
+  font-weight: 700;
+}
+.schema-field-type + .schema-field-newchip {
+  margin-left: 0;
+}
+.schema-entity-footer {
+  padding: 6px 12px;
+  border-top: 1px dashed var(--border-strong);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  text-align: center;
+}
+.schema-connector {
+  flex: none;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 3px;
+}
+.schema-connector-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  background: var(--surface);
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+}
+.schema-connector-line {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 3px;
+}
+.schema-connector-end {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+}
+.schema-connector-rule {
+  flex: 1;
+}
+.schema-connector-rule.is-solid {
+  height: 2px;
+  background: currentColor;
+  opacity: 0.55;
+  border-radius: 2px;
+}
+.schema-connector-rule.is-dashed {
+  border-top: 2px dashed currentColor;
+  opacity: 0.7;
+}
+
 /* ---- Conflict block ---- */
 .conflict {
   border: 1px solid var(--conflict);
