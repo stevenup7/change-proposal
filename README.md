@@ -83,10 +83,11 @@ skill  →  CLI (author / review)  →  dumb self-terminating Hono server  →  
 
 ## Status
 
-**v0.4.0** (past the spec's §7 first cut). On top of the first cut it now threads a
+**v0.5.0** (past the spec's §7 first cut). On top of the first cut it now threads a
 per-section conversation across rounds (`dialog`), archives prior rounds into `history`,
 and finalizes to one of two outcomes — `approved` (agree & proceed) or `discuss` (save &
 iterate). Blocks implemented: `markdown`, `diff`, `callout`, and `conflict` — the first
 **input-collecting** block (side-by-side decisions whose picks land in
-`response.resolutions`, soft-gated so they never block finalize). The handoff's modal
-conflict treatment and other specialized blocks remain deferred.
+`response.resolutions`, soft-gated so they never block finalize; each field carries a
+`description` and each side an optional `note` so the decision explains itself). The
+handoff's modal conflict treatment and other specialized blocks remain deferred.

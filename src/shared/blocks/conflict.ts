@@ -8,10 +8,26 @@ export const CONFLICT = "conflict";
 export const conflictFieldSchema = z
   .object({
     id: z.string().min(1).describe("Stable field id; keys the resolution as '<blockId>.<fieldId>'."),
-    label: z.string().min(1),
+    label: z.string().min(1).describe("Short heading — the thing being decided."),
+    description: z
+      .string()
+      .optional()
+      .describe("Markdown intro: what this decision is and why it matters. Give the human context before they pick."),
     allowOther: z.boolean().default(false).describe("Offer an 'Other…' write-in beside the sides."),
     sides: z
-      .array(z.object({ id: z.string().min(1), label: z.string().min(1), value: z.string() }).strict())
+      .array(
+        z
+          .object({
+            id: z.string().min(1),
+            label: z.string().min(1).describe("Which source this value is from, e.g. 'Local'."),
+            value: z.string().describe("The literal value shown verbatim — keep it to the value itself."),
+            note: z
+              .string()
+              .optional()
+              .describe("Short implication of choosing this side (the trade-off). Keep editorializing here, not in `value`."),
+          })
+          .strict(),
+      )
       .min(2)
       .describe("The candidate values, e.g. local vs remote."),
   })
@@ -42,12 +58,20 @@ export const conflictDef: BlockDef<typeof conflictSchema> = {
     "Give the block a stable `id`, each field a stable `id`, and set `allowOther: true` to",
     "offer a free-text write-in beside the sides. It never blocks finalize (soft gate).",
     "",
+    "**Explain before you ask.** Don't make the human infer the decision from bare values:",
+    "- Give each field a `description` — a sentence or two on what's being decided and why.",
+    "- Keep each side's `value` to the literal value; put the trade-off in its `note`.",
+    "",
     "```json",
     '{ "type": "conflict", "id": "merge", "title": "Field conflicts",',
     '  "fields": [',
-    '    { "id": "title", "label": "Task title", "allowOther": true, "sides": [',
-    '      { "id": "steady", "label": "Steady (local)", "value": "Buy oat milk" },',
-    '      { "id": "google", "label": "Google", "value": "Buy almond milk" } ] } ] }',
+    '    { "id": "title", "label": "Task title",',
+    '      "description": "Both devices renamed this task offline. Pick the name to keep.",',
+    '      "allowOther": true, "sides": [',
+    '      { "id": "steady", "label": "Steady (local)", "value": "Buy oat milk",',
+    '        "note": "What you last typed on your phone." },',
+    '      { "id": "google", "label": "Google", "value": "Buy almond milk",',
+    '        "note": "What the Google Tasks copy says." } ] } ] }',
     "```",
   ].join("\n"),
 };

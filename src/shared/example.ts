@@ -52,19 +52,32 @@ export function exampleDocument(): ChangeProposalDocument {
                 {
                   id: "title",
                   label: "Task title",
+                  description:
+                    "You renamed this task on your phone while offline; Google Tasks has a different name. There's no automatic winner — pick the one to keep, or write your own.",
                   allowOther: true,
                   sides: [
-                    { id: "steady", label: "Steady (local)", value: "Buy oat milk" },
-                    { id: "google", label: "Google", value: "Buy almond milk" },
+                    {
+                      id: "steady",
+                      label: "Steady (local)",
+                      value: "Buy oat milk",
+                      note: "What you last typed on your phone.",
+                    },
+                    {
+                      id: "google",
+                      label: "Google",
+                      value: "Buy almond milk",
+                      note: "What the Google Tasks copy says.",
+                    },
                   ],
                 },
                 {
                   id: "due",
                   label: "Due date",
+                  description: "The due dates diverged too. Which date should the merged task keep?",
                   allowOther: false,
                   sides: [
-                    { id: "steady", label: "Steady (local)", value: "Fri 4 Jul" },
-                    { id: "google", label: "Google", value: "Sat 5 Jul" },
+                    { id: "steady", label: "Steady (local)", value: "Fri 4 Jul", note: "Your local edit." },
+                    { id: "google", label: "Google", value: "Sat 5 Jul", note: "The remote value." },
                   ],
                 },
               ],

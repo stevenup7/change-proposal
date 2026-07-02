@@ -1,11 +1,12 @@
 # Change Proposal — Design Spec
 
-> Status: **v0.4.0** — past the §7 first cut. The first cut is implemented and passing
+> Status: **v0.5.0** — past the §7 first cut. The first cut is implemented and passing
 > (tests, typecheck, build, CLI, and full server round-trip verified); since then the tool
 > gained cross-round continuity (`dialog`, `history`, `iterate`) in v0.2, a two-outcome
-> finalize in v0.3, and the first input-collecting block (`conflict` → `resolutions`) in
-> v0.4. This is a living doc: it reflects current decisions, and notes where a founding
-> decision was later revised. Companion to the hifi design reference in `design_handoff/`.
+> finalize in v0.3, the first input-collecting block (`conflict` → `resolutions`) in v0.4,
+> and per-field explanatory copy on that block in v0.5. This is a living doc: it reflects
+> current decisions, and notes where a founding decision was later revised. Companion to the
+> hifi design reference in `design_handoff/`.
 > Where this spec and the mockup disagree, this spec wins: the mockup is a starting point.
 
 ## 1. Purpose
@@ -220,6 +221,10 @@ The first cut above shipped as described; subsequent versions added, in order:
   per-field decisions whose picks land in `response.resolutions`, with per-field write-ins.
   Soft-gated (never blocks finalize). This is the deferred "conflict" item, delivered as a
   registered block rather than the sample-specific modal — validating the block-registry seam.
+- **v0.5 — self-explaining conflicts.** Each conflict field gained a `description` (what's
+  being decided and why) and each side an optional `note` (the trade-off), so `value` holds
+  only the literal value. A picker without context put too much comprehension load on bare
+  labels; the decision should explain itself.
 
 **Still deferred:** the handoff's *modal* conflict treatment, `entityDiagram`/`decisionTable`
 and other specialized blocks (decision tables are already covered by GFM markdown), in-section
