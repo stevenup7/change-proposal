@@ -4,10 +4,14 @@ import { MARKDOWN } from "../../shared/blocks/markdown";
 import { DIFF } from "../../shared/blocks/diff";
 import { CALLOUT } from "../../shared/blocks/callout";
 import { CONFLICT } from "../../shared/blocks/conflict";
+import { SCHEMA } from "../../shared/blocks/schema";
+import { TABLE } from "../../shared/blocks/table";
 import { Markdown } from "./Markdown";
 import { Diff } from "./Diff";
 import { Callout } from "./Callout";
 import { Conflict } from "./Conflict";
+import { Schema } from "./Schema";
+import { Table } from "./Table";
 
 // Input-collecting blocks (conflict) read/write these; render-only blocks ignore them.
 export interface BlockViewProps {
@@ -34,6 +38,10 @@ export function BlockView({ block, resolutions, onResolve }: BlockViewProps) {
           onResolve={onResolve ?? (() => {})}
         />
       );
+    case SCHEMA:
+      return <Schema block={block} />;
+    case TABLE:
+      return <Table block={block} />;
     default:
       return (
         <div className="block-error">

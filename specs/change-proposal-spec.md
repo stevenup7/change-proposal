@@ -1,10 +1,11 @@
 # Change Proposal — Design Spec
 
-> Status: **v0.5.0** — past the §7 first cut. The first cut is implemented and passing
+> Status: **v0.6.0** — past the §7 first cut. The first cut is implemented and passing
 > (tests, typecheck, build, CLI, and full server round-trip verified); since then the tool
 > gained cross-round continuity (`dialog`, `history`, `iterate`) in v0.2, a two-outcome
 > finalize in v0.3, the first input-collecting block (`conflict` → `resolutions`) in v0.4,
-> and per-field explanatory copy on that block in v0.5. This is a living doc: it reflects
+> per-field explanatory copy on that block in v0.5, and the handoff's db-section body as
+> the `schema` + `table` blocks in v0.6. This is a living doc: it reflects
 > current decisions, and notes where a founding decision was later revised. Companion to the
 > hifi design reference in `design_handoff/`.
 > Where this spec and the mockup disagree, this spec wins: the mockup is a starting point.
@@ -225,10 +226,23 @@ The first cut above shipped as described; subsequent versions added, in order:
   being decided and why) and each side an optional `note` (the trade-off), so `value` holds
   only the literal value. A picker without context put too much comprehension load on bare
   labels; the decision should explain itself.
+- **v0.6 — the db-section blocks.** The deferred `entityDiagram`/`decisionTable` items,
+  delivered as two render-only registered blocks: `schema` (entity diagram — cards with
+  `plain`/`changed`/`external` treatments, PK/FK/NEW field rows with tooltips, labeled
+  edges between adjacent entities, FK-hover highlight of the referenced entity) and
+  `table` (generic toned grid). In-section tabs arrived *inside* the schema block rather
+  than as a container block: an optional `columns` table (reusing the `table` block's
+  exported content schema) switches the body to the handoff's Diagram/Columns tabs — no
+  recursive block nesting. Cross-field validation (edge/ref ids must name declared
+  entities, edges must connect adjacent entities, row cells must match columns) runs
+  through an optional `check` on each block def, dispatched from a `superRefine` on the
+  block union, since zod's `discriminatedUnion` only accepts plain objects as members.
+  Block schemas gained their own test file (`src/shared/blocks/blocks.test.ts`) beside
+  the reducer golden tests. Decided via the tool's own review flow
+  (`proposal.db-section.json`, round 1, approved).
 
-**Still deferred:** the handoff's *modal* conflict treatment, `entityDiagram`/`decisionTable`
-and other specialized blocks (decision tables are already covered by GFM markdown), in-section
-tabs, and theme polish beyond the dark/light token swap.
+**Still deferred:** the handoff's *modal* conflict treatment and theme polish beyond the
+dark/light token swap.
 
 ## 8. Open questions
 

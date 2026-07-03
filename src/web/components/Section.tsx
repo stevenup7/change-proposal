@@ -54,11 +54,7 @@ export function Section({
     <section className="card" style={{ borderLeftColor: accent.color, opacity: reviewed ? 0.62 : 1 }}>
       <div className="card-head" role="button" aria-expanded={expanded} onClick={onToggleExpand}>
         <span className={`chevron ${expanded ? "open" : ""}`}>▾</span>
-        {section.badge && (
-          <span className="badge" style={{ background: accent.bg, color: accent.color }}>
-            {section.badge}
-          </span>
-        )}
+        {section.badge && <span className="badge">{section.badge}</span>}
         <div className="card-titles">
           <div className="card-title">{section.title}</div>
           {section.summary && (
@@ -70,7 +66,7 @@ export function Section({
         </div>
 
         {verdict && <span className={`pill ${VERDICT_PILL[verdict].cls}`}>{VERDICT_PILL[verdict].label}</span>}
-        {thread.length > 0 && <span className="pill pill-primary">💬 {thread.length}</span>}
+        {thread.length > 0 && <span className="pill pill-muted">💬 {thread.length}</span>}
 
         <div className="card-actions" onClick={(e) => e.stopPropagation()}>
           <button

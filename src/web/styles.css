@@ -16,6 +16,7 @@
   --del-line: rgba(240, 114, 107, 0.07);
   --mod: #e0a93f;
   --mod-bg: rgba(224, 169, 63, 0.14);
+  --mod-line: rgba(224, 169, 63, 0.07);
   --conflict: #b07cf0;
   --conflict-bg: rgba(176, 124, 240, 0.15);
   --primary: #5a9cf8;
@@ -41,6 +42,7 @@
   --del-line: rgba(207, 47, 47, 0.05);
   --mod: #9a6a00;
   --mod-bg: rgba(154, 106, 0, 0.1);
+  --mod-line: rgba(154, 106, 0, 0.05);
   --conflict: #7b3fe4;
   --conflict-bg: rgba(123, 63, 228, 0.1);
   --primary: #1f6fdc;
@@ -249,6 +251,8 @@ body {
   font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.03em;
+  background: var(--surface-3);
+  color: var(--text-dim);
 }
 .badge-q {
   background: var(--primary-bg);
@@ -351,9 +355,12 @@ body {
   padding-left: 20px;
 }
 
-/* ---- Callout ---- */
+/* ---- Callout ----
+   Annotation voice: colored left border + title only, no tinted fill —
+   filled backgrounds are reserved for blocks that collect input. */
 .callout {
-  border: 1px solid;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
   border-radius: 9px;
   padding: 11px 13px;
 }
@@ -420,6 +427,291 @@ body {
 .diff-del .diff-text,
 .diff-del .diff-sign {
   color: var(--del);
+}
+
+/* ---- Table block ---- */
+.table-caption {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-bottom: 10px;
+}
+.table-caption em,
+.table-caption span {
+  color: var(--text-dim);
+}
+.table-grid {
+  display: grid;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+}
+/* Each row is a subgrid of .table-grid so every row shares one set of column
+   tracks — otherwise a per-row grid sizes its `auto`/`1fr` tracks independently
+   and nothing lines up. Subgrid (not `display: contents`) keeps the row box, so
+   per-row tone backgrounds still render. */
+.table-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  gap: 0 14px;
+  padding: 7px 13px;
+  color: var(--text);
+}
+.table-head {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 13px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.table-row.tone-faint {
+  color: var(--text-faint);
+}
+.table-row.tone-add,
+.table-row.tone-del,
+.table-row.tone-mod {
+  padding: 8px 13px;
+}
+.table-row.tone-add {
+  background: var(--add-line);
+}
+.table-row.tone-add > span:first-child {
+  color: var(--add);
+}
+.table-row.tone-del {
+  background: var(--del-line);
+}
+.table-row.tone-del > span:first-child {
+  color: var(--del);
+}
+.table-row.tone-mod {
+  background: var(--mod-line);
+}
+.table-row.tone-mod > span:first-child {
+  color: var(--mod);
+}
+
+/* ---- Schema block ---- */
+.schema-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.schema-tab {
+  padding: 7px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-faint);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.schema-tab.is-active {
+  color: var(--text);
+  border-bottom-color: var(--primary);
+}
+.schema-intro {
+  margin-bottom: 15px;
+}
+.schema-scroll {
+  overflow-x: auto;
+  padding: 8px 2px 6px;
+}
+.schema-strip {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  min-width: 100%;
+}
+.schema-entity {
+  flex: none;
+  min-width: 182px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.15s ease;
+}
+/* One "changed" signal: the colored hairline. New-field rows carry the
+   detail; no ring, no tinted header. */
+.schema-entity.is-changed {
+  border: 1px solid color-mix(in srgb, var(--add) 55%, var(--border));
+  min-width: 218px;
+}
+.schema-entity.is-external {
+  border: 1.5px dashed var(--border-strong);
+  background: transparent;
+  box-shadow: none;
+}
+.schema-entity.is-highlight {
+  box-shadow: 0 0 0 2px var(--primary), var(--shadow);
+}
+.schema-entity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+}
+.schema-entity.is-external .schema-entity-head {
+  background: var(--surface);
+  border-bottom: 1px dashed var(--border-strong);
+}
+.schema-entity-name {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.schema-entity.is-external .schema-entity-name {
+  color: var(--text-dim);
+}
+.schema-entity-badge {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  background: var(--surface);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+.schema-entity.is-changed .schema-entity-badge {
+  color: var(--add);
+  font-weight: 600;
+}
+.schema-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  border-top: 1px solid var(--border);
+}
+.schema-entity.is-external .schema-field:not(:first-child) {
+  border-top-style: dashed;
+}
+.schema-field:first-child {
+  border-top: none;
+}
+.schema-field.is-new {
+  background: var(--add-line);
+}
+.schema-tag {
+  flex: none;
+  width: 16px;
+  font-size: 8px;
+  font-weight: 700;
+  cursor: default;
+}
+.schema-tag-pk,
+.schema-tag-fk,
+.schema-tag-new {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, currentColor 38%, transparent);
+  text-underline-offset: 2px;
+}
+/* Key tags sit in the quiet metadata voice; color arrives on hover, when
+   the FK-highlight interaction fires. */
+.schema-tag-pk,
+.schema-tag-fk {
+  color: var(--text-faint);
+}
+.schema-field:hover .schema-tag-pk {
+  color: var(--mod);
+}
+.schema-field:hover .schema-tag-fk {
+  color: var(--primary);
+}
+.schema-tag-new {
+  color: var(--add);
+  font-size: 11px;
+}
+.schema-field-name {
+  color: var(--text-dim);
+}
+.schema-field:first-child .schema-field-name {
+  color: var(--text);
+}
+.schema-field.is-new .schema-field-name {
+  color: var(--add);
+}
+.schema-entity.is-external .schema-field-name {
+  color: var(--text-faint);
+}
+.schema-field-type {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 9.5px;
+}
+.schema-field-newchip {
+  margin-left: auto;
+  font-size: 8px;
+  color: var(--add);
+  font-weight: 700;
+}
+.schema-field-type + .schema-field-newchip {
+  margin-left: 0;
+}
+.schema-entity-footer {
+  padding: 6px 12px;
+  border-top: 1px dashed var(--border-strong);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  text-align: center;
+}
+.schema-connector {
+  flex: none;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 3px;
+}
+.schema-connector-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  background: var(--surface);
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+}
+.schema-connector-line {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 3px;
+}
+.schema-connector-end {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+}
+.schema-connector-rule {
+  flex: 1;
+}
+.schema-connector-rule.is-solid {
+  height: 2px;
+  background: currentColor;
+  opacity: 0.55;
+  border-radius: 2px;
+}
+.schema-connector-rule.is-dashed {
+  border-top: 2px dashed currentColor;
+  opacity: 0.7;
 }
 
 /* ---- Conflict block ---- */
