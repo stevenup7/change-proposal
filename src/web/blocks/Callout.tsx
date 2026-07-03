@@ -1,20 +1,20 @@
 import type { CalloutBlock } from "../../shared/blocks/callout";
 import { renderMarkdown } from "../markdown";
 
-const TONE_VARS: Record<CalloutBlock["tone"], { color: string; bg: string }> = {
-  info: { color: "var(--primary)", bg: "var(--primary-bg)" },
-  add: { color: "var(--add)", bg: "var(--add-bg)" },
-  del: { color: "var(--del)", bg: "var(--del-bg)" },
-  mod: { color: "var(--mod)", bg: "var(--mod-bg)" },
-  warn: { color: "var(--mod)", bg: "var(--mod-bg)" },
+const TONE_COLORS: Record<CalloutBlock["tone"], string> = {
+  info: "var(--primary)",
+  add: "var(--add)",
+  del: "var(--del)",
+  mod: "var(--mod)",
+  warn: "var(--mod)",
 };
 
 export function Callout({ block }: { block: CalloutBlock }) {
-  const t = TONE_VARS[block.tone] ?? TONE_VARS.info;
+  const color = TONE_COLORS[block.tone] ?? TONE_COLORS.info;
   return (
-    <div className="callout" style={{ background: t.bg, borderColor: t.color }}>
+    <div className="callout" style={{ borderLeftColor: color }}>
       {block.title && (
-        <div className="callout-title" style={{ color: t.color }}>
+        <div className="callout-title" style={{ color }}>
           {block.title}
         </div>
       )}

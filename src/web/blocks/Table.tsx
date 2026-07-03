@@ -11,14 +11,14 @@ export function TableGrid({ content }: { content: TableContent }) {
   return (
     <div>
       {content.caption && <div className="table-caption">{content.caption}</div>}
-      <div className="table-grid">
-        <div className="table-row table-head" style={{ gridTemplateColumns: template }}>
+      <div className="table-grid" style={{ gridTemplateColumns: template }}>
+        <div className="table-row table-head">
           {content.columns.map((c, i) => (
             <span key={i}>{c}</span>
           ))}
         </div>
         {content.rows.map((row, i) => (
-          <div key={i} className={`table-row tone-${row.tone}`} style={{ gridTemplateColumns: template }}>
+          <div key={i} className={`table-row tone-${row.tone}`}>
             {row.cells.map((cell, j) => (
               <span key={j}>{cell}</span>
             ))}
