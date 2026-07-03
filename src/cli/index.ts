@@ -4,6 +4,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { ZodError } from "zod";
 import { documentSchema, checkVersion, startNextRound, type ChangeProposalDocument } from "../shared/document";
+import { renderDigest } from "../shared/digest";
 import { authoringGuide, jsonSchema } from "../shared/guide";
 import { exampleDocument } from "../shared/example";
 import { VERSION } from "../shared/version";
@@ -69,6 +70,21 @@ program
     console.log(`✓ round ${doc.round} archived — now editing round ${next.round}. Revise the proposal, then \`review\`.`);
   });
 
+// --- result: print the response digest (ids joined back to labels) ----------
+program
+  .command("result")
+  .description("Print an agent-readable digest of a proposal's response — no JSON parsing needed")
+  .argument("[file]", "proposal file", "proposal.json")
+  .action(async (file: string) => {
+    const doc = await loadOrExit(file);
+    const v = checkVersion(doc);
+    if (!v.ok) {
+      console.error(`✗ version mismatch: document is v${v.docVersion}, tool is v${v.toolVersion}. Regenerate with the current skill.`);
+      process.exit(1);
+    }
+    console.log(renderDigest(doc));
+  });
+
 // --- review: validate, serve the UI, wait for finalize ----------------------
 program
   .command("review")
@@ -96,15 +112,8 @@ program
     openBrowser(server.url);
 
     const finalized = await server.finished;
-    const reviewed = Object.keys(finalized.response.review).length;
-    const outcome = finalized.response.outcome;
-    const verdict =
-      outcome === "approved"
-        ? "✓ Agreed — go ahead with the proposed next step (read the proposal for what that is)."
-        : outcome === "discuss"
-          ? "💬 Save & discuss — do NOT go ahead; reply in the dialog and iterate."
-          : "Finalized.";
-    console.log(`\n  ${verdict} ${reviewed} section(s) flagged. Responses written to ${file}.`);
+    console.log(`\n  Finalized — responses written to ${file}.\n`);
+    console.log(renderDigest(finalized));
     process.exit(0);
   });
 

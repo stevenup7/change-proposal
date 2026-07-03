@@ -93,6 +93,10 @@ export const answerSchema = z
   .strict();
 export type Answer = z.infer<typeof answerSchema>;
 
+// Sentinel side/choice id for a free-text write-in, in both conflict resolutions
+// and choice answers. Part of the round-trip contract, not a UI detail.
+export const OTHER_CHOICE = "__other__";
+
 // A single conflict-field pick. `side` is a chosen side id or "__other__"; `text`
 // carries the write-in when `side === "__other__"`. Mirrors answerSchema's shape.
 export const resolutionSchema = z

@@ -1,4 +1,5 @@
 import type { ChangeProposalDocument, DialogEntry, Outcome, Resolution, Verdict } from "../shared/document";
+import { OTHER_CHOICE } from "../shared/document";
 import { CONFLICT, type ConflictBlock } from "../shared/blocks/conflict";
 
 // Pure, deterministic reducer: (document, action) -> document. No time, no I/O, no React.
@@ -108,7 +109,7 @@ export function answeredCount(doc: ChangeProposalDocument): number {
   return doc.proposal.questions.filter((q) => isAnswered(doc.response.answers[q.id])).length;
 }
 
-export const OTHER_CHOICE = "__other__";
+export { OTHER_CHOICE };
 
 // --- Conflict resolutions -------------------------------------------------
 
