@@ -8,7 +8,7 @@ An interface for coding assistants to generate **change proposal pages** — a s
 
 ## Current state
 
-**v1 built** (the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author`/`review`) → dumb self-terminating Hono server → deterministic React SPA. Blocks: `markdown`, `diff`, `callout`. Conflicts and specialized blocks are deferred.
+**v1 built** (the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author`/`review`) → dumb self-terminating Hono server → deterministic React SPA. Blocks: `markdown`, `diff`, `callout`, plus three architecture diagrams — `arch-flow` (auto-laid-out node/edge graph; pure layout in `src/web/blocks/arch-flow-layout.ts`, pinned by tests), `arch-layers` (stack bands), `arch-boundaries` (C4-style nested containers). Conflicts and other specialized blocks are deferred.
 
 ## Commands
 

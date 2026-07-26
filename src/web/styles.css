@@ -422,6 +422,397 @@ body {
   color: var(--del);
 }
 
+/* ---- Architecture blocks (arch-flow / arch-layers / arch-boundaries) ---- */
+.arch {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.arch-st {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  flex: none;
+}
+.arch-st-added {
+  background: var(--add-bg);
+  color: var(--add);
+}
+.arch-st-modified {
+  background: var(--mod-bg);
+  color: var(--mod);
+}
+.arch-st-removed {
+  background: var(--del-bg);
+  color: var(--del);
+}
+.arch-chip {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.arch-chip-added {
+  background: var(--add-bg);
+  border-color: var(--add);
+  color: var(--text);
+}
+.arch-chip-modified {
+  background: var(--mod-bg);
+  border-color: var(--mod);
+  color: var(--text);
+}
+.arch-chip-removed {
+  border-color: var(--del);
+  color: var(--text-faint);
+  text-decoration: line-through;
+}
+.arch-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.arch-lg {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.arch-lg i {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-3);
+}
+.arch-lg .arch-lg-added {
+  background: var(--add-bg);
+  border-color: var(--add);
+}
+.arch-lg .arch-lg-modified {
+  background: var(--mod-bg);
+  border-color: var(--mod);
+}
+.arch-lg .arch-lg-removed {
+  background: var(--del-bg);
+  border-color: var(--del);
+}
+.arch-stem {
+  width: 1.5px;
+  height: 15px;
+  background: var(--border-strong);
+  position: relative;
+}
+.arch-stem-down::after,
+.arch-stem-up::after {
+  content: "";
+  position: absolute;
+  left: -3.2px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+.arch-stem-down::after {
+  bottom: -1px;
+  border-top: 5px solid var(--border-strong);
+}
+.arch-stem-up::after {
+  top: -1px;
+  border-bottom: 5px solid var(--border-strong);
+}
+.arch-conn-label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  color: var(--text-faint);
+}
+
+/* arch-flow */
+.arch-flow-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+.arch-flow {
+  position: relative;
+  background: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: 4px 4px;
+}
+.arch-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.arch-edges path {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+  fill: none;
+}
+.arch-edges marker path {
+  fill: var(--border-strong);
+  stroke: none;
+}
+.arch-node {
+  position: absolute;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  padding: 8px 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.arch-node-label {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.arch-node-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.arch-node-note {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.arch-node-file {
+  border-style: dashed;
+  background: var(--surface);
+}
+.arch-node-file .arch-node-label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+}
+.arch-node-external {
+  background: transparent;
+  border-style: dashed;
+  box-shadow: none;
+}
+.arch-node-added {
+  border-color: var(--add);
+  background: var(--add-bg);
+}
+.arch-node-modified {
+  border-color: var(--mod);
+}
+.arch-node-removed {
+  border-color: var(--del);
+}
+.arch-node-removed .arch-node-text {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}
+.arch-elabel {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  background: var(--surface);
+  padding: 0 4px;
+  border-radius: 4px;
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* arch-layers */
+.arch-layers {
+  display: flex;
+  flex-direction: column;
+}
+.arch-lane {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.arch-lane-label {
+  width: 118px;
+  flex: none;
+  padding: 12px;
+  border-right: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.arch-lane-name {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.arch-lane-sub {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+.arch-lane-chips {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 7px;
+  padding: 12px 14px;
+}
+.arch-conn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 4px 58px;
+}
+
+/* arch-boundaries */
+.arch-actors {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.arch-actor {
+  flex: 1;
+  min-width: 200px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 9px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.arch-actor-glyph {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--text-faint);
+}
+.arch-actor-name {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.arch-actor-note {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  color: var(--text-faint);
+}
+.arch-stems {
+  display: flex;
+  padding: 0 40px;
+  justify-content: space-around;
+}
+.arch-boundary {
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 12px;
+  padding: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.arch-boundary-tag {
+  position: absolute;
+  top: -9px;
+  left: 14px;
+  background: var(--surface);
+  padding: 0 7px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.arch-containers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.arch-container {
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.arch-container-head {
+  padding: 9px 12px 7px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.arch-container-name {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.arch-container-tech {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.arch-container-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+}
+.arch-group {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 7px 9px;
+}
+.arch-group-name {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.arch-group-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.arch-imports {
+  padding: 7px 0;
+  justify-content: center;
+  gap: 26px;
+}
+.arch-imports-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* ---- Comments ---- */
 .comment-list {
   list-style: none;

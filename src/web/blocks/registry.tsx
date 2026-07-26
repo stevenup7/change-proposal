@@ -2,9 +2,11 @@ import type { Block } from "../../shared/blocks/registry";
 import { MARKDOWN } from "../../shared/blocks/markdown";
 import { DIFF } from "../../shared/blocks/diff";
 import { CALLOUT } from "../../shared/blocks/callout";
+import { ARCH_FLOW, ARCH_LAYERS, ARCH_BOUNDARIES } from "../../shared/blocks/architecture";
 import { Markdown } from "./Markdown";
 import { Diff } from "./Diff";
 import { Callout } from "./Callout";
+import { ArchFlow, ArchLayers, ArchBoundaries } from "./Architecture";
 
 // type -> renderer. Keyed by the same `type` constants the schema uses, so UI and schema
 // cannot drift. No fallback: an unknown type is a hard error (force upgrade).
@@ -16,6 +18,12 @@ export function BlockView({ block }: { block: Block }) {
       return <Diff block={block} />;
     case CALLOUT:
       return <Callout block={block} />;
+    case ARCH_FLOW:
+      return <ArchFlow block={block} />;
+    case ARCH_LAYERS:
+      return <ArchLayers block={block} />;
+    case ARCH_BOUNDARIES:
+      return <ArchBoundaries block={block} />;
     default:
       return (
         <div className="block-error">
