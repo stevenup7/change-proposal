@@ -29,8 +29,11 @@ export function reduce(doc: ChangeProposalDocument, action: Action): ChangePropo
       return touched({ ...doc, response: { ...doc.response, review } });
     }
     case "approveAll": {
+      // Kind-aware: the blanket positive verdict is "approved" for a change-proposal,
+      // "clear" for an architecture-description.
+      const positive = doc.kind === "architecture-description" ? "clear" : "approved";
       const review = { ...doc.response.review };
-      for (const s of doc.proposal.sections) review[s.id] = "approved";
+      for (const s of doc.proposal.sections) review[s.id] = positive;
       return touched({ ...doc, response: { ...doc.response, review } });
     }
     case "addDialog": {

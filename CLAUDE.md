@@ -8,7 +8,9 @@ An interface for coding assistants to generate **change proposal pages** — a s
 
 ## Current state
 
-**v1 built** (the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author`/`review`) → dumb self-terminating Hono server → deterministic React SPA. Blocks: `markdown`, `diff`, `callout`, plus three architecture diagrams — `arch-flow` (auto-laid-out node/edge graph; pure layout in `src/web/blocks/arch-flow-layout.ts`, pinned by tests), `arch-layers` (stack bands), `arch-boundaries` (C4-style nested containers). Conflicts and other specialized blocks are deferred.
+**v1 built** (the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author`/`review`) → dumb self-terminating Hono server → deterministic React SPA. Blocks: `markdown`, `diff`, `callout`, `er` (entity-relationship diagram), plus three architecture diagrams — `arch-flow` (auto-laid-out node/edge graph; pure layout in `src/web/blocks/arch-flow-layout.ts`, generalized to per-node heights for `er`, pinned by tests), `arch-layers` (stack bands), `arch-boundaries` (C4-style nested containers). Conflicts and other specialized blocks are deferred.
+
+**Two faces, one package.** The document has a `kind`: `change-proposal` (approval gate: approve/reject, outcome `approved|discuss`) or `architecture-description` (the agent describes the CURRENT system; the human runs a clarification loop: `clear`/`needs-clarification` per section, outcome `understood|clarify`). The `describe-architecture` bin/skill is the same CLI built for the second kind (`src/cli/program.ts` `buildProgram(kind)`); kind↔token mismatches are hard schema errors, and each CLI face refuses the other kind's files. All kind-dependent UI wording lives in `src/web/copy.ts`.
 
 ## Commands
 

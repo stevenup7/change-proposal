@@ -51,7 +51,21 @@ export type Proposal = z.infer<typeof proposalSchema>;
 // Response region — authored by the human via the UI. Starts empty.
 // ---------------------------------------------------------------------------
 
-export const verdicts = ["approved", "rejected", "changes-requested"] as const;
+// Verdict/outcome tokens come in two families, one per document kind. The file format
+// admits the union; `documentSchema` cross-checks that a document only uses its own
+// kind's tokens (strict — no reinterpreting one family as the other).
+//
+// change-proposal (a proposed change, gated on agreement):
+//   approved / rejected / changes-requested per section; outcome approved | discuss.
+// architecture-description (the agent describes the CURRENT system; the human runs a
+// clarification loop — not approving a change, checking their own understanding):
+//   clear              → this section is accurate and understandable as written.
+//   needs-clarification→ expand/clarify this section next round (say what in the dialog).
+//   outcome understood → the description landed; the agent can rely on it as shared context.
+//   outcome clarify    → send back another round answering the clarification requests.
+export const proposalVerdicts = ["approved", "rejected", "changes-requested"] as const;
+export const descriptionVerdicts = ["clear", "needs-clarification"] as const;
+export const verdicts = [...proposalVerdicts, ...descriptionVerdicts] as const;
 export type Verdict = (typeof verdicts)[number];
 
 // Document-level intent chosen when the human closes the review. This — not the
@@ -62,7 +76,9 @@ export type Verdict = (typeof verdicts)[number];
 //              plan, run the migration, etc. The agent decides the next step from
 //              the proposal's own content. Approval means agreement, not "implement".
 //   discuss  → do NOT go ahead; reply in the dialog and send back another round.
-export const outcomes = ["approved", "discuss"] as const;
+export const proposalOutcomes = ["approved", "discuss"] as const;
+export const descriptionOutcomes = ["understood", "clarify"] as const;
+export const outcomes = [...proposalOutcomes, ...descriptionOutcomes] as const;
 export type Outcome = (typeof outcomes)[number];
 
 // ---------------------------------------------------------------------------
@@ -111,9 +127,27 @@ export type ResponseRegion = z.infer<typeof responseSchema>;
 export const statuses = ["pending", "in-progress", "finalized"] as const;
 export type Status = (typeof statuses)[number];
 
-export const documentSchema = z
+// What kind of exchange this document is. Same file format, same round-trip machinery;
+// the kind selects the verdict/outcome token family and how the UI frames the loop.
+export const kinds = ["change-proposal", "architecture-description"] as const;
+export type DocumentKind = (typeof kinds)[number];
+
+/** The verdict/outcome tokens each kind is allowed to use. */
+export const KIND_TOKENS: Record<
+  DocumentKind,
+  { verdicts: readonly Verdict[]; outcomes: readonly Outcome[] }
+> = {
+  "change-proposal": { verdicts: proposalVerdicts, outcomes: proposalOutcomes },
+  "architecture-description": { verdicts: descriptionVerdicts, outcomes: descriptionOutcomes },
+};
+
+const documentObjectSchema = z
   .object({
     version: z.string().describe("Tool version this doc was authored for."),
+    kind: z
+      .enum(kinds)
+      .default("change-proposal")
+      .describe("change-proposal = approval gate; architecture-description = clarification loop."),
     status: z.enum(statuses).default("pending"),
     round: z.number().int().min(1).default(1),
     proposal: proposalSchema,
@@ -124,6 +158,32 @@ export const documentSchema = z
     history: z.array(responseSchema).default([]),
   })
   .strict();
+
+// A document may only use its own kind's verdict/outcome tokens — a "clear" verdict in a
+// change-proposal (or an "approved" outcome in a description) is a hard error, not a synonym.
+export const documentSchema = documentObjectSchema.superRefine((doc, ctx) => {
+  const allowed = KIND_TOKENS[doc.kind];
+  const checkResponse = (r: ResponseRegion, path: (string | number)[]) => {
+    for (const [sectionId, verdict] of Object.entries(r.review)) {
+      if (!allowed.verdicts.includes(verdict)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [...path, "review", sectionId],
+          message: `verdict "${verdict}" is not valid for kind "${doc.kind}" (expected ${allowed.verdicts.join(" | ")})`,
+        });
+      }
+    }
+    if (r.outcome && !allowed.outcomes.includes(r.outcome)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [...path, "outcome"],
+        message: `outcome "${r.outcome}" is not valid for kind "${doc.kind}" (expected ${allowed.outcomes.join(" | ")})`,
+      });
+    }
+  };
+  checkResponse(doc.response, ["response"]);
+  doc.history.forEach((h, i) => checkResponse(h, ["history", i]));
+});
 export type ChangeProposalDocument = z.infer<typeof documentSchema>;
 
 /** A fresh, empty response region (used when authoring or resetting a round). */

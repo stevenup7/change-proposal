@@ -640,6 +640,112 @@ body {
   text-overflow: ellipsis;
 }
 
+/* er — entity cards. Row heights are load-bearing: Er.tsx computes card heights from
+   HEAD_H/NOTE_H/FIELD_H constants that must match these rules. */
+.er-entity {
+  position: absolute;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.er-entity-added {
+  border-color: var(--add);
+}
+.er-entity-modified {
+  border-color: var(--mod);
+}
+.er-entity-removed {
+  border-color: var(--del);
+}
+.er-entity-removed .er-entity-name {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}
+.er-entity-head {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+}
+.er-entity-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.er-entity-note {
+  height: 15px;
+  padding: 0 10px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  line-height: 15px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.er-fields {
+  padding: 2px 0;
+}
+.er-field {
+  height: 21px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.er-field-added {
+  background: var(--add-line);
+}
+.er-field-added .er-field-name {
+  color: var(--add);
+}
+.er-field-modified {
+  background: var(--mod-bg);
+}
+.er-field-modified .er-field-name {
+  color: var(--mod);
+}
+.er-field-removed .er-field-name {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}
+.er-tags {
+  display: inline-flex;
+  gap: 3px;
+  flex: none;
+}
+.er-tags i {
+  font-style: normal;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  line-height: 13px;
+}
+.er-field-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.er-field-type {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 9.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* arch-layers */
 .arch-layers {
   display: flex;

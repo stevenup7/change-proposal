@@ -11,6 +11,7 @@ import {
   archBoundariesDef,
   archBoundariesSchema,
 } from "./architecture";
+import { erDef, erSchema } from "./er";
 
 // The registry: adding a block = add its module and register it here (and a renderer in
 // web/blocks/ keyed by the same `type`). Schema, validation, and skill guidance are all
@@ -22,6 +23,7 @@ export const blockDefs: BlockDef[] = [
   archFlowDef,
   archLayersDef,
   archBoundariesDef,
+  erDef,
 ];
 
 // Discriminated union of every registered block. Strict/closed: an unknown `type` is a
@@ -33,6 +35,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   archFlowSchema,
   archLayersSchema,
   archBoundariesSchema,
+  erSchema,
 ]);
 
 export type Block = z.infer<typeof blockSchema>;

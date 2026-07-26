@@ -85,6 +85,27 @@ describe("arch-flow layout is deterministic", () => {
     expect(l.edges).toHaveLength(0);
   });
 
+  it("supports per-node heights (er entities): columns stack actual heights", () => {
+    // b and c share a column; b is 120 tall, so c starts below b's real height.
+    const l = layoutFlow(
+      {
+        nodes: [n("a"), n("b"), n("c")],
+        edges: [
+          { from: "a", to: "b" },
+          { from: "a", to: "c" },
+        ],
+      },
+      [80, 120, 60],
+    );
+    const at = (id: string) => l.nodes.find((p) => p.node.id === id)!;
+    expect(at("a").h).toBe(80);
+    expect(at("b").y).toBe(PAD);
+    expect(at("c").y).toBe(PAD + 120 + GAP_Y);
+    expect(l.height).toBe(PAD + 120 + GAP_Y + 60 + PAD);
+    // edges anchor at each node's own vertical center
+    expect(l.edges[0].path.startsWith(`M ${PAD + NODE_W} ${PAD + 40}`)).toBe(true);
+  });
+
   it("same input yields identical output (pure)", () => {
     const block = {
       nodes: [n("a"), n("b"), n("c")],

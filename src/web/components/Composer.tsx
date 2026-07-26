@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 interface Props {
   open: boolean;
   initial: string;
+  placeholder: string;
   onClose: () => void;
   onSubmit: (text: string) => void;
 }
 
-export function Composer({ open, initial, onClose, onSubmit }: Props) {
+export function Composer({ open, initial, placeholder, onClose, onSubmit }: Props) {
   const [text, setText] = useState(initial);
   useEffect(() => {
     if (open) setText(initial);
@@ -26,7 +27,7 @@ export function Composer({ open, initial, onClose, onSubmit }: Props) {
           className="dialog-text"
           autoFocus
           value={text}
-          placeholder="e.g. Prefer last-write-wins over a modal for the due-date field…"
+          placeholder={placeholder}
           onChange={(e) => setText(e.target.value)}
         />
         <div className="dialog-actions">

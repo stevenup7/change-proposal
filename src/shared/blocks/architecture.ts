@@ -11,10 +11,11 @@ export const ARCH_BOUNDARIES = "arch-boundaries";
 
 /** Change-state of a component relative to this proposal. Omit = unchanged. */
 export const archStatuses = ["added", "modified", "removed"] as const;
-const archStatus = z
+export const archStatusSchema = z
   .enum(archStatuses)
   .optional()
   .describe("Change relative to this proposal; omit for unchanged.");
+const archStatus = archStatusSchema;
 
 /** A leaf component chip: a module, file, table, service, … */
 const archItemSchema = z
