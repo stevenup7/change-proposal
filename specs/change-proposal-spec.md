@@ -1,16 +1,21 @@
 # Change Proposal — Design Spec
 
-> Status: **v1 built** — the §7 first cut is implemented and passing (tests, typecheck,
-> build, CLI, and full server round-trip verified). Captures decisions from the initial
-> design discussion. Companion to the hifi design reference in `design_handoff/`. Where
-> this spec and the mockup disagree, this spec wins: the mockup is a starting point.
+> Status: **v0.6.0** — past the §7 first cut. The first cut is implemented and passing
+> (tests, typecheck, build, CLI, and full server round-trip verified); since then the tool
+> gained cross-round continuity (`dialog`, `history`, `iterate`) in v0.2, a two-outcome
+> finalize in v0.3, the first input-collecting block (`conflict` → `resolutions`) in v0.4,
+> per-field explanatory copy on that block in v0.5, and the handoff's db-section body as
+> the `schema` + `table` blocks in v0.6. This is a living doc: it reflects
+> current decisions, and notes where a founding decision was later revised. Companion to the
+> hifi design reference in `design_handoff/`.
+> Where this spec and the mockup disagree, this spec wins: the mockup is a starting point.
 
 ## 1. Purpose
 
 A tool for coding agents to present a **change proposal** as an interactive review
 surface instead of a markdown plan. The agent breaks a proposed change into reviewable
-sections; the human approves/rejects each one, comments, answers the agent's questions,
-and (later) resolves conflicts. It is a **structured, section-by-section approval gate
+sections; the human approves/rejects each one, converses per-section, answers the agent's
+questions, and resolves conflicts. It is a **structured, section-by-section approval gate
 between an agent's plan and its execution.** The Google-Tasks 3-way-merge payload in the
 handoff is just an example — the review surface itself is the product.
 
@@ -31,8 +36,13 @@ These are the load-bearing decisions; everything else follows from them.
 4. **No fallbacks — force upgrade.** Everything ships as one versioned unit. An unknown
    block type or a version mismatch is a **hard error**, never a graceful degrade.
    Fallbacks hide mismatches; a loud failure is the honest behavior.
-5. **The tool is round-agnostic.** One file = one review round. Iteration is an agent
-   behavior (re-author + re-run), never a tool feature.
+5. **Iteration is first-class, but continuity lives in the file.** *(Revised in v0.2 —
+   originally "the tool is round-agnostic; iteration is an agent behavior, never a tool
+   feature.")* One file still round-trips, but it now carries the whole review across
+   rounds: `iterate` archives the finished `response` into `history`, keeps the per-section
+   `dialog` thread, and bumps `round`. The agent no longer has to reconstruct prior rounds
+   from its own context. The file remains the sole contract — this continuity is data in
+   the file, not server state.
 
 ## 3. Architecture
 
@@ -68,8 +78,9 @@ These are the load-bearing decisions; everything else follows from them.
   block guidance (keeps agent context light when unused, and cannot drift). It instructs
   the agent to: run `author` to fetch the current contract, produce JSON to match, then
   run `review <file>`.
-- **CLI** — `author` (emit versioned schema + guide), `review <file>` (validate, serve,
-  self-terminate on finalize). Command names TBD.
+- **CLI** — `author` (emit versioned schema + guide), `example`/`validate` (scaffold + check
+  a proposal), `review <file>` (validate, serve, self-terminate on finalize), and `iterate
+  <file>` (archive the round, keep the dialog, bump `round`).
 - **Server** — lightweight Node (Hono or Express). Validates on load, serves the SPA and
   the JSON, accepts the finalized/draft document, writes it to disk. Self-terminating on
   finalize; stale servers replaced on next launch (single-flight on port). No business
@@ -92,11 +103,13 @@ These are the load-bearing decisions; everything else follows from them.
 One JSON file is **both input and output** — the agent authors it, the user fills it in,
 the agent reads it back. It has distinct regions:
 
-| Region       | Author | Mutability in UI | Contents |
-|--------------|--------|------------------|----------|
-| meta         | agent  | read-only        | `version`, `status`, `round`, title, description |
-| proposal     | agent  | **read-only**    | sections (+ blocks), questions, (later) conflicts |
-| response     | user   | writable         | verdicts, comments, answers, (later) resolutions, feedback |
+| Region       | Author      | Mutability in UI | Contents |
+|--------------|-------------|------------------|----------|
+| meta         | agent       | read-only        | `version`, `status`, `round`, title, description |
+| proposal     | agent       | **read-only**    | sections (+ blocks, incl. `conflict`), questions |
+| dialog       | both        | append-only      | per-section conversation, keyed by section id, cross-round |
+| response     | user        | writable         | verdicts, answers, resolutions, feedback, outcome |
+| history      | agent (CLI) | —                | prior rounds' response regions, archived by `iterate` |
 
 - **`version`** — single monotonic tool version. On load, if it doesn't match the installed
   tool → hard error, refuse to render, instruct regeneration/upgrade.
@@ -111,21 +124,33 @@ the agent reads it back. It has distinct regions:
 
 ### Response region (the payoff)
 
-Adopted from the handoff's state model:
+Grown from the handoff's state model:
 
 - `review: {[sectionId]: 'approved' | 'rejected' | 'changes-requested'}`
-- `comments: {[sectionId]: string[]}`
 - `answers: {[questionId]: { choice?, other?, text? }}`
+- `resolutions: {["<blockId>.<fieldId>"]: { side, text? }}` — `conflict`-block picks; `side`
+  is a chosen side id or `"__other__"` (with a `text` write-in). *Soft-gated: an unresolved
+  field never blocks finalize; the human may leave it for the agent to decide.*
 - `feedback: string` — global, agent-directed
-- *(later)* conflict resolutions: `{[field]: chosenValue}`
+- `outcome: 'approved' | 'discuss'` — the document-level intent, set on finalize *(v0.3)*.
+  `approved` = agree & proceed; `discuss` = save & send back another round. This is what the
+  agent reads **first**; per-section verdicts are optional detail beneath it.
+
+Per-section conversation moved out of `response` into its own **`dialog`** region *(v0.2)*:
+`{[sectionId]: [{ round, author: 'human'|'agent', text }]}`. Unlike `response` it is shared
+(both sides append) and cross-round (never wiped by `iterate`), so a section reads as one
+thread across the whole review rather than a fresh comment box each round. This supersedes
+the original flat `comments: {[sectionId]: string[]}`.
 
 ## 5. Data model: envelope + blocks
 
 The **review envelope is fixed and typed**; **section content is composable**.
 
 - **Fixed:** a section has `id`, `title`, `kind` (picks accent color + badge label from a
-  small palette), and its review state. Plus first-class `questions` and (later) `conflicts`.
-  These are the review mechanics — identical on every proposal.
+  small palette), and its review state. Plus first-class `questions`. Conflict resolution is
+  *not* a fixed section type — it arrived as a `conflict` block *(v0.4)*, proving the seam:
+  the first block that collects input (into `response.resolutions`) rather than just
+  rendering. These are the review mechanics — identical on every proposal.
 - **Composable:** a section's body is an ordered list of **content blocks** drawn from a
   bounded, extensible vocabulary. The handoff's bespoke section renderers (entity diagram,
   decision table, classified diff) become *block types*, not hardcoded section types.
@@ -154,11 +179,14 @@ never maintained in parallel. Discipline: every block ships all three together, 
   and writes the response region → agent **polls the file** and reads it back. Degrades
   gracefully to the zero-infra baseline: the user just tells the agent "I'm done, read my
   responses." Polling latency/tuning lives entirely in the per-harness poller, not the tool.
-- **Iteration:** the agent reads finalized responses, revises the proposal region **in the
-  same file**, resets the response region to `pending` (bump `round`), and re-runs `review`.
-  The server having self-terminated, "restart" is just invoking `review` again. The tool
-  never models rounds, threads, or history — that continuity lives in the agent's context
-  (and later, optionally, an "addressed-feedback" block).
+- **Iteration:** the agent runs `iterate <file>` — the tool archives the finished `response`
+  into `history`, resets the live response to `pending`, keeps the `dialog`, and bumps
+  `round`. The agent then revises the proposal region **in the same file** (optionally adding
+  `author: "agent"` dialog replies to sections it changed) and re-runs `review`. The server
+  having self-terminated, "restart" is just invoking `review` again. *(Revised from v1: the
+  tool now models rounds, threads, and history as file data — see principle 5 — rather than
+  leaving all continuity to the agent's context. The "addressed-feedback" continuity block
+  it anticipated became the `dialog` thread.)*
 
 ## 7. v1 scope (first cut)
 
@@ -181,15 +209,57 @@ Rationale: the three blocks exercise every architectural seam (registry, derived
 deterministic render, round-trip, iteration) with the least surface area. The deferred
 items teach nothing new about the architecture.
 
-## 8. Open questions / not yet decided
+### Since v1 (delivered beyond the first cut)
 
-- Exact Zod shapes for each v1 block and for sections/questions.
-- CLI command names and flags; how the skill is installed/registered per harness.
-- File location & naming conventions (cwd? a `.change-proposals/` dir? gitignore?),
-  and whether multiple proposals coexist.
-- Testing strategy — expected to lean on the deterministic front end: golden tests of
-  `(input JSON + scripted interactions) → output JSON`.
-- Repo/package layout and distribution (single npm package? `npx`? global bin?).
-- Runtime final call: Node vs Bun.
-- Autosave granularity and draft-vs-finalize UX details.
+The first cut above shipped as described; subsequent versions added, in order:
+
+- **v0.2 — cross-round continuity.** Per-section `dialog` thread (shared, cross-round),
+  archived `history`, and the `iterate` CLI command. Revised principle 5 (see §5–§6): the
+  "addressed-feedback" continuity block became the `dialog` thread.
+- **v0.3 — two-outcome finalize.** `response.outcome` (`approved` = agree & proceed,
+  `discuss` = save & iterate) as the document-level intent the agent reads first.
+- **v0.4 — the `conflict` block.** The first *input-collecting* block: side-by-side
+  per-field decisions whose picks land in `response.resolutions`, with per-field write-ins.
+  Soft-gated (never blocks finalize). This is the deferred "conflict" item, delivered as a
+  registered block rather than the sample-specific modal — validating the block-registry seam.
+- **v0.5 — self-explaining conflicts.** Each conflict field gained a `description` (what's
+  being decided and why) and each side an optional `note` (the trade-off), so `value` holds
+  only the literal value. A picker without context put too much comprehension load on bare
+  labels; the decision should explain itself.
+- **v0.6 — the db-section blocks.** The deferred `entityDiagram`/`decisionTable` items,
+  delivered as two render-only registered blocks: `schema` (entity diagram — cards with
+  `plain`/`changed`/`external` treatments, PK/FK/NEW field rows with tooltips, labeled
+  edges between adjacent entities, FK-hover highlight of the referenced entity) and
+  `table` (generic toned grid). In-section tabs arrived *inside* the schema block rather
+  than as a container block: an optional `columns` table (reusing the `table` block's
+  exported content schema) switches the body to the handoff's Diagram/Columns tabs — no
+  recursive block nesting. Cross-field validation (edge/ref ids must name declared
+  entities, edges must connect adjacent entities, row cells must match columns) runs
+  through an optional `check` on each block def, dispatched from a `superRefine` on the
+  block union, since zod's `discriminatedUnion` only accepts plain objects as members.
+  Block schemas gained their own test file (`src/shared/blocks/blocks.test.ts`) beside
+  the reducer golden tests. Decided via the tool's own review flow
+  (`proposal.db-section.json`, round 1, approved).
+
+**Still deferred:** the handoff's *modal* conflict treatment and theme polish beyond the
+dark/light token swap.
+
+## 8. Open questions
+
+**Resolved since the first cut:**
+- *Zod shapes* — settled in `src/shared/` (block modules, `document.ts`).
+- *CLI commands* — `author` / `example` / `validate` / `review` / `iterate`; the skill lives
+  at `.claude/skills/change-proposal/` and fetches the guide from `author` at runtime.
+- *Testing* — golden tests of `(input JSON + scripted interactions) → output JSON` over the
+  pure reducer (`src/web/state.test.ts`).
+- *Repo/distribution* — a single npm package; the dev launcher (`bin/`) runs the TS CLI via
+  the package's own `tsx`, so a globally-linked bin works from any cwd.
+- *Runtime* — Node (`engines.node >= 20`).
+- *Autosave* — debounced (~600ms) draft PUTs; finalize flips `status` and the server
+  self-terminates.
+
+**Still open:**
+- File location & naming (cwd `proposal.json` today, gitignored); whether multiple proposals
+  should coexist, and where.
+- How the skill is installed/registered for non-Claude-Code harnesses.
 ```

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Section as SectionT, DialogEntry, Verdict } from "../../shared/document";
+import type { Section as SectionT, DialogEntry, Resolution, Verdict } from "../../shared/document";
 import { threadRounds } from "../state";
 import { accentVars } from "../theme";
 import { renderMarkdown } from "../markdown";
@@ -12,9 +12,11 @@ interface Props {
   verdict: Verdict | undefined;
   thread: DialogEntry[];
   expanded: boolean;
+  resolutions: Record<string, Resolution>;
   onToggleExpand: () => void;
   onToggleVerdict: (v: Verdict) => void;
   onAddDialog: (text: string) => void;
+  onResolve: (key: string, side: string, text?: string) => void;
 }
 
 export function Section({
@@ -23,9 +25,11 @@ export function Section({
   verdict,
   thread,
   expanded,
+  resolutions,
   onToggleExpand,
   onToggleVerdict,
   onAddDialog,
+  onResolve,
 }: Props) {
   const accent = accentVars(section.accent);
   const [commenting, setCommenting] = useState(false);
@@ -47,11 +51,7 @@ export function Section({
     <section className="card" style={{ borderLeftColor: accent.color, opacity: reviewed ? 0.62 : 1 }}>
       <div className="card-head" role="button" aria-expanded={expanded} onClick={onToggleExpand}>
         <span className={`chevron ${expanded ? "open" : ""}`}>▾</span>
-        {section.badge && (
-          <span className="badge" style={{ background: accent.bg, color: accent.color }}>
-            {section.badge}
-          </span>
-        )}
+        {section.badge && <span className="badge">{section.badge}</span>}
         <div className="card-titles">
           <div className="card-title">{section.title}</div>
           {section.summary && (
@@ -63,7 +63,7 @@ export function Section({
         </div>
 
         {verdict && <span className={`pill ${VERDICT_PILL[verdict].cls}`}>{VERDICT_PILL[verdict].label}</span>}
-        {thread.length > 0 && <span className="pill pill-primary">💬 {thread.length}</span>}
+        {thread.length > 0 && <span className="pill pill-muted">💬 {thread.length}</span>}
 
         <div className="card-actions" onClick={(e) => e.stopPropagation()}>
           <button
@@ -98,7 +98,7 @@ export function Section({
         <div className="card-body">
           {section.blocks.map((block, i) => (
             <div className="block" key={i}>
-              <BlockView block={block} />
+              <BlockView block={block} resolutions={resolutions} onResolve={onResolve} />
             </div>
           ))}
 

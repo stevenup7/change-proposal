@@ -29,12 +29,16 @@ script — rebuild it:
 npm rebuild esbuild
 ```
 
+When you add or bump a dependency, run `npm audit` and clear what it reports before
+committing — the first cut shipped with known vulnerabilities, so a clean audit is part of
+"done" for any dependency change. This is meant to stay a small, few-dependency package.
+
 ## Commands
 
 | Command | What it does |
 | --- | --- |
 | `npm run build` | Build the SPA to `dist/web/` — **required before `review` can serve the UI**. |
-| `npm test` | Run the deterministic-reducer golden tests (`src/web/state.test.ts`). |
+| `npm test` | Run the deterministic-reducer golden tests (`src/web/state.test.ts`) and block schema-validation tests (`src/shared/blocks/blocks.test.ts`). |
 | `npm run typecheck` | `tsc --noEmit`. |
 | `npm run cli -- author` | Print the versioned authoring guide + JSON schema (what the skill fetches). Add `--schema` for just the schema. Use `--silent` on `npm run` to keep stdout clean. |
 | `npm run cli -- example proposal.json` | Write a sample proposal you can adapt. |
@@ -79,5 +83,15 @@ skill  →  CLI (author / review)  →  dumb self-terminating Hono server  →  
 
 ## Status
 
-**v1** (the spec's §7 first cut). Blocks implemented: `markdown`, `diff`, `callout`.
-Conflicts and specialized blocks are deferred.
+**v0.6.0** (past the spec's §7 first cut). On top of the first cut it now threads a
+per-section conversation across rounds (`dialog`), archives prior rounds into `history`,
+and finalizes to one of two outcomes — `approved` (agree & proceed) or `discuss` (save &
+iterate). Blocks implemented: `markdown`, `diff`, `callout`, `conflict` — the first
+**input-collecting** block (side-by-side decisions whose picks land in
+`response.resolutions`, soft-gated so they never block finalize; each field carries a
+`description` and each side an optional `note` so the decision explains itself) — and,
+as of v0.6.0, the handoff's db-section body as two render-only blocks: `schema` (entity
+diagram with PK/FK/NEW field rows, labeled edges, FK-hover highlighting, and an optional
+`columns` table that enables the Diagram/Columns tabs) and `table` (a generic toned grid
+the schema block's Columns tab reuses, and the logic section's decision table will too).
+The handoff's modal conflict treatment remains deferred.

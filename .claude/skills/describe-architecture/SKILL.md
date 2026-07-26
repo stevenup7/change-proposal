@@ -21,12 +21,14 @@ keep `--silent` so npm's banner never pollutes the CLI's stdout (it would corrup
 3. **Present it:** run `npm run --silent describe -- review architecture.json`. This serves
    the UI and blocks until the human finalizes. (Requires a built UI — run `npm run build`
    once first.)
-4. **Read the result:** when `review` returns, read `architecture.json` back. Check
-   **`response.outcome` first** — `"understood"` means the description is confirmed; treat
-   it as shared, human-verified context for whatever comes next. `"clarify"` means sections
-   need expanding: `response.review` marks them `needs-clarification`, and
-   `dialog[sectionId]` holds the human's actual questions (`{round, author, text}`).
-   `response.answers` has answers to your questions; `response.feedback` is global.
+4. **Read the result:** when `review` returns it prints an agent-readable digest — outcome,
+   per-section verdicts, and question answers with every id already joined back to its
+   label. Re-print it anytime with `npm run --silent describe -- result architecture.json`.
+   Act on **OUTCOME first** — `understood` means the description is confirmed; treat it as
+   shared, human-verified context for whatever comes next. `clarify` means sections need
+   expanding: `response.review` marks them `needs-clarification`, and `dialog[sectionId]`
+   holds the human's actual questions. Only read the raw JSON for something the digest
+   omits.
 5. **Iterate when outcome is `clarify`:** run `npm run --silent describe -- iterate
    architecture.json` — it archives the round into `history`, keeps the `dialog`, and bumps
    `round`. Then expand/clarify the flagged sections, answer their dialog threads with

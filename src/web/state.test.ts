@@ -1,5 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { reduce, reviewedCount, answeredCount, reviewProgress, sectionThread, threadRounds, type Action } from "./state";
+import {
+  reduce,
+  reviewedCount,
+  answeredCount,
+  reviewProgress,
+  sectionThread,
+  threadRounds,
+  conflictStats,
+  conflictsResolved,
+  resolutionKey,
+  OTHER_CHOICE,
+  type Action,
+} from "./state";
 import { exampleDocument, exampleDescription } from "../shared/example";
 import { startNextRound } from "../shared/document";
 
@@ -140,5 +152,58 @@ describe("conversation threads across rounds", () => {
     ]);
     expect(sectionThread(d, "db").map((e) => e.text)).toEqual(["for db"]);
     expect(sectionThread(d, "code")).toEqual([]);
+  });
+});
+
+describe("conflict resolutions", () => {
+  const TITLE = resolutionKey("merge", "title");
+  const DUE = resolutionKey("merge", "due");
+
+  it("the example exposes exactly the two conflict fields, none resolved to start", () => {
+    expect(conflictStats(exampleDocument())).toEqual({ resolved: 0, total: 2 });
+    expect(conflictsResolved(exampleDocument())).toBe(false);
+  });
+
+  it("setResolution does not mutate the input document", () => {
+    const doc = exampleDocument();
+    const snapshot = JSON.stringify(doc);
+    reduce(doc, { kind: "setResolution", key: TITLE, side: "steady" });
+    expect(JSON.stringify(doc)).toBe(snapshot);
+  });
+
+  it("setResolution records a side pick and overwrites cleanly", () => {
+    const picked = run([{ kind: "setResolution", key: TITLE, side: "steady" }]);
+    expect(picked.response.resolutions[TITLE]).toEqual({ side: "steady" });
+    const changed = reduce(picked, { kind: "setResolution", key: TITLE, side: "google" });
+    expect(changed.response.resolutions[TITLE]).toEqual({ side: "google" });
+  });
+
+  it("marks pending -> in-progress on first pick", () => {
+    expect(run([{ kind: "setResolution", key: DUE, side: "steady" }]).status).toBe("in-progress");
+  });
+
+  it("an '__other__' pick only counts once its write-in is non-empty", () => {
+    const empty = run([{ kind: "setResolution", key: TITLE, side: OTHER_CHOICE, text: "" }]);
+    expect(conflictStats(empty).resolved).toBe(0);
+    const filled = reduce(empty, { kind: "setResolution", key: TITLE, side: OTHER_CHOICE, text: "Buy soy milk" });
+    expect(conflictStats(filled).resolved).toBe(1);
+  });
+
+  it("conflictsResolved flips true only when every field has a pick", () => {
+    const one = run([{ kind: "setResolution", key: TITLE, side: "steady" }]);
+    expect(conflictsResolved(one)).toBe(false);
+    const both = reduce(one, { kind: "setResolution", key: DUE, side: "google" });
+    expect(conflictStats(both)).toEqual({ resolved: 2, total: 2 });
+    expect(conflictsResolved(both)).toBe(true);
+  });
+
+  it("resolutions survive a round boundary in history, reset live", () => {
+    const r1 = run([
+      { kind: "setResolution", key: TITLE, side: "steady" },
+      { kind: "setResolution", key: DUE, side: "google" },
+    ]);
+    const r2 = startNextRound(r1);
+    expect(r2.history[0].resolutions[TITLE]).toEqual({ side: "steady" });
+    expect(r2.response.resolutions).toEqual({});
   });
 });

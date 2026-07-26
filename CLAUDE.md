@@ -8,19 +8,21 @@ An interface for coding assistants to generate **change proposal pages** — a s
 
 ## Current state
 
-**v1 built** (the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author`/`review`) → dumb self-terminating Hono server → deterministic React SPA. Blocks: `markdown`, `diff`, `callout`, `er` (entity-relationship diagram), plus three architecture diagrams — `arch-flow` (auto-laid-out node/edge graph; pure layout in `src/web/blocks/arch-flow-layout.ts`, generalized to per-node heights for `er`, pinned by tests), `arch-layers` (stack bands), `arch-boundaries` (C4-style nested containers). Conflicts and other specialized blocks are deferred.
+**v0.7.0** (past the spec's §7 first cut). A Node + Vite + React + TS package: a thin skill → CLI (`author` / `example` / `validate` / `review` / `iterate` / `result`) → dumb self-terminating Hono server → deterministic React SPA. Since the first cut it has grown a per-section conversation threaded across rounds (`dialog`), archived `history`, and a two-outcome finalize (`approved` = agree & proceed, `discuss` = save & iterate). Blocks: `markdown`, `diff`, `callout`, `conflict` — the first **input-collecting** block (a side-by-side decision whose picks land in `response.resolutions`; soft-gated, never blocks finalize; each field carries a `description` and each side an optional `note` so the decision explains itself) — `schema` (entity diagram — PK/FK/NEW field rows, labeled edges between adjacent entities, FK-hover highlight, and an optional `columns` table that turns on the Diagram/Columns tabs), `table` (generic toned grid; the schema block's Columns tab reuses its exported `tableContentSchema`), `er` (auto-laid-out entity-relationship diagram with PK/FK/UQ/IDX field rows — overlaps `schema`; kept side by side deliberately, retire one later), and three architecture diagrams — `arch-flow` (auto-laid-out node/edge graph; pure layout in `src/web/blocks/arch-flow-layout.ts`, generalized to per-node heights for `er`, pinned by tests), `arch-layers` (stack bands), `arch-boundaries` (C4-style nested containers). Cross-field block validation (edge/ref ids must exist, row cells must match columns) runs through each block def's optional `check`, dispatched from a `superRefine` on the block union — zod's `discriminatedUnion` only accepts plain objects as members. The handoff's modal conflict treatment remains deferred. The tool version lives in `src/shared/version.ts` and must match `package.json`'s `version`.
 
-**Two faces, one package.** The document has a `kind`: `change-proposal` (approval gate: approve/reject, outcome `approved|discuss`) or `architecture-description` (the agent describes the CURRENT system; the human runs a clarification loop: `clear`/`needs-clarification` per section, outcome `understood|clarify`). The `describe-architecture` bin/skill is the same CLI built for the second kind (`src/cli/program.ts` `buildProgram(kind)`); kind↔token mismatches are hard schema errors, and each CLI face refuses the other kind's files. All kind-dependent UI wording lives in `src/web/copy.ts`.
+**Two faces, one package.** The document has a `kind`: `change-proposal` (approval gate: approve/reject, outcome `approved|discuss`) or `architecture-description` (the agent describes the CURRENT system; the human runs a clarification loop: `clear`/`needs-clarification` per section, outcome `understood|clarify`). The `describe-architecture` bin/skill is the same CLI built for the second kind (`src/cli/program.ts` `buildProgram(kind)`); kind↔token mismatches are hard schema errors, and each CLI face refuses the other kind's files. All kind-dependent UI wording lives in `src/web/copy.ts`; the agent-readable `result` digest is kind-aware via outcome-token lines.
 
 ## Commands
 
-- `npm install` — first-time setup. Note: esbuild's install script is gated by npm's allow-scripts; if tsx/vite fail, run `npm approve-scripts esbuild`.
+- `npm install` — first-time setup. If `tsx`/`vite` fail right after install, esbuild's native binary didn't finish its postinstall — run `npm rebuild esbuild`.
 - `npm run build` — build the SPA to `dist/web/` (required before `review` can serve the UI).
-- `npm test` — run the deterministic-reducer golden tests (`src/web/state.test.ts`). Run a single test with `npx vitest run -t "<name>"`.
+- `npm test` — run the deterministic-reducer golden tests (`src/web/state.test.ts`) and the block schema-validation tests (`src/shared/blocks/blocks.test.ts`). Run a single test with `npx vitest run -t "<name>"`.
 - `npm run typecheck` — `tsc --noEmit`.
 - `npm run example` — write a sample `proposal.json`.
+- `npm run validate` — validate `proposal.json` against the schema + version.
 - `npm run cli -- author` — print the versioned authoring guide + JSON schema (what the skill fetches).
 - `npm run review` (or `npx tsx src/cli/index.ts review <file>`) — validate a proposal, serve the UI on `:4179`, and block until the user finalizes.
+- `npm run cli -- iterate <file>` — archive the finished round into `history`, keep the `dialog`, and bump `round` for the next pass.
 
 ## Architecture invariants (don't regress these)
 
@@ -29,6 +31,7 @@ An interface for coding assistants to generate **change proposal pages** — a s
 - **Adding a block = add `src/shared/blocks/<name>.ts`** (schema + guide), register it in `src/shared/blocks/registry.ts`, and add a renderer keyed by the same `type` constant in `src/web/blocks/`. Schema/UI/guide derive from the registry — don't hand-maintain them separately.
 - **No fallbacks, force upgrade.** Strict/closed schemas (`.strict()`), version match is hard-checked, unknown block `type` is an error. Don't add tolerant/degrading paths.
 - **The file is the sole agent contract.** The server is dumb I/O and guards the proposal region as byte-identical read-only; keep logic in the deterministic front end.
+- **Audit dependencies whenever they change.** After any `npm install <pkg>` / dependency bump, run `npm audit` and resolve what it reports (`npm audit fix`, or a pinned upgrade) before committing — the initial cut shipped with known vulnerabilities, so treat a clean audit as part of "done" for any dependency change. Prefer adding a dependency only when it earns its keep; this stays a small, few-dependency package.
 
 ## Source of truth
 

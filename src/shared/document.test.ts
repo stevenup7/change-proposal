@@ -26,7 +26,7 @@ describe("document kinds are strict about their tokens", () => {
 
   it("history is checked too, not just the live response", () => {
     const doc = exampleDescription();
-    doc.history = [{ review: { arch: "rejected" }, answers: {}, feedback: "" }];
+    doc.history = [{ review: { arch: "rejected" }, answers: {}, resolutions: {}, feedback: "" }];
     expect(documentSchema.safeParse(doc).success).toBe(false);
   });
 

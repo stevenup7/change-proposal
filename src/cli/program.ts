@@ -10,6 +10,7 @@ import {
   type ChangeProposalDocument,
   type DocumentKind,
 } from "../shared/document";
+import { renderDigest } from "../shared/digest";
 import { authoringGuide, describeGuide, jsonSchema } from "../shared/guide";
 import { exampleDocument, exampleDescription } from "../shared/example";
 import { VERSION } from "../shared/version";
@@ -30,8 +31,6 @@ interface Mode {
   example: () => ChangeProposalDocument;
   exampleNoun: string;
   reviewHeading: string;
-  /** outcome token -> CLI epilogue line */
-  outcomeMessages: Record<string, string>;
 }
 
 const MODES: Record<DocumentKind, Mode> = {
@@ -43,10 +42,6 @@ const MODES: Record<DocumentKind, Mode> = {
     example: exampleDocument,
     exampleNoun: "proposal",
     reviewHeading: "Change Proposal — reviewing",
-    outcomeMessages: {
-      approved: "✓ Agreed — go ahead with the proposed next step (read the proposal for what that is).",
-      discuss: "💬 Save & discuss — do NOT go ahead; reply in the dialog and iterate.",
-    },
   },
   "architecture-description": {
     name: "describe-architecture",
@@ -57,10 +52,6 @@ const MODES: Record<DocumentKind, Mode> = {
     example: exampleDescription,
     exampleNoun: "description",
     reviewHeading: "Architecture Description — presenting",
-    outcomeMessages: {
-      understood: "✓ Understood — the description is confirmed; rely on it as shared context.",
-      clarify: "💬 Clarification requested — answer in the dialog, iterate, and present again.",
-    },
   },
 };
 
@@ -118,6 +109,18 @@ export function buildProgram(kind: DocumentKind): Command {
       );
     });
 
+  // --- result: print the response digest (ids joined back to labels) --------
+  program
+    .command("result")
+    .description(
+      `Print an agent-readable digest of a ${mode.exampleNoun}'s response — no JSON parsing needed`,
+    )
+    .argument("[file]", `${mode.exampleNoun} file`, mode.defaultFile)
+    .action(async (file: string) => {
+      const doc = await loadOrExit(file, kind);
+      console.log(renderDigest(doc));
+    });
+
   // --- review: validate, serve the UI, wait for finalize --------------------
   program
     .command("review")
@@ -140,10 +143,8 @@ export function buildProgram(kind: DocumentKind): Command {
       openBrowser(server.url);
 
       const finalized = await server.finished;
-      const reviewed = Object.keys(finalized.response.review).length;
-      const outcome = finalized.response.outcome;
-      const verdict = (outcome && mode.outcomeMessages[outcome]) || "Finalized.";
-      console.log(`\n  ${verdict} ${reviewed} section(s) flagged. Responses written to ${file}.`);
+      console.log(`\n  Finalized — responses written to ${file}.\n`);
+      console.log(renderDigest(finalized));
       process.exit(0);
     });
 

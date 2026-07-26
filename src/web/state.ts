@@ -1,4 +1,6 @@
-import type { ChangeProposalDocument, DialogEntry, Outcome, Verdict } from "../shared/document";
+import type { ChangeProposalDocument, DialogEntry, Outcome, Resolution, Verdict } from "../shared/document";
+import { OTHER_CHOICE } from "../shared/document";
+import { CONFLICT, type ConflictBlock } from "../shared/blocks/conflict";
 
 // Pure, deterministic reducer: (document, action) -> document. No time, no I/O, no React.
 // This is what makes the front end snapshot-testable: input doc + action sequence -> output doc.
@@ -11,6 +13,7 @@ export type Action =
   | { kind: "setAnswerChoice"; questionId: string; choice: string }
   | { kind: "setAnswerOther"; questionId: string; other: string }
   | { kind: "setAnswerText"; questionId: string; text: string }
+  | { kind: "setResolution"; key: string; side: string; text?: string }
   | { kind: "setFeedback"; text: string }
   | { kind: "finalize"; outcome: Outcome };
 
@@ -61,6 +64,13 @@ export function reduce(doc: ChangeProposalDocument, action: Action): ChangePropo
       answers[action.questionId] = { ...answers[action.questionId], text: action.text };
       return touched({ ...doc, response: { ...doc.response, answers } });
     }
+    case "setResolution": {
+      const resolutions = { ...doc.response.resolutions };
+      const entry: Resolution = { side: action.side };
+      if (action.text !== undefined) entry.text = action.text;
+      resolutions[action.key] = entry;
+      return touched({ ...doc, response: { ...doc.response, resolutions } });
+    }
     case "setFeedback": {
       return touched({ ...doc, response: { ...doc.response, feedback: action.text } });
     }
@@ -102,4 +112,44 @@ export function answeredCount(doc: ChangeProposalDocument): number {
   return doc.proposal.questions.filter((q) => isAnswered(doc.response.answers[q.id])).length;
 }
 
-export const OTHER_CHOICE = "__other__";
+export { OTHER_CHOICE };
+
+// --- Conflict resolutions -------------------------------------------------
+
+/** Stable key for a conflict field's pick in `response.resolutions`. */
+export function resolutionKey(blockId: string, fieldId: string): string {
+  return `${blockId}.${fieldId}`;
+}
+
+/** A field is resolved once a side is picked — or, for "__other__", once its write-in is non-empty. */
+function isResolved(r: { side: string; text?: string } | undefined): boolean {
+  if (!r) return false;
+  if (r.side === OTHER_CHOICE) return (r.text ?? "").trim().length > 0;
+  return r.side.length > 0;
+}
+
+/** Every conflict-field key across the proposal, in document order. Walks the blocks. */
+export function conflictKeys(doc: ChangeProposalDocument): string[] {
+  const keys: string[] = [];
+  for (const section of doc.proposal.sections) {
+    for (const block of section.blocks) {
+      if (block.type !== CONFLICT) continue;
+      const c = block as ConflictBlock;
+      for (const field of c.fields) keys.push(resolutionKey(c.id, field.id));
+    }
+  }
+  return keys;
+}
+
+/** How many conflict fields are resolved vs. total — drives the "N / M chosen" counter and the nudge. */
+export function conflictStats(doc: ChangeProposalDocument): { resolved: number; total: number } {
+  const keys = conflictKeys(doc);
+  const resolved = keys.filter((k) => isResolved(doc.response.resolutions[k])).length;
+  return { resolved, total: keys.length };
+}
+
+/** True when every conflict field has a pick (vacuously true when there are none). */
+export function conflictsResolved(doc: ChangeProposalDocument): boolean {
+  const { resolved, total } = conflictStats(doc);
+  return resolved === total;
+}

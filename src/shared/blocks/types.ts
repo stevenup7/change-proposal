@@ -8,6 +8,14 @@ export interface BlockDef<S extends z.ZodTypeAny = z.ZodTypeAny> {
   type: string;
   /** Zod schema for this block (a strict object with `type: z.literal(...)`). */
   schema: S;
+  /**
+   * Optional cross-field validation (e.g. edges must reference declared entity ids).
+   * Runs via a superRefine on the block union — zod's discriminatedUnion only accepts
+   * plain objects as members, so refinements can't live on `schema` itself.
+   * (Method syntax on purpose: bivariant params keep BlockDef<Specific> assignable
+   * to the registry's BlockDef[].)
+   */
+  check?(block: z.infer<S>, ctx: z.RefinementCtx): void;
   /** Markdown guidance the skill shows the agent: what this block is and when to use it. */
   guide: string;
 }

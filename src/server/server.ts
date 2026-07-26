@@ -10,14 +10,12 @@ const here = dirname(fileURLToPath(import.meta.url));
 // Built SPA. `review` requires `npm run build` to have produced this.
 export const WEB_DIR = resolve(here, "../../dist/web");
 
+// The built SPA (dist/web) emits only these; fonts load from the Google Fonts CDN and
+// all icons are inline SVG, so there are no local font/image assets to serve.
 const CONTENT_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
-  ".svg": "image/svg+xml",
-  ".json": "application/json",
-  ".woff2": "font/woff2",
-  ".ico": "image/x-icon",
 };
 
 async function serveAsset(pathname: string): Promise<Response> {
