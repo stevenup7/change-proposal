@@ -29,6 +29,10 @@ export interface RoutedEdge {
   path: string;
   labelX: number;
   labelY: number;
+  /** The two path endpoints (source anchor, target anchor) — lets a caller drop
+   *  cardinality glyphs at the line ends (the `er` block does this). */
+  start: { x: number; y: number };
+  end: { x: number; y: number };
 }
 
 export interface FlowLayout<N> {
@@ -162,11 +166,15 @@ export function layoutFlow<N extends { id: string }>(
     let path: string;
     let labelX: number;
     let labelY: number;
+    let start: { x: number; y: number };
+    let end: { x: number; y: number };
     if (rank[ti] > rank[fi]) {
       const sx = f.x + NODE_W;
       const sy = f.y + f.h / 2 + off;
       const tx = t.x;
       const ty = t.y + t.h / 2 + off;
+      start = { x: sx, y: sy };
+      end = { x: tx, y: ty };
       if (rank[ti] - rank[fi] > 1) {
         // Long hop: travel in the row gap next to the source (above it when the
         // source sits last in its column) so the horizontal run never crosses a
@@ -197,6 +205,8 @@ export function layoutFlow<N extends { id: string }>(
       path = `M ${cxF} ${f.y + f.h} V ${yLoop} H ${cxT} V ${t.y + t.h}`;
       labelX = (cxF + cxT) / 2;
       labelY = yLoop;
+      start = { x: cxF, y: f.y + f.h };
+      end = { x: cxT, y: t.y + t.h };
     } else {
       const cx = f.x + NODE_W / 2 + off;
       const down = t.y > f.y;
@@ -205,8 +215,10 @@ export function layoutFlow<N extends { id: string }>(
       path = `M ${cx} ${sy} V ${ty}`;
       labelX = cx;
       labelY = (sy + ty) / 2;
+      start = { x: cx, y: sy };
+      end = { x: cx, y: ty };
     }
-    return { edge: e, path, labelX, labelY };
+    return { edge: e, path, labelX, labelY, start, end };
   });
 
   return { width, height, nodes: placed, edges, unknownRefs: [...new Set(unknownRefs)] };

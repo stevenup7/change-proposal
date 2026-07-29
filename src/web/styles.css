@@ -646,6 +646,27 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* er edge labels read as bordered pills sitting clearly ABOVE the connector (the
+   schema block's treatment), not the faint on-the-line chip the arch diagrams use.
+   Er.tsx already anchors `top` above the higher run, so the pill just centers on it. */
+.er-elabel {
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+/* Cardinality glyphs (1 · N · ∞ · ▷) at each end of a relation, on the line by its card. */
+.er-eend {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  background: var(--surface);
+  padding: 0 2px;
+  border-radius: 3px;
+}
 
 /* er — entity cards. Row heights are load-bearing: Er.tsx computes card heights from
    HEAD_H/NOTE_H/FIELD_H constants that must match these rules. */
@@ -660,8 +681,14 @@ body {
 .er-entity-added {
   border-color: var(--add);
 }
+/* A modified entity reads as "changed" (green hairline), matching the schema block's
+   changed treatment — the tag says CHANGED, not MOD. */
 .er-entity-modified {
-  border-color: var(--mod);
+  border: 1px solid color-mix(in srgb, var(--add) 55%, var(--border-strong));
+}
+.er-st-changed {
+  background: var(--add-bg);
+  color: var(--add);
 }
 .er-entity-removed {
   border-color: var(--del);
@@ -993,14 +1020,14 @@ body {
   color: var(--mod);
 }
 
-/* ---- Schema block ---- */
-.schema-tabs {
+/* er — Diagram / Columns tab strip (shown when the block carries a `columns` table). */
+.er-tabs {
   display: flex;
   gap: 4px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--border);
 }
-.schema-tab {
+.er-tab {
   padding: 7px 12px;
   border: none;
   background: none;
@@ -1012,203 +1039,9 @@ body {
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
 }
-.schema-tab.is-active {
+.er-tab.is-active {
   color: var(--text);
   border-bottom-color: var(--primary);
-}
-.schema-intro {
-  margin-bottom: 15px;
-}
-.schema-scroll {
-  overflow-x: auto;
-  padding: 8px 2px 6px;
-}
-.schema-strip {
-  display: flex;
-  align-items: center;
-  width: max-content;
-  min-width: 100%;
-}
-.schema-entity {
-  flex: none;
-  min-width: 182px;
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  overflow: hidden;
-  background: var(--surface-2);
-  box-shadow: var(--shadow);
-  transition: box-shadow 0.15s ease;
-}
-/* One "changed" signal: the colored hairline. New-field rows carry the
-   detail; no ring, no tinted header. */
-.schema-entity.is-changed {
-  border: 1px solid color-mix(in srgb, var(--add) 55%, var(--border));
-  min-width: 218px;
-}
-.schema-entity.is-external {
-  border: 1.5px dashed var(--border-strong);
-  background: transparent;
-  box-shadow: none;
-}
-.schema-entity.is-highlight {
-  box-shadow: 0 0 0 2px var(--primary), var(--shadow);
-}
-.schema-entity-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 12px;
-  background: var(--surface-3);
-  border-bottom: 1px solid var(--border);
-}
-.schema-entity.is-external .schema-entity-head {
-  background: var(--surface);
-  border-bottom: 1px dashed var(--border-strong);
-}
-.schema-entity-name {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text);
-}
-.schema-entity.is-external .schema-entity-name {
-  color: var(--text-dim);
-}
-.schema-entity-badge {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 8px;
-  letter-spacing: 0.07em;
-  color: var(--text-faint);
-  background: var(--surface);
-  padding: 2px 5px;
-  border-radius: 4px;
-}
-.schema-entity.is-changed .schema-entity-badge {
-  color: var(--add);
-  font-weight: 600;
-}
-.schema-field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 11px;
-  border-top: 1px solid var(--border);
-}
-.schema-entity.is-external .schema-field:not(:first-child) {
-  border-top-style: dashed;
-}
-.schema-field:first-child {
-  border-top: none;
-}
-.schema-field.is-new {
-  background: var(--add-line);
-}
-.schema-tag {
-  flex: none;
-  width: 16px;
-  font-size: 8px;
-  font-weight: 700;
-  cursor: default;
-}
-.schema-tag-pk,
-.schema-tag-fk,
-.schema-tag-new {
-  text-decoration: underline dotted;
-  text-decoration-color: color-mix(in srgb, currentColor 38%, transparent);
-  text-underline-offset: 2px;
-}
-/* Key tags sit in the quiet metadata voice; color arrives on hover, when
-   the FK-highlight interaction fires. */
-.schema-tag-pk,
-.schema-tag-fk {
-  color: var(--text-faint);
-}
-.schema-field:hover .schema-tag-pk {
-  color: var(--mod);
-}
-.schema-field:hover .schema-tag-fk {
-  color: var(--primary);
-}
-.schema-tag-new {
-  color: var(--add);
-  font-size: 11px;
-}
-.schema-field-name {
-  color: var(--text-dim);
-}
-.schema-field:first-child .schema-field-name {
-  color: var(--text);
-}
-.schema-field.is-new .schema-field-name {
-  color: var(--add);
-}
-.schema-entity.is-external .schema-field-name {
-  color: var(--text-faint);
-}
-.schema-field-type {
-  margin-left: auto;
-  color: var(--text-faint);
-  font-size: 9.5px;
-}
-.schema-field-newchip {
-  margin-left: auto;
-  font-size: 8px;
-  color: var(--add);
-  font-weight: 700;
-}
-.schema-field-type + .schema-field-newchip {
-  margin-left: 0;
-}
-.schema-entity-footer {
-  padding: 6px 12px;
-  border-top: 1px dashed var(--border-strong);
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 8px;
-  letter-spacing: 0.07em;
-  color: var(--text-faint);
-  text-align: center;
-}
-.schema-connector {
-  flex: none;
-  width: 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 0 3px;
-}
-.schema-connector-label {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 9px;
-  background: var(--surface);
-  padding: 2px 7px;
-  border-radius: 5px;
-  border: 1px solid var(--border);
-}
-.schema-connector-line {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 3px;
-}
-.schema-connector-end {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10px;
-}
-.schema-connector-rule {
-  flex: 1;
-}
-.schema-connector-rule.is-solid {
-  height: 2px;
-  background: currentColor;
-  opacity: 0.55;
-  border-radius: 2px;
-}
-.schema-connector-rule.is-dashed {
-  border-top: 2px dashed currentColor;
-  opacity: 0.7;
 }
 
 /* ---- Conflict block ---- */

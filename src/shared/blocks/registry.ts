@@ -4,7 +4,6 @@ import { markdownDef, markdownSchema } from "./markdown";
 import { diffDef, diffSchema } from "./diff";
 import { calloutDef, calloutSchema } from "./callout";
 import { conflictDef, conflictSchema } from "./conflict";
-import { schemaDef, schemaSchema } from "./schema";
 import { tableDef, tableSchema } from "./table";
 import {
   archFlowDef,
@@ -24,7 +23,6 @@ export const blockDefs: BlockDef[] = [
   diffDef,
   calloutDef,
   conflictDef,
-  schemaDef,
   tableDef,
   archFlowDef,
   archLayersDef,
@@ -40,7 +38,6 @@ const blockUnion = z.discriminatedUnion("type", [
   diffSchema,
   calloutSchema,
   conflictSchema,
-  schemaSchema,
   tableSchema,
   archFlowSchema,
   archLayersSchema,

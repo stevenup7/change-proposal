@@ -30,7 +30,7 @@ export const tableContentSchema = z
   .strict();
 export type TableContent = z.infer<typeof tableContentSchema>;
 
-/** Cross-field check shared by `table` blocks and the schema block's `columns`. */
+/** Cross-field check shared by `table` blocks and the `er` block's `columns`. */
 export function checkTableContent(table: TableContent, ctx: z.RefinementCtx, path: (string | number)[] = []): void {
   table.rows.forEach((row, i) => {
     if (row.cells.length !== table.columns.length) {

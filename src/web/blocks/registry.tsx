@@ -4,7 +4,6 @@ import { MARKDOWN } from "../../shared/blocks/markdown";
 import { DIFF } from "../../shared/blocks/diff";
 import { CALLOUT } from "../../shared/blocks/callout";
 import { CONFLICT } from "../../shared/blocks/conflict";
-import { SCHEMA } from "../../shared/blocks/schema";
 import { TABLE } from "../../shared/blocks/table";
 import { ARCH_FLOW, ARCH_LAYERS, ARCH_BOUNDARIES } from "../../shared/blocks/architecture";
 import { ER } from "../../shared/blocks/er";
@@ -12,7 +11,6 @@ import { Markdown } from "./Markdown";
 import { Diff } from "./Diff";
 import { Callout } from "./Callout";
 import { Conflict } from "./Conflict";
-import { Schema } from "./Schema";
 import { Table } from "./Table";
 import { ArchFlow, ArchLayers, ArchBoundaries } from "./Architecture";
 import { Er } from "./Er";
@@ -42,8 +40,6 @@ export function BlockView({ block, resolutions, onResolve }: BlockViewProps) {
           onResolve={onResolve ?? (() => {})}
         />
       );
-    case SCHEMA:
-      return <Schema block={block} />;
     case TABLE:
       return <Table block={block} />;
     case ARCH_FLOW:

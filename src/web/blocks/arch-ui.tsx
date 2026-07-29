@@ -44,7 +44,15 @@ export function Legend({ statuses }: { statuses: Set<Status> }) {
  * that outgrows its gap then slides under the neighboring node instead of painting
  * over its title.
  */
-export function EdgeLayer({ layout }: { layout: FlowLayout<{ id: string }> }) {
+export function EdgeLayer({
+  layout,
+  renderLabels = true,
+}: {
+  layout: FlowLayout<{ id: string }>;
+  /** When false, the caller draws its own labels from the layout (the `er` block does
+   *  this to place a pill above the line plus cardinality glyphs at the ends). */
+  renderLabels?: boolean;
+}) {
   const markerId = useId();
   return (
     <>
@@ -66,14 +74,15 @@ export function EdgeLayer({ layout }: { layout: FlowLayout<{ id: string }> }) {
           <path key={i} d={e.path} markerEnd={`url(#${markerId})`} />
         ))}
       </svg>
-      {layout.edges.map(
-        (e, i) =>
-          e.edge.label && (
-            <span key={i} className="arch-elabel" style={{ left: e.labelX, top: e.labelY }}>
-              {e.edge.label}
-            </span>
-          ),
-      )}
+      {renderLabels &&
+        layout.edges.map(
+          (e, i) =>
+            e.edge.label && (
+              <span key={i} className="arch-elabel" style={{ left: e.labelX, top: e.labelY }}>
+                {e.edge.label}
+              </span>
+            ),
+        )}
     </>
   );
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { BlockDef } from "./types";
 import { archStatusSchema } from "./architecture";
+import { tableContentSchema, checkTableContent } from "./table";
 
 // Entity-relationship diagram: tables/models as titled cards with tagged field rows,
 // connected by labeled relationships. The natural block for describing a data model —
@@ -36,7 +37,9 @@ const erRelationSchema = z
   .object({
     from: z.string().min(1).describe("Source entity id."),
     to: z.string().min(1).describe("Target entity id."),
-    label: z.string().optional().describe("Relationship, e.g. 'owns · 1:N'."),
+    label: z.string().optional().describe("Relationship name shown above the line, e.g. 'owns'."),
+    fromEnd: z.string().optional().describe("Cardinality glyph at the `from` end, e.g. '1'."),
+    toEnd: z.string().optional().describe("Cardinality glyph at the `to` end, e.g. 'N' or '∞'."),
   })
   .strict();
 export type ErRelation = z.infer<typeof erRelationSchema>;
@@ -46,33 +49,50 @@ export const erSchema = z
     type: z.literal(ER),
     entities: z.array(erEntitySchema).min(1),
     relations: z.array(erRelationSchema).default([]),
+    columns: tableContentSchema
+      .optional()
+      .describe("Optional columns table (same shape as the `table` block). Present → the renderer shows Diagram/Columns tabs."),
   })
   .strict();
 export type ErBlock = z.infer<typeof erSchema>;
 
+// Only the embedded columns table is cross-checked here. Relations that name a
+// missing entity are surfaced in the UI (UnknownRefs), not rejected — the same
+// tolerant treatment the arch-flow diagrams give their edges.
+function checkErBlock(block: ErBlock, ctx: z.RefinementCtx): void {
+  if (block.columns) checkTableContent(block.columns, ctx, ["columns"]);
+}
+
 export const erDef: BlockDef<typeof erSchema> = {
   type: ER,
   schema: erSchema,
+  check: checkErBlock,
   guide: [
     "### `er`",
     "An entity-relationship diagram: entities as cards listing `PK`/`FK`/`UQ`/`IDX`-tagged",
     "field rows, connected by labeled relations. Layout is automatic — never write",
     "coordinates. Use for data models: when *describing* a system, omit `status`; when",
-    "*proposing* schema changes, mark entities/fields `added | modified | removed`.",
+    "*proposing* schema changes, mark entities/fields `added | modified | removed` (a",
+    "`modified` entity gets the green changed-hairline treatment). Add a `columns` table",
+    "(same shape as the `table` block) to get the Diagram / Columns tab treatment; omit it",
+    "for just the diagram.",
     "",
     "```json",
     '{ "type": "er",',
     '  "entities": [',
     '    { "id": "user", "label": "User",',
     '      "fields": [ { "name": "id", "type": "uuid", "tags": ["PK"] }, { "name": "email", "type": "text", "tags": ["UQ"] } ] },',
-    '    { "id": "task", "label": "Task", "note": "tasks",',
+    '    { "id": "task", "label": "Task", "note": "tasks", "status": "modified",',
     '      "fields": [',
     '        { "name": "id", "type": "uuid", "tags": ["PK"] },',
     '        { "name": "userId", "type": "uuid", "tags": ["FK", "IDX"] },',
     '        { "name": "syncedAt", "type": "timestamptz", "status": "added" }',
     "      ] }",
     "  ],",
-    '  "relations": [ { "from": "user", "to": "task", "label": "owns · 1:N" } ] }',
+    '  "relations": [ { "from": "user", "to": "task", "label": "owns", "fromEnd": "1", "toEnd": "N" } ],',
+    '  "columns": { "caption": "model Task — prisma/schema.prisma",',
+    '    "columns": ["column", "type", "change"],',
+    '    "rows": [ { "cells": ["+ syncedAt", "timestamptz", "NEW"], "tone": "add" } ] } }',
     "```",
   ].join("\n"),
 };
