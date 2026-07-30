@@ -83,15 +83,18 @@ skill  →  CLI (author / review)  →  dumb self-terminating Hono server  →  
 
 ## Status
 
-**v0.6.0** (past the spec's §7 first cut). On top of the first cut it now threads a
+**v0.8.0** (past the spec's §7 first cut). On top of the first cut it now threads a
 per-section conversation across rounds (`dialog`), archives prior rounds into `history`,
 and finalizes to one of two outcomes — `approved` (agree & proceed) or `discuss` (save &
 iterate). Blocks implemented: `markdown`, `diff`, `callout`, `conflict` — the first
 **input-collecting** block (side-by-side decisions whose picks land in
 `response.resolutions`, soft-gated so they never block finalize; each field carries a
-`description` and each side an optional `note` so the decision explains itself) — and,
-as of v0.6.0, the handoff's db-section body as two render-only blocks: `schema` (entity
-diagram with PK/FK/NEW field rows, labeled edges, FK-hover highlighting, and an optional
-`columns` table that enables the Diagram/Columns tabs) and `table` (a generic toned grid
-the schema block's Columns tab reuses, and the logic section's decision table will too).
-The handoff's modal conflict treatment remains deferred.
+`description` and each side an optional `note` so the decision explains itself) — `table`
+(a generic toned grid the `er` block's Columns tab reuses, and the logic section's
+decision table too), `er` (the DB-diagram block: an auto-laid-out entity-relationship
+diagram with PK/FK/UQ/IDX field rows, a green changed-entity treatment, FK-hover
+highlighting, cardinality glyphs at the connector ends, and an optional `columns` table
+that enables the Diagram/Columns tabs), and three architecture diagrams (`arch-flow`,
+`arch-layers`, `arch-boundaries`). A second document `kind`, `architecture-description`,
+drives the `describe-architecture` face. The handoff's modal conflict treatment remains
+deferred.

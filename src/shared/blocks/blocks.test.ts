@@ -49,6 +49,38 @@ describe("er block", () => {
     const bad = { ...validErBlock, columns: { columns: ["a", "b"], rows: [{ cells: ["only one"] }] } };
     expect(() => blockSchema.parse(bad)).toThrow(/1 cells but the table has 2 columns/);
   });
+
+  it("accepts an FK field whose ref names a known entity", () => {
+    const block = blockSchema.parse({
+      type: "er",
+      entities: [
+        { id: "user", label: "User", fields: [{ name: "id", type: "uuid", tags: ["PK"] }] },
+        {
+          id: "task",
+          label: "Task",
+          fields: [{ name: "userId", type: "uuid", tags: ["FK"], ref: "user" }],
+        },
+      ],
+    });
+    if (block.type !== "er") throw new Error("wrong type");
+    expect(block.entities[1].fields[0].ref).toBe("user");
+  });
+
+  it("rejects a ref on a non-FK field", () => {
+    const bad = {
+      type: "er",
+      entities: [{ id: "task", label: "Task", fields: [{ name: "id", type: "uuid", tags: ["PK"], ref: "task" }] }],
+    };
+    expect(() => blockSchema.parse(bad)).toThrow(/only meaningful on an FK-tagged field/);
+  });
+
+  it("rejects an FK ref to an unknown entity", () => {
+    const bad = {
+      type: "er",
+      entities: [{ id: "task", label: "Task", fields: [{ name: "userId", type: "uuid", tags: ["FK"], ref: "ghost" }] }],
+    };
+    expect(() => blockSchema.parse(bad)).toThrow(/unknown entity id 'ghost'/);
+  });
 });
 
 describe("table block", () => {

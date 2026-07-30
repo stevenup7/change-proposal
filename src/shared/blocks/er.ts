@@ -17,6 +17,10 @@ const erFieldSchema = z
     name: z.string().min(1),
     type: z.string().optional().describe("Column/field type, shown dim on the right."),
     tags: z.array(z.enum(erFieldTags)).default([]).describe("PK/FK/UQ/IDX chips."),
+    ref: z
+      .string()
+      .optional()
+      .describe("For an FK-tagged field: the entity id it points at — hovering the FK chip highlights that entity."),
     status: archStatusSchema,
   })
   .strict();
@@ -56,10 +60,30 @@ export const erSchema = z
   .strict();
 export type ErBlock = z.infer<typeof erSchema>;
 
-// Only the embedded columns table is cross-checked here. Relations that name a
-// missing entity are surfaced in the UI (UnknownRefs), not rejected — the same
-// tolerant treatment the arch-flow diagrams give their edges.
+// Field `ref`s are cross-checked (they drive the FK-hover highlight, so a dangling id
+// is a hard error), as is the embedded columns table. Relations that name a missing
+// entity are instead surfaced in the UI (UnknownRefs) — the same tolerant treatment the
+// arch-flow diagrams give their edges.
 function checkErBlock(block: ErBlock, ctx: z.RefinementCtx): void {
+  const ids = new Set(block.entities.map((e) => e.id));
+  block.entities.forEach((entity, ei) => {
+    entity.fields.forEach((field, fi) => {
+      if (field.ref === undefined) return;
+      if (!field.tags.includes("FK")) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["entities", ei, "fields", fi, "ref"],
+          message: "`ref` is only meaningful on an FK-tagged field",
+        });
+      } else if (!ids.has(field.ref)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["entities", ei, "fields", fi, "ref"],
+          message: `unknown entity id '${field.ref}'`,
+        });
+      }
+    });
+  });
   if (block.columns) checkTableContent(block.columns, ctx, ["columns"]);
 }
 
@@ -73,9 +97,10 @@ export const erDef: BlockDef<typeof erSchema> = {
     "field rows, connected by labeled relations. Layout is automatic — never write",
     "coordinates. Use for data models: when *describing* a system, omit `status`; when",
     "*proposing* schema changes, mark entities/fields `added | modified | removed` (a",
-    "`modified` entity gets the green changed-hairline treatment). Add a `columns` table",
-    "(same shape as the `table` block) to get the Diagram / Columns tab treatment; omit it",
-    "for just the diagram.",
+    "`modified` entity gets the green changed-hairline treatment). On an FK-tagged field,",
+    "set `ref` to the entity id it points at — hovering the FK chip highlights that entity.",
+    "Add a `columns` table (same shape as the `table` block) to get the Diagram / Columns",
+    "tab treatment; omit it for just the diagram.",
     "",
     "```json",
     '{ "type": "er",',
@@ -85,7 +110,7 @@ export const erDef: BlockDef<typeof erSchema> = {
     '    { "id": "task", "label": "Task", "note": "tasks", "status": "modified",',
     '      "fields": [',
     '        { "name": "id", "type": "uuid", "tags": ["PK"] },',
-    '        { "name": "userId", "type": "uuid", "tags": ["FK", "IDX"] },',
+    '        { "name": "userId", "type": "uuid", "tags": ["FK", "IDX"], "ref": "user" },',
     '        { "name": "syncedAt", "type": "timestamptz", "status": "added" }',
     "      ] }",
     "  ],",

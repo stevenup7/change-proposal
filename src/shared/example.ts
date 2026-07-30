@@ -46,10 +46,10 @@ export function exampleDocument(): ChangeProposalDocument {
                   status: "modified",
                   fields: [
                     { name: "id", type: "String", tags: ["PK"] },
-                    { name: "userId", type: "String", tags: ["FK", "IDX"] },
+                    { name: "userId", type: "String", tags: ["FK", "IDX"], ref: "user" },
                     { name: "description", type: "String", tags: [] },
                     { name: "status", type: "TaskStatus", tags: [] },
-                    { name: "externalId", type: "String", tags: ["FK", "IDX"] },
+                    { name: "externalId", type: "String", tags: ["FK", "IDX"], ref: "google" },
                     { name: "externalListId", type: "String?", tags: [], status: "added" },
                     { name: "externalTitle", type: "String?", tags: [], status: "added" },
                     { name: "externalDue", type: "DateTime?", tags: [], status: "added" },

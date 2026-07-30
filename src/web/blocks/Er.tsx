@@ -23,6 +23,8 @@ function EntityTag({ status }: { status: Status | undefined }) {
 }
 
 function Diagram({ block }: { block: ErBlock }) {
+  const [highlight, setHighlight] = useState<string | null>(null);
+  const labelOf = (id: string) => block.entities.find((e) => e.id === id)?.label ?? id;
   const layout = layoutFlow(
     { nodes: block.entities, edges: block.relations },
     block.entities.map(entityHeight),
@@ -60,7 +62,9 @@ function Diagram({ block }: { block: ErBlock }) {
         {layout.nodes.map((p, i) => (
           <div
             key={i}
-            className={`er-entity ${p.node.status ? `er-entity-${p.node.status}` : ""}`}
+            className={`er-entity ${p.node.status ? `er-entity-${p.node.status}` : ""}${
+              highlight === p.node.id ? " is-highlight" : ""
+            }`}
             style={{ left: p.x, top: p.y, width: NODE_W, height: p.h }}
           >
             <div className="er-entity-head">
@@ -73,9 +77,20 @@ function Diagram({ block }: { block: ErBlock }) {
                 <div key={j} className={`er-field ${f.status ? `er-field-${f.status}` : ""}`}>
                   {f.tags.length > 0 && (
                     <span className="er-tags">
-                      {f.tags.map((t) => (
-                        <i key={t}>{t}</i>
-                      ))}
+                      {f.tags.map((t) => {
+                        const isFkRef = t === "FK" && f.ref !== undefined;
+                        return (
+                          <i
+                            key={t}
+                            className={isFkRef ? "is-fkref" : undefined}
+                            title={isFkRef ? `→ ${labelOf(f.ref!)}` : undefined}
+                            onMouseEnter={isFkRef ? () => setHighlight(f.ref!) : undefined}
+                            onMouseLeave={isFkRef ? () => setHighlight(null) : undefined}
+                          >
+                            {t}
+                          </i>
+                        );
+                      })}
                     </span>
                   )}
                   <span className="er-field-name">{f.name}</span>

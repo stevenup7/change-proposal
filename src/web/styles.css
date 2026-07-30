@@ -697,6 +697,10 @@ body {
   text-decoration: line-through;
   color: var(--text-faint);
 }
+/* FK-hover: hovering an FK chip with a `ref` rings the entity it points at. */
+.er-entity.is-highlight {
+  box-shadow: 0 0 0 2px var(--primary), var(--shadow);
+}
 .er-entity-head {
   height: 30px;
   display: flex;
@@ -767,6 +771,13 @@ body {
   background: var(--primary-bg);
   color: var(--primary);
   line-height: 13px;
+}
+/* An FK chip that carries a `ref` is interactive (hover highlights its target). */
+.er-tags i.is-fkref {
+  cursor: help;
+}
+.er-tags i.is-fkref:hover {
+  outline: 1px solid var(--primary);
 }
 .er-field-name {
   overflow: hidden;
