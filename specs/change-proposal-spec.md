@@ -13,11 +13,11 @@
 ## 1. Purpose
 
 A tool for coding agents to present a **change proposal** as an interactive review
-surface instead of a markdown plan. The agent breaks a proposed change into reviewable
+page instead of a markdown plan. The agent breaks a proposed change into reviewable
 sections; the human approves/rejects each one, converses per-section, answers the agent's
 questions, and resolves conflicts. It is a **structured, section-by-section approval gate
 between an agent's plan and its execution.** The Google-Tasks 3-way-merge payload in the
-handoff is just an example — the review surface itself is the product.
+handoff is just an example — the review page itself is the product.
 
 ## 2. Core principles
 
@@ -116,7 +116,7 @@ the agent reads it back. It has distinct regions:
 - **`status`** — `pending → in-progress → finalized`. The agent polls this field. A new
   round resets it to `pending`.
 - **`round`** — integer, optional display aid ("Round 2"). Not modeled as state by the tool.
-- **Prose fields carry Markdown strings** (summaries, callouts, guidance); the UI renders
+- **Text fields carry Markdown strings** (summaries, callouts, guidance); the UI renders
   them. Structured/relational data (verdicts, question options, diffs) stays typed.
 - **On save**, the front end writes *only* the response region. The server may verify the
   proposal region came back byte-identical, so a UI bug can never corrupt the agent's plan.
@@ -164,7 +164,7 @@ Every block type is a **self-contained module** exporting three things from one 
 
 1. **schema fragment** (Zod → validation + TS types)
 2. **renderer** (React component)
-3. **authoring guidance** (prose the skill needs: when/how to emit it)
+3. **authoring guidance** (the text the skill needs: when/how to emit it)
 
 A registry composes all registered blocks into: (a) the global JSON Schema the CLI
 validates against, (b) the front end's `type → component` map, (c) the skill's generated
@@ -206,7 +206,7 @@ Build the **whole loop, thinnest content vocabulary.**
 - In-section tabs, theme polish, "addressed-feedback" continuity block.
 
 Rationale: the three blocks exercise every architectural seam (registry, derived schema,
-deterministic render, round-trip, iteration) with the least surface area. The deferred
+deterministic render, round-trip, iteration) with the least added code. The deferred
 items teach nothing new about the architecture.
 
 ### Since v1 (delivered beyond the first cut)

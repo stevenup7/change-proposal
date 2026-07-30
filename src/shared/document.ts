@@ -14,7 +14,7 @@ export const sectionSchema = z
   .object({
     id: z.string().min(1).describe("Stable unique id; keys the review/comment state."),
     title: z.string().min(1),
-    badge: z.string().optional().describe("Short mono label, e.g. 'DB', 'API'."),
+    badge: z.string().optional().describe("Short label, e.g. 'DB', 'API'."),
     accent: z.enum(accents).default("neutral"),
     summary: z.string().optional().describe("One-line summary shown collapsed (Markdown)."),
     blocks: z.array(blockSchema).default([]),

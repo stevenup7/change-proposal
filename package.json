@@ -1,7 +1,7 @@
 {
   "name": "change-proposal",
   "version": "0.8.0",
-  "description": "Interactive change-proposal review surface for coding agents",
+  "description": "Interactive change-proposal review page for coding agents",
   "type": "module",
   "engines": {
     "node": ">=20"

@@ -24,8 +24,10 @@ export const calloutDef: BlockDef<typeof calloutSchema> = {
   schema: calloutSchema,
   guide: [
     "### `callout`",
-    "A tinted note that draws the eye: a safety guarantee, a risk, a caveat.",
-    "`tone`: `info` (neutral), `add` (safe/positive), `del` (risk), `mod` (changed), `warn` (caution).",
+    "Use for one short point the reviewer must not miss — a risk, a guarantee, a caveat. Keep",
+    "it to a sentence or two; if it needs more than that, use `markdown` instead. `tone` sets",
+    "the colour: `info` neutral, `add` safe or positive, `del` risky, `mod` changed, `warn`",
+    "proceed with caution.",
     "",
     "```json",
     '{ "type": "callout", "tone": "add", "title": "Safe migration", "text": "Purely additive columns — no backfill, no downtime." }',

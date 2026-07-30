@@ -39,7 +39,7 @@ export function renderDigest(doc: ChangeProposalDocument): string {
 
   lines.push("", "## Section verdicts");
   if (Object.keys(r.review).length === 0) {
-    lines.push("(none given — with a positive outcome, silence means no objection)");
+    lines.push("(none recorded — the human marked no individual section. Use the outcome above.)");
   } else {
     for (const s of doc.proposal.sections) {
       lines.push(`- ${s.title} [${s.id}]: ${r.review[s.id] ?? "no verdict"}`);

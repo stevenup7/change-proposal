@@ -162,7 +162,7 @@ export function exampleDocument(): ChangeProposalDocument {
           title: "Architecture",
           badge: "ARCH",
           accent: "blue",
-          summary: "Where the merge sits: sync flow, stack altitude, and ownership.",
+          summary: "Where the merge runs: sync flow, which layer it belongs to, and who owns it.",
           blocks: [
             {
               type: "markdown",

@@ -34,7 +34,7 @@ describe("renderDigest", () => {
     // Conflict picks: side id joined to label + literal value; missing pick called out.
     expect(digest).toContain('- Task title [merge.title] → Steady (local): "Buy oat milk"');
     expect(digest).toContain("- Due date [merge.due] → UNRESOLVED — left for you to decide");
-    // Answers: write-in surfaced verbatim, text answers quoted.
+    // Answers: write-in shown verbatim, text answers quoted.
     expect(digest).toContain('Other (write-in): "Ask only for shifts over a day"');
     expect(digest).toContain('"Cover recurring tasks too"');
     // This round's human notes and global feedback.
@@ -61,7 +61,7 @@ describe("renderDigest", () => {
   it("says so when nothing has happened yet", () => {
     const digest = renderDigest(exampleDocument());
     expect(digest).toContain("STATUS: pending");
-    expect(digest).toContain("(none given — with a positive outcome, silence means no objection)");
+    expect(digest).toContain("(none recorded — the human marked no individual section. Use the outcome above.)");
     expect(digest).not.toContain("## Notes from the human");
     expect(digest).not.toContain("## Overall feedback");
   });

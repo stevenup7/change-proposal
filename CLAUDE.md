@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-An interface for coding assistants to generate **change proposal pages** — a structured, section-by-section approval gate that sits between an agent's plan and its execution, replacing "read this markdown plan". The agent breaks a proposed change into reviewable sections (schema, logic, code diffs, API, types, UI, tests, deps, build) plus open questions; the human approves/rejects each section, leaves per-section comments, answers the agent's questions, and resolves conflicts — all routed back to the agent. The sample payload (a Google Tasks 3-way-merge fix) is just an example; the **review surface itself is the product**.
+An interface for coding assistants to generate **change proposal pages** — a structured, section-by-section approval gate that sits between an agent's plan and its execution, replacing "read this markdown plan". The agent breaks a proposed change into reviewable sections (schema, logic, code diffs, API, types, UI, tests, deps, build) plus open questions; the human approves/rejects each section, leaves per-section comments, answers the agent's questions, and resolves conflicts — all routed back to the agent. The sample payload (a Google Tasks 3-way-merge fix) is just an example; the **review page itself is the product**.
 
 ## Current state
 
@@ -23,10 +23,13 @@ An interface for coding assistants to generate **change proposal pages** — a s
 - `npm run cli -- author` — print the versioned authoring guide + JSON schema (what the skill fetches).
 - `npm run review` (or `npx tsx src/cli/index.ts review <file>`) — validate a proposal, serve the UI on `:4179`, and block until the user finalizes.
 - `npm run cli -- iterate <file>` — archive the finished round into `history`, keep the `dialog`, and bump `round` for the next pass.
+- `npm run cli -- install-skill --all` — install both skills into `~/.claude/skills/`. `--agent claude|cursor|agents` (comma-separated) picks the host convention — Cursor's native `~/.cursor/skills` / `.cursor/skills`, or the vendor-neutral `.agents/skills`; the file itself is identical for every host. Plus `--project`, `--dir <path>`, `--command <cmd>`, `--force`, `--print`. Regenerate this repo's own checked-in skills with `npm run cli -- install-skill --local --all --dir .claude/skills --force`.
 
 ## Architecture invariants (don't regress these)
 
 - **`src/shared/` is the single source of truth.** Zod schemas → derived JSON Schema, TS types, and the skill's authoring guide. Node-safe (no React) so both CLI and Vite import it.
+- **Skill text is generated, never hand-edited.** Both `SKILL.md` files come from `src/shared/skill.ts` — the checked-in ones in `.claude/skills/` (in-repo `npm run` invocation) and whatever `install-skill` writes into a user/project skills dir (CLI-bin invocation). Edit the generator, regenerate, and `src/shared/skill.test.ts` pins the checked-in copies to it. **The skill text stays host-agnostic** — one file must serve Claude Code, Cursor and `.agents/skills` readers, so the frontmatter stays inside their intersection (`name` lowercase-hyphen and equal to the folder, `description`, `disable-model-invocation`; nothing host-specific), and host differences live in `HOSTS` in `src/cli/install-skill.ts`, not in the text.
+- **Both skills are explicit-invocation only** (`disable-model-invocation: true`, honoured identically by Claude Code and Cursor). A review takes over the human's browser and blocks until they finalize — the human asks for it with `/change-proposal`; an agent never opens one unprompted. Don't drop the field to make the tool "discoverable".
 - **`src/web/state.ts` is a pure reducer** — no React, no time, no I/O. `finalizedAt` is stamped by the server, never the reducer. This is what the golden tests pin; keep it pure.
 - **Adding a block = add `src/shared/blocks/<name>.ts`** (schema + guide), register it in `src/shared/blocks/registry.ts`, and add a renderer keyed by the same `type` constant in `src/web/blocks/`. Schema/UI/guide derive from the registry — don't hand-maintain them separately.
 - **No fallbacks, force upgrade.** Strict/closed schemas (`.strict()`), version match is hard-checked, unknown block `type` is an error. Don't add tolerant/degrading paths.

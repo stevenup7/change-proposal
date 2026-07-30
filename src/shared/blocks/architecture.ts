@@ -17,7 +17,7 @@ export const archStatusSchema = z
   .describe("Change relative to this proposal; omit for unchanged.");
 const archStatus = archStatusSchema;
 
-/** A leaf component chip: a module, file, table, service, … */
+/** A single component: a module, file, table, service, … */
 const archItemSchema = z
   .object({
     label: z.string().min(1),
@@ -27,7 +27,7 @@ const archItemSchema = z
 export type ArchItem = z.infer<typeof archItemSchema>;
 
 // ---------------------------------------------------------------------------
-// arch-flow — nodes & labeled edges (runtime story: who calls whom).
+// arch-flow — nodes & labeled edges (what calls what at runtime).
 // ---------------------------------------------------------------------------
 
 export const archNodeKinds = ["process", "file", "external"] as const;
@@ -36,11 +36,11 @@ const flowNodeSchema = z
   .object({
     id: z.string().min(1).describe("Unique id referenced by edges."),
     label: z.string().min(1),
-    note: z.string().optional().describe("One short mono subline (path, port, role)."),
+    note: z.string().optional().describe("One short extra line, e.g. a path, port, or role."),
     kind: z
       .enum(archNodeKinds)
       .default("process")
-      .describe("process=solid box, file=dashed mono artifact, external=out-of-system actor."),
+      .describe("process=a running component, file=a stored artifact, external=outside the system."),
     status: archStatus,
   })
   .strict();
@@ -69,11 +69,11 @@ export const archFlowDef: BlockDef<typeof archFlowSchema> = {
   schema: archFlowSchema,
   guide: [
     "### `arch-flow`",
-    "An architecture diagram of nodes and labeled edges — the runtime story (who calls",
-    "whom, what crosses each boundary). Layout is computed automatically left-to-right",
-    "from the edges; never think about coordinates. Best under ~10 nodes; edge labels",
-    "are short verb phrases. Node `kind`: `process` (solid), `file` (dashed artifact),",
-    "`external` (actor outside the system). Mark proposal changes with",
+    "Use to show what calls what while the system is running, and what data passes between",
+    "them. Give `nodes` and the `edges` joining them; positions are computed for you, so never",
+    "write coordinates. Keep it under about 10 nodes, and make each edge `label` a short verb",
+    "phrase. Node `kind`: `process` a running component, `file` a stored artifact, `external`",
+    "something outside the system. Mark proposal changes with",
     "`status: added | modified | removed`.",
     "",
     "```json",
@@ -92,16 +92,16 @@ export const archFlowDef: BlockDef<typeof archFlowSchema> = {
 };
 
 // ---------------------------------------------------------------------------
-// arch-layers — horizontal stack bands (altitude: which layer a change lives in).
+// arch-layers — horizontal stack bands (which layer of the system a change belongs to).
 // ---------------------------------------------------------------------------
 
-/** Styling-only accent for a layer's label rail (mirrors section accents). */
+/** Colour accent for a layer's label; styling only (mirrors section accents). */
 export const archAccents = ["blue", "green", "red", "amber", "violet", "neutral"] as const;
 
 const layerSchema = z
   .object({
     label: z.string().min(1).describe("Layer name, e.g. 'Review UI'."),
-    sublabel: z.string().optional().describe("Short mono note, e.g. 'browser'."),
+    sublabel: z.string().optional().describe("Short extra note, e.g. 'browser'."),
     accent: z.enum(archAccents).default("neutral"),
     items: z.array(archItemSchema).min(1),
     connector: z
@@ -125,10 +125,10 @@ export const archLayersDef: BlockDef<typeof archLayersSchema> = {
   schema: archLayersSchema,
   guide: [
     "### `arch-layers`",
-    "An architecture diagram as horizontal stack bands, top-to-bottom, with components as",
-    "chips — answers 'which layer does this change live in?'. Zero geometry: just ordered",
-    "lists. `connector` labels the arrow to the next layer. Mark changed components with",
-    "`status`; `accent` tints the layer's label rail (styling only).",
+    "Use to show which layer of the system each part belongs to — API, domain, storage, and",
+    "so on. `layers` are ordered top to bottom, each listing its `items`; `connector` labels",
+    "the arrow down to the next layer. There are no coordinates, only ordered lists. Mark",
+    "changed components with `status`. `accent` sets a colour and carries no meaning.",
     "",
     "```json",
     '{ "type": "arch-layers",',
@@ -150,7 +150,7 @@ export const archLayersDef: BlockDef<typeof archLayersSchema> = {
 const actorSchema = z
   .object({
     label: z.string().min(1),
-    note: z.string().optional().describe("Short mono note, e.g. 'writes proposal.json'."),
+    note: z.string().optional().describe("Short extra note, e.g. 'writes proposal.json'."),
   })
   .strict();
 export type ArchActor = z.infer<typeof actorSchema>;
@@ -186,7 +186,7 @@ export const archBoundariesSchema = z
     containers: z.array(containerSchema).min(1),
     foundation: containerSchema
       .optional()
-      .describe("Optional shared base every container imports; rendered full-width below."),
+      .describe("Optional shared base that every container imports."),
   })
   .strict();
 export type ArchBoundariesBlock = z.infer<typeof archBoundariesSchema>;
@@ -196,10 +196,11 @@ export const archBoundariesDef: BlockDef<typeof archBoundariesSchema> = {
   schema: archBoundariesSchema,
   guide: [
     "### `arch-boundaries`",
-    "A C4-style ownership map: a dashed system `boundary` holding container boxes with",
-    "component chips inside (one optional level of grouped `children`), external `actors`",
-    "above, and an optional `foundation` container every other container imports (rendered",
-    "full-width below). No geometry — nesting is the only structure.",
+    "Use to show what lives inside the system and what sits outside it (the container level",
+    "of the C4 model). `boundary` names the system; `containers` are the units inside it, each",
+    "listing its component `children`, which may themselves group one level deep; `actors` are",
+    "the outside parties it talks to; `foundation` is a shared base every container imports.",
+    "Nesting is the only structure — there are no coordinates.",
     "",
     "```json",
     '{ "type": "arch-boundaries",',

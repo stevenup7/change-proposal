@@ -40,7 +40,7 @@ export interface FlowLayout<N> {
   height: number;
   nodes: PlacedNode<N>[];
   edges: RoutedEdge[];
-  /** Edge endpoints that name no node — surfaced in the UI instead of silently dropped. */
+  /** Edge endpoints that name no node — shown in the UI instead of silently dropped. */
   unknownRefs: string[];
 }
 

@@ -7,9 +7,8 @@ replacing "read this markdown plan".
 The agent breaks a proposed change into reviewable sections (schema, logic, code diffs,
 API, types, UI, tests, deps, build) plus open questions; the human approves/rejects each
 section, leaves per-section comments, answers the agent's questions, and resolves
-conflicts — all routed back to the agent via a single JSON file. **The review surface
-itself is the product**; the sample payload (a Google Tasks 3-way-merge fix) is just an
-example.
+conflicts — all routed back to the agent via a single JSON file. **The review page itself
+is the product**; the sample payload (a Google Tasks 3-way-merge fix) is just an example.
 
 ## Requirements
 
@@ -44,6 +43,53 @@ committing — the first cut shipped with known vulnerabilities, so a clean audi
 | `npm run cli -- example proposal.json` | Write a sample proposal you can adapt. |
 | `npm run cli -- validate proposal.json` | Validate a proposal against the schema + version. |
 | `npm run cli -- review proposal.json` | Validate, serve the UI on `:4179`, and block until you finalize in the browser. |
+| `npm run cli -- install-skill --all` | Install the agent skills into `~/.claude/skills/` (see below). |
+
+## Installing the skills
+
+The skills are how an agent reaches this tool. `install-skill` writes them for you, wired to
+invoke this checkout from any directory:
+
+```bash
+npm run cli -- install-skill --all                    # ~/.claude/skills — every project
+npm run cli -- install-skill --all --project          # ./.claude/skills — this project only
+npm run cli -- install-skill --all --agent cursor     # ~/.cursor/skills — Cursor
+npm run cli -- install-skill --all --agent claude,cursor
+```
+
+Both skills are **explicit-invocation only** (`disable-model-invocation: true`): you open a
+review by typing `/change-proposal` or `/describe-architecture`, and the agent never decides
+to on its own. Opening a review starts a blocking server and takes over your browser, which
+is not something an agent should choose for you. Claude Code and Cursor honour the same field.
+
+`SKILL.md` is a shared convention, so the generated file is byte-identical for every host —
+only the directory differs:
+
+| `--agent` | User scope | Project scope | Read by |
+| --- | --- | --- | --- |
+| `claude` (default) | `~/.claude/skills/` | `./.claude/skills/` | Claude Code — and Cursor, which loads the Claude directories for compatibility. |
+| `cursor` | `~/.cursor/skills/` | `./.cursor/skills/` | Cursor (its native location; any depth inside a repo works). |
+| `agents` | `~/.agents/skills/` | `./.agents/skills/` | The vendor-neutral path — Cursor and Codex read it; Claude Code does not. |
+
+So a Cursor user is covered either way, but `--agent cursor` puts the skill where Cursor
+itself documents it. Combine hosts with a comma to install to several at once.
+
+| Option | What it does |
+| --- | --- |
+| `--agent <names>` | Host convention(s) to install for, comma-separated (see table above). |
+| `--user` | Install to the user-level dir (the default; the Claude host honours `CLAUDE_CONFIG_DIR`). |
+| `--project` | Install to the project-level dir in the current directory. |
+| `--dir <path>` | Install to an explicit skills directory (for a host not listed above). Can't be combined with `--agent`. |
+| `--all` | Install both skills. Without it, each bin installs only its own (`change-proposal install-skill` → the proposal skill, `describe-architecture install-skill` → the description skill). |
+| `--command <cmd>` | Command the installed skill should invoke. Defaults to the bin name when it's on `PATH` (i.e. after `npm link`), otherwise the absolute path to this checkout's bin. |
+| `--force` | Overwrite an existing `SKILL.md` whose content differs. Without it, a differing file is reported and left alone. |
+| `--print` | Print the `SKILL.md` instead of writing it. |
+| `--local` | Emit the in-repo `npm run` form — this is how this repo's own `.claude/skills/` files are regenerated. |
+
+Re-running is idempotent (`already current`), so re-run it after pulling a new version to
+keep the installed skills in step with the tool. The skill text is generated from
+`src/shared/skill.ts`, so an installed skill can't drift from the checked-in one — a test
+pins the two together.
 
 ### Reviewing on a remote/headless box
 
@@ -54,8 +100,8 @@ locally:
 ssh -L 4179:localhost:4179 <host>   # then browse to http://localhost:4179
 ```
 
-The surface is also drivable over plain HTTP (`GET /api/proposal`, `PUT /api/document`) —
-handy for scripted/headless round-trips.
+The review page is also drivable over plain HTTP (`GET /api/proposal`, `PUT /api/document`)
+— handy for scripted/headless round-trips.
 
 ## How the pieces fit
 
@@ -70,7 +116,8 @@ skill  →  CLI (author / review)  →  dumb self-terminating Hono server  →  
 - **`src/server/` + `src/cli/`** — a dumb I/O server that guards the proposal region as
   byte-identical read-only, plus the `author`/`review` CLI.
 - **`.claude/skills/change-proposal/`** — the accompanying Claude Code skill that drives
-  the flow.
+  the flow. Generated from `src/shared/skill.ts`; `install-skill` writes the same text
+  elsewhere with the invocation rewritten.
 
 ## Docs
 

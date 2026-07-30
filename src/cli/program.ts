@@ -13,8 +13,10 @@ import {
 import { renderDigest } from "../shared/digest";
 import { authoringGuide, describeGuide, jsonSchema } from "../shared/guide";
 import { exampleDocument, exampleDescription } from "../shared/example";
+import { DEFAULT_FILES, TOOL_NAMES } from "../shared/skill";
 import { VERSION } from "../shared/version";
 import { startReviewServer, WEB_DIR } from "../server/server";
+import { installSkill, type InstallOptions } from "./install-skill";
 import { openBrowser } from "./open-browser";
 
 // One CLI, two faces: `change-proposal` and `describe-architecture` are the same
@@ -35,19 +37,19 @@ interface Mode {
 
 const MODES: Record<DocumentKind, Mode> = {
   "change-proposal": {
-    name: "change-proposal",
-    description: "Interactive change-proposal review surface for coding agents",
-    defaultFile: "proposal.json",
+    name: TOOL_NAMES["change-proposal"],
+    description: "Interactive change-proposal review page for coding agents",
+    defaultFile: DEFAULT_FILES["change-proposal"],
     guide: authoringGuide,
     example: exampleDocument,
     exampleNoun: "proposal",
     reviewHeading: "Change Proposal — reviewing",
   },
   "architecture-description": {
-    name: "describe-architecture",
+    name: TOOL_NAMES["architecture-description"],
     description:
-      "Interactive architecture-description surface — the agent describes the current system, the human runs a clarification loop",
-    defaultFile: "architecture.json",
+      "Interactive architecture-description page — the agent describes the current system, the human runs a clarification loop",
+    defaultFile: DEFAULT_FILES["architecture-description"],
     guide: describeGuide,
     example: exampleDescription,
     exampleNoun: "description",
@@ -69,6 +71,29 @@ export function buildProgram(kind: DocumentKind): Command {
       process.stdout.write(
         opts.schema ? JSON.stringify(jsonSchema(), null, 2) + "\n" : mode.guide() + "\n",
       );
+    });
+
+  // --- install-skill: put the generated SKILL.md where Claude Code finds it --
+  program
+    .command("install-skill")
+    .description(
+      `Install the ${mode.name} agent skill (default: Claude Code, user scope — every project)`,
+    )
+    // No commander default here: `--dir` needs to know whether --agent was given explicitly.
+    .option(
+      "--agent <names>",
+      "host agent convention(s), comma-separated: claude (default), cursor, agents",
+    )
+    .option("--user", "install for your user — e.g. ~/.claude/skills (default)")
+    .option("--project", "install into this project — e.g. ./.claude/skills")
+    .option("--dir <path>", "install into an explicit skills directory")
+    .option("--all", "install both skills (change-proposal and describe-architecture)")
+    .option("--command <cmd>", "command the skill should invoke (default: this package's bin)")
+    .option("--local", "emit the in-repo npm-script form (regenerates this repo's own skills)")
+    .option("--force", "overwrite an existing SKILL.md whose content differs")
+    .option("--print", "print the SKILL.md instead of writing it")
+    .action(async (opts: InstallOptions) => {
+      await installSkill(kind, opts);
     });
 
   // --- example: write a sample document ------------------------------------

@@ -79,7 +79,7 @@ describe("arch-flow layout is deterministic", () => {
     expect(l.edges[2].path).toContain(`V ${dip}`);
   });
 
-  it("surfaces unknown edge refs instead of silently dropping them", () => {
+  it("reports unknown edge refs instead of silently dropping them", () => {
     const l = layoutFlow({ nodes: [n("a")], edges: [{ from: "a", to: "ghost" }] });
     expect(l.unknownRefs).toEqual(["ghost"]);
     expect(l.edges).toHaveLength(0);

@@ -17,14 +17,14 @@ export const tableRowSchema = z
 export type TableRow = z.infer<typeof tableRowSchema>;
 
 // The content shape, separate from the block wrapper: the `schema` block's Columns
-// tab embeds this exact schema, so the two surfaces cannot drift.
+// tab embeds this exact schema, so the two renderings cannot drift.
 export const tableContentSchema = z
   .object({
     caption: z
       .string()
       .optional()
-      .describe("Mono caption above the table, e.g. 'model Task — prisma/schema.prisma'."),
-    columns: z.array(z.string().min(1)).min(1).describe("Header labels (rendered uppercase mono)."),
+      .describe("Caption above the table, e.g. 'model Task — prisma/schema.prisma'."),
+    columns: z.array(z.string().min(1)).min(1).describe("Header labels, one per column."),
     rows: z.array(tableRowSchema).min(1),
   })
   .strict();
@@ -54,10 +54,10 @@ export const tableDef: BlockDef<typeof tableSchema> = {
   check: (block, ctx) => checkTableContent(block, ctx),
   guide: [
     "### `table`",
-    "A toned grid: header `columns`, then `rows` of cells with an optional per-row `tone`",
-    "(`faint` for unchanged/background rows, `add`/`del`/`mod` for new/removed/changed).",
-    "Every row must have exactly one cell per column. Use it for column lists, decision",
-    "tables, before/after comparisons — anything tabular.",
+    "Use when the same few facts repeat across several items: column lists, decision tables,",
+    "before/after comparisons. `columns` are the headers and `rows` hold the cells — every row",
+    "must have exactly one cell per column, in column order. A row's optional `tone` marks",
+    "what happened to it: `faint` unchanged, `add` new, `del` removed, `mod` changed.",
     "",
     "```json",
     '{ "type": "table", "caption": "model Task — prisma/schema.prisma",',

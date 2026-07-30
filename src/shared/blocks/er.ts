@@ -3,10 +3,10 @@ import type { BlockDef } from "./types";
 import { archStatusSchema } from "./architecture";
 import { tableContentSchema, checkTableContent } from "./table";
 
-// Entity-relationship diagram: tables/models as titled cards with tagged field rows,
-// connected by labeled relationships. The natural block for describing a data model —
-// and, with `status`, for proposing changes to one. Layout is automatic (same engine
-// as arch-flow); the author never writes coordinates.
+// Entity-relationship diagram: tables/models with their tagged fields, connected by
+// labeled relationships. The block for describing a data model — and, with `status`,
+// for proposing changes to one. Positions are computed automatically (same engine as
+// arch-flow); the author never writes coordinates.
 
 export const ER = "er";
 
@@ -15,12 +15,12 @@ export const erFieldTags = ["PK", "FK", "UQ", "IDX"] as const;
 const erFieldSchema = z
   .object({
     name: z.string().min(1),
-    type: z.string().optional().describe("Column/field type, shown dim on the right."),
-    tags: z.array(z.enum(erFieldTags)).default([]).describe("PK/FK/UQ/IDX chips."),
+    type: z.string().optional().describe("Column/field type, e.g. 'uuid'."),
+    tags: z.array(z.enum(erFieldTags)).default([]).describe("Field tags: PK primary key, FK foreign key, UQ unique, IDX indexed."),
     ref: z
       .string()
       .optional()
-      .describe("For an FK-tagged field: the entity id it points at — hovering the FK chip highlights that entity."),
+      .describe("For an FK-tagged field: the entity id it points at. Must name an entity in this block."),
     status: archStatusSchema,
   })
   .strict();
@@ -30,7 +30,7 @@ const erEntitySchema = z
   .object({
     id: z.string().min(1).describe("Unique id referenced by relations."),
     label: z.string().min(1).describe("Entity/table name, e.g. 'Task'."),
-    note: z.string().optional().describe("One short mono subline (table name, store)."),
+    note: z.string().optional().describe("One short extra line, e.g. the table name or store."),
     status: archStatusSchema,
     fields: z.array(erFieldSchema).min(1),
   })
@@ -42,8 +42,8 @@ const erRelationSchema = z
     from: z.string().min(1).describe("Source entity id."),
     to: z.string().min(1).describe("Target entity id."),
     label: z.string().optional().describe("Relationship name shown above the line, e.g. 'owns'."),
-    fromEnd: z.string().optional().describe("Cardinality glyph at the `from` end, e.g. '1'."),
-    toEnd: z.string().optional().describe("Cardinality glyph at the `to` end, e.g. 'N' or '∞'."),
+    fromEnd: z.string().optional().describe("Cardinality marker at the `from` end, e.g. '1'."),
+    toEnd: z.string().optional().describe("Cardinality marker at the `to` end, e.g. 'N' or '∞'."),
   })
   .strict();
 export type ErRelation = z.infer<typeof erRelationSchema>;
@@ -55,14 +55,14 @@ export const erSchema = z
     relations: z.array(erRelationSchema).default([]),
     columns: tableContentSchema
       .optional()
-      .describe("Optional columns table (same shape as the `table` block). Present → the renderer shows Diagram/Columns tabs."),
+      .describe("Optional columns table (same shape as the `table` block). When present, the reader can switch between the diagram and this table."),
   })
   .strict();
 export type ErBlock = z.infer<typeof erSchema>;
 
 // Field `ref`s are cross-checked (they drive the FK-hover highlight, so a dangling id
 // is a hard error), as is the embedded columns table. Relations that name a missing
-// entity are instead surfaced in the UI (UnknownRefs) — the same tolerant treatment the
+// entity are instead shown in the UI (UnknownRefs) — the same tolerant handling the
 // arch-flow diagrams give their edges.
 function checkErBlock(block: ErBlock, ctx: z.RefinementCtx): void {
   const ids = new Set(block.entities.map((e) => e.id));
@@ -93,14 +93,14 @@ export const erDef: BlockDef<typeof erSchema> = {
   check: checkErBlock,
   guide: [
     "### `er`",
-    "An entity-relationship diagram: entities as cards listing `PK`/`FK`/`UQ`/`IDX`-tagged",
-    "field rows, connected by labeled relations. Layout is automatic — never write",
-    "coordinates. Use for data models: when *describing* a system, omit `status`; when",
-    "*proposing* schema changes, mark entities/fields `added | modified | removed` (a",
-    "`modified` entity gets the green changed-hairline treatment). On an FK-tagged field,",
-    "set `ref` to the entity id it points at — hovering the FK chip highlights that entity.",
-    "Add a `columns` table (same shape as the `table` block) to get the Diagram / Columns",
-    "tab treatment; omit it for just the diagram.",
+    "Use for a data model: `entities` (tables or models) listing their fields, joined by",
+    "`relations`. Positions are computed for you, so never write coordinates. Tag fields",
+    "`PK`, `FK`, `UQ` or `IDX`. When describing a system as it is, omit `status`; when",
+    "proposing schema changes, mark the entities and fields you are changing",
+    "`added | modified | removed`. On an FK-tagged field, set `ref` to the entity id it points",
+    "at; a `ref` naming no entity in this block is an error. Add a `columns` table (same shape",
+    "as the `table` block) when the fields need types and per-column notes the diagram cannot",
+    "hold — the reader can then switch between the two. Omit it to show only the diagram.",
     "",
     "```json",
     '{ "type": "er",',
