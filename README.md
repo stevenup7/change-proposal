@@ -9,20 +9,20 @@ architecture into manageable chunks and use diagrams where appropriate.
 
 It works like this.
 
- 1. install cli
- 2. install skills (the skills are lightweight to save context, the cli covers the install)
- 3. call skill
-  - 3.1 agent calls cli, gets the authoring guide (progressive disclosure — it only pulls
-    the spec for the blocks it is actually going to use)
-  - 3.2 agent writes one JSON file and checks it with the cli
-  - 3.3 agent runs review, a page opens in my browser, and the agent sits and waits
- 4. I read it a section at a time
-  - 4.1 approve a section, or send it back with a comment
-  - 4.2 answer the questions it asked, and pick a side on the decisions it couldn't make
-    on its own
- 5. I press one of the two buttons at the top
-  - 5.1 agree, and the agent goes ahead
-  - 5.2 save and discuss, and the agent replies, revises, and shows me the next round
+1. install cli
+2. install skills (the skills are lightweight to save context, the cli covers the install)
+3. call skill
+   1. agent calls cli, gets the authoring guide (progressive disclosure — it only pulls
+      the spec for the blocks it is actually going to use)
+   2. agent writes one JSON file and checks it with the cli
+   3. agent runs review, a page opens in my browser, and the agent sits and waits
+4. I read it a section at a time
+   1. approve a section, or send it back with a comment
+   2. answer the questions it asked, and pick a side on the decisions it couldn't make
+      on its own
+5. I press one of the two buttons at the top
+   1. agree, and the agent goes ahead
+   2. save and discuss, and the agent replies, revises, and shows me the next round
 
 There are two things I want shown to me, so there are two skills. `show-proposal` for a
 change the agent wants to make. `show-architecture` for how something already works — the
