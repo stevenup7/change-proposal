@@ -10,6 +10,27 @@ section, leaves per-section comments, answers the agent's questions, and resolve
 conflicts — all routed back to the agent via a single JSON file. **The review page itself
 is the product**; the sample payload (a Google Tasks 3-way-merge fix) is just an example.
 
+## What it looks like
+
+Both pages below are real output from this repo — a proposal about the tool's own
+authoring contract, and a description of the tool's own architecture.
+
+![A change proposal open in the review page, dark theme](docs/screenshots/change-proposal-dark.png)
+
+The sticky header carries the title, the description, review progress and the two finalize
+buttons. Each section is a card the human approves or sends back, with the agent's blocks
+inside it — here prose, a table and a callout.
+
+![A conflict block asking the reviewer to pick between two options, light theme](docs/screenshots/change-proposal-decision-light.png)
+
+A `conflict` block is the one block that collects an answer: the reviewer picks a side (or
+writes their own), and the pick comes back to the agent in `response.resolutions`.
+
+![An architecture diagram and the agent's questions panel, dark theme](docs/screenshots/change-proposal-diagram-dark.png)
+
+Diagrams are authored as data — nodes and edges, never coordinates — and laid out by the
+page. Below the sections, the agent's questions are answered inline.
+
 ## Two faces, one package
 
 The document carries a `kind`, and the same CLI, schema, blocks and page serve both. Each
@@ -31,6 +52,16 @@ it could not verify from the code goes in `questions` instead of being asserted.
 marks each section clear or asks for clarification; the questions come back as `dialog`
 threads the agent answers in the next round, until you both hold the same model of the
 system. All kind-dependent wording lives in `src/web/copy.ts`.
+
+![An architecture description page, dark theme](docs/screenshots/describe-architecture-dark.png)
+
+Same page, different loop: the buttons read **Understood** and **Request clarification**,
+progress counts sections checked, and each card asks whether it is accurate and clear.
+
+![A layer diagram in an architecture description, light theme](docs/screenshots/describe-architecture-layers-light.png)
+
+Every block works in either kind, and the whole page has a light theme as well as the dark
+default.
 
 ## Requirements
 
