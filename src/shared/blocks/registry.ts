@@ -55,3 +55,23 @@ export type Block = z.infer<typeof blockUnion>;
 export function blockGuide(): string {
   return blockDefs.map((b) => b.guide).join("\n\n");
 }
+
+/**
+ * One line per registered block — the catalog the agent loads up front. It names what
+ * exists; the agent then fetches the full guide + schema for the few blocks it will use
+ * (`author --block <type>`), instead of carrying all nine specs it mostly won't need.
+ */
+export function blockCatalog(): string {
+  return blockDefs.map((b) => `- \`${b.type}\` — ${b.summary}`).join("\n");
+}
+
+/** Look up one block def by `type`. Unknown types are an error — no fallbacks. */
+export function blockDefFor(type: string): BlockDef {
+  const def = blockDefs.find((d) => d.type === type);
+  if (!def) {
+    throw new Error(
+      `unknown block type '${type}'. Known types: ${blockDefs.map((d) => d.type).join(", ")}`,
+    );
+  }
+  return def;
+}

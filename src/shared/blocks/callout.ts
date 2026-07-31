@@ -22,6 +22,7 @@ export type CalloutBlock = z.infer<typeof calloutSchema>;
 export const calloutDef: BlockDef<typeof calloutSchema> = {
   type: CALLOUT,
   schema: calloutSchema,
+  summary: "one short point the reader must not miss (a risk, a guarantee, a caveat)",
   guide: [
     "### `callout`",
     "Use for one short point the reviewer must not miss — a risk, a guarantee, a caveat. Keep",

@@ -1,6 +1,6 @@
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { documentSchema } from "./document";
-import { blockGuide } from "./blocks/registry";
+import { blockCatalog, blockDefFor, blockGuide } from "./blocks/registry";
 import { VERSION } from "./version";
 
 /** The JSON Schema the agent should author against (and the CLI validates against). */
@@ -8,11 +8,63 @@ export function jsonSchema(): object {
   return zodToJsonSchema(documentSchema, { name: "ChangeProposalDocument" });
 }
 
+// Progressive disclosure: the guide is what the agent always needs, and the block
+// catalog names what exists. The per-block spec — guide, JSON example, schema fragment —
+// is fetched only for the blocks a given document actually uses (`author --block`).
+// Authoring the whole nine-block contract up front cost ~13k tokens, most of it schema
+// for blocks the document never contains.
+
+/** The spec for named blocks: authoring guidance plus that block's schema fragment. */
+export function blockSpec(types: string[]): string {
+  return types
+    .map((type) => {
+      const def = blockDefFor(type);
+      return [
+        def.guide,
+        "",
+        `#### \`${type}\` schema`,
+        "```json",
+        JSON.stringify(zodToJsonSchema(def.schema), null, 2),
+        "```",
+      ].join("\n");
+    })
+    .join("\n\n");
+}
+
+/** The `## Blocks` section: a catalog plus how to fetch a block's spec. */
+function blocksSection(tool: string, full: boolean): string[] {
+  if (full) return ["## Blocks", blockGuide()];
+  return [
+    "## Blocks",
+    "A section's `blocks` are its content, rendered in order. These exist:",
+    "",
+    blockCatalog(),
+    "",
+    "Before you author a block, fetch its spec — fields, rules, a JSON example and its",
+    `schema fragment — with \`${tool} author --block <type>[,<type>]\`. Fetch only the`,
+    "blocks this document will use, and never author one from memory.",
+  ];
+}
+
+/** How the agent gets the rest of the contract when it wants it. */
+function schemaSection(tool: string, full: boolean): string[] {
+  if (full) return ["## JSON Schema", "```json", JSON.stringify(jsonSchema(), null, 2), "```"];
+  return [
+    "## The rest of the contract",
+    `- \`${tool} author --block <type>\` — a block's spec (above).`,
+    `- \`${tool} validate <file>\` — checks the whole document against the schema and`,
+    "  names every problem by path. Run it before `review`; it is the check, so you do not",
+    "  need the schema in front of you to author.",
+    `- \`${tool} author --schema\` — the full JSON Schema, if you want it anyway.`,
+    `- \`${tool} author --full\` — this guide with every block spec and the schema inline.`,
+  ];
+}
+
 /**
  * The full authoring guide emitted by `change-proposal author`. This is the versioned
  * contract — the thin skill fetches it at runtime, so it can never drift from the tool.
  */
-export function authoringGuide(): string {
+export function authoringGuide(full = false): string {
   return [
     `# Change Proposal — authoring guide (v${VERSION})`,
     "",
@@ -77,8 +129,7 @@ export function authoringGuide(): string {
     "- `summary`: optional one-line summary.",
     "- `blocks`: ordered content blocks (below).",
     "",
-    "## Blocks",
-    blockGuide(),
+    ...blocksSection("change-proposal", full),
     "",
     "## Questions (optional)",
     "Ask the human for decisions. `kind: 'choice'` with `options: [{id,label}]` (set",
@@ -114,10 +165,7 @@ export function authoringGuide(): string {
     "## After authoring",
     "Write the JSON to a file, then run `change-proposal review <file>`.",
     "",
-    "## JSON Schema",
-    "```json",
-    JSON.stringify(jsonSchema(), null, 2),
-    "```",
+    ...schemaSection("change-proposal", full),
   ].join("\n");
 }
 
@@ -126,7 +174,7 @@ export function authoringGuide(): string {
  * versioned contract as change-proposal; a different kind with a different loop: the
  * agent describes the CURRENT system, the human confirms or asks for clarification.
  */
-export function describeGuide(): string {
+export function describeGuide(full = false): string {
   return [
     `# Describe Architecture — authoring guide (v${VERSION})`,
     "",
@@ -176,8 +224,7 @@ export function describeGuide(): string {
     "  `arch-layers` / `arch-boundaries`; for the data model use `er`; for written explanation",
     "  use `markdown`; for known gaps or things that are easy to get wrong use `callout`.",
     "",
-    "## Blocks",
-    blockGuide(),
+    ...blocksSection("describe-architecture", full),
     "",
     "## Questions (optional)",
     "Ask the human to confirm what you could not verify from the code. `kind: 'choice'`",
@@ -210,9 +257,6 @@ export function describeGuide(): string {
     "## After authoring",
     "Write the JSON to a file, then run `describe-architecture review <file>`.",
     "",
-    "## JSON Schema",
-    "```json",
-    JSON.stringify(jsonSchema(), null, 2),
-    "```",
+    ...schemaSection("describe-architecture", full),
   ].join("\n");
 }

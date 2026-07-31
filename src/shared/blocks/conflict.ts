@@ -50,6 +50,7 @@ export type ConflictBlock = z.infer<typeof conflictSchema>;
 export const conflictDef: BlockDef<typeof conflictSchema> = {
   type: CONFLICT,
   schema: conflictSchema,
+  summary: "a side-by-side choice between competing values; the only block that collects an answer",
   guide: [
     "### `conflict`",
     "Use when you need the human to choose between specific competing values — for example a",

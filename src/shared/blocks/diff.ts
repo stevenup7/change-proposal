@@ -22,6 +22,7 @@ export type DiffBlock = z.infer<typeof diffSchema>;
 export const diffDef: BlockDef<typeof diffSchema> = {
   type: DIFF,
   schema: diffSchema,
+  summary: "the exact code change, as unified-diff text",
   guide: [
     "### `diff`",
     "Use when the exact code change is what the reviewer needs to see and a summary would",

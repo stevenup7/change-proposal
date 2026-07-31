@@ -4,25 +4,27 @@ description: Present the current architecture, data model and state of a system 
 disable-model-invocation: true
 ---
 
-Fetch the contract from the CLI (step 1); never author from memory.
+Fetch the contract from the CLI (steps 1–2); never author from memory.
 Run from the project root, and keep `--silent` — npm's banner would corrupt the JSON.
 
-1. **Contract:** run `npm run --silent describe -- author` — the authoring guide + JSON
-   schema for the installed version. Author against exactly that; it carries the rules and
-   every block's spec. (`--schema` for the schema alone.)
-2. **Write** `architecture.json` (`kind: "architecture-description"`) — what the system IS
+1. **Contract:** run `npm run --silent describe -- author` — the authoring guide for the installed
+   version: the rules and a catalog of the blocks you can use. Author against exactly that.
+2. **Block specs:** pick the blocks this description needs, then run
+   `npm run --silent describe -- author --block <type>,<type>` for their fields, examples and schema.
+   Fetch only the ones you will use; never author a block from memory.
+3. **Write** `architecture.json` (`kind: "architecture-description"`) — what the system IS
    today, in sections of blocks. Anything you could not verify from the code goes in
    `questions`; do not assert it.
-   Then `npm run --silent describe -- validate architecture.json`.
+   Then `npm run --silent describe -- validate architecture.json` — it names every problem by path.
    (`npm run --silent describe -- example architecture.json` writes a sample to adapt.)
-3. **Present:** run `npm run --silent describe -- review architecture.json` — serves the UI,
+4. **Present:** run `npm run --silent describe -- review architecture.json` — serves the UI,
    blocks until the human finalizes, then prints the digest. Needs `npm run build` once.
-4. **Act on the OUTCOME first.** `understood` — the description is confirmed; treat it as
+5. **Act on the OUTCOME first.** `understood` — the description is confirmed; treat it as
    shared, human-verified context for what comes next. `clarify` — the sections marked
    `needs-clarification` need work, and their `dialog` threads hold the human's actual
    questions. Trust the digest over the raw JSON — re-print it with
    `npm run --silent describe -- result architecture.json`.
-5. **Iterate:** run `npm run --silent describe -- iterate architecture.json` — archives the
+6. **Iterate:** run `npm run --silent describe -- iterate architecture.json` — archives the
    round, keeps `dialog`, bumps `round`. Never hand-edit the response yourself. Then expand
    the flagged sections, answer their threads with `author: "agent"` entries, and review
    again.

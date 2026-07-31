@@ -78,7 +78,7 @@ export function skillDoc(kind: DocumentKind, target: SkillTarget): string {
 function preamble(_kind: DocumentKind, target: SkillTarget): string[] {
   // The skill is a runbook: commands, order, and what the outcome means for what you do
   // next. It never restates the contract — step 1 fetches that, versioned, from the CLI.
-  const shared = "Fetch the contract from the CLI (step 1); never author from memory.";
+  const shared = "Fetch the contract from the CLI (steps 1–2); never author from memory.";
   if (target.mode === "local") {
     return [
       shared,
@@ -94,20 +94,24 @@ function preamble(_kind: DocumentKind, target: SkillTarget): string[] {
 
 function proposalBody(run: (args: string) => string, buildNote: string): string[] {
   return [
-    `1. **Contract:** run \`${run("author")}\` — the authoring guide + JSON schema`,
-    "   for the installed version. Author against exactly that; it carries the rules, the",
-    "   writing guidance, and every block's spec. (`--schema` for the schema alone.)",
-    `2. **Write** \`proposal.json\`, then \`${run("validate proposal.json")}\`.`,
+    `1. **Contract:** run \`${run("author")}\` — the authoring guide for the installed`,
+    "   version: the rules, the writing guidance, and a catalog of the blocks you can use.",
+    "   Author against exactly that.",
+    `2. **Block specs:** pick the blocks this proposal needs, then run`,
+    `   \`${run("author --block <type>,<type>")}\` for their fields, examples and schema.`,
+    "   Fetch only the ones you will use; never author a block from memory.",
+    `3. **Write** \`proposal.json\`, then \`${run("validate proposal.json")}\` — it names`,
+    "   every problem by path, so it is the check; you do not need the schema in front of you.",
     `   (\`${run("example proposal.json")}\` writes a sample to adapt.)`,
-    `3. **Review:** run \`${run("review proposal.json")}\` — serves the UI, blocks`,
+    `4. **Review:** run \`${run("review proposal.json")}\` — serves the UI, blocks`,
     `   until the human finalizes, then prints the result digest.${buildNote}`,
-    "4. **Act on the OUTCOME first.** `approved` — the human agrees; go ahead with whatever this",
+    "5. **Act on the OUTCOME first.** `approved` — the human agrees; go ahead with whatever this",
     "   proposal gated (implement, draft the full plan, run the migration — decide from its",
     "   content). `discuss` — do NOT go ahead; reply in `dialog` and send another round.",
     "   Per-section verdicts are detail beneath the outcome. Trust the digest over the raw JSON",
     `   (re-print it with \`${run("result proposal.json")}\`); read the file only for`,
     "   what the digest omits — `history`, or agent entries in `dialog`.",
-    `5. **Iterate:** run \`${run("iterate proposal.json")}\` — archives the round,`,
+    `6. **Iterate:** run \`${run("iterate proposal.json")}\` — archives the round,`,
     "   keeps `dialog`, bumps `round`. Never hand-edit the response yourself. Then revise, reply",
     '   with `author: "agent"` entries on sections you changed, and review again.',
   ];
@@ -115,22 +119,24 @@ function proposalBody(run: (args: string) => string, buildNote: string): string[
 
 function describeBody(run: (args: string) => string, buildNote: string): string[] {
   return [
-    `1. **Contract:** run \`${run("author")}\` — the authoring guide + JSON`,
-    "   schema for the installed version. Author against exactly that; it carries the rules and",
-    "   every block's spec. (`--schema` for the schema alone.)",
-    '2. **Write** `architecture.json` (`kind: "architecture-description"`) — what the system IS',
+    `1. **Contract:** run \`${run("author")}\` — the authoring guide for the installed`,
+    "   version: the rules and a catalog of the blocks you can use. Author against exactly that.",
+    "2. **Block specs:** pick the blocks this description needs, then run",
+    `   \`${run("author --block <type>,<type>")}\` for their fields, examples and schema.`,
+    "   Fetch only the ones you will use; never author a block from memory.",
+    '3. **Write** `architecture.json` (`kind: "architecture-description"`) — what the system IS',
     "   today, in sections of blocks. Anything you could not verify from the code goes in",
     "   `questions`; do not assert it.",
-    `   Then \`${run("validate architecture.json")}\`.`,
+    `   Then \`${run("validate architecture.json")}\` — it names every problem by path.`,
     `   (\`${run("example architecture.json")}\` writes a sample to adapt.)`,
-    `3. **Present:** run \`${run("review architecture.json")}\` — serves the UI,`,
+    `4. **Present:** run \`${run("review architecture.json")}\` — serves the UI,`,
     `   blocks until the human finalizes, then prints the digest.${buildNote}`,
-    "4. **Act on the OUTCOME first.** `understood` — the description is confirmed; treat it as",
+    "5. **Act on the OUTCOME first.** `understood` — the description is confirmed; treat it as",
     "   shared, human-verified context for what comes next. `clarify` — the sections marked",
     "   `needs-clarification` need work, and their `dialog` threads hold the human's actual",
     "   questions. Trust the digest over the raw JSON — re-print it with",
     `   \`${run("result architecture.json")}\`.`,
-    `5. **Iterate:** run \`${run("iterate architecture.json")}\` — archives the`,
+    `6. **Iterate:** run \`${run("iterate architecture.json")}\` — archives the`,
     "   round, keeps `dialog`, bumps `round`. Never hand-edit the response yourself. Then expand",
     '   the flagged sections, answer their threads with `author: "agent"` entries, and review',
     "   again.",

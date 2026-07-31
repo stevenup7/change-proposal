@@ -67,6 +67,7 @@ export type ArchFlowBlock = z.infer<typeof archFlowSchema>;
 export const archFlowDef: BlockDef<typeof archFlowSchema> = {
   type: ARCH_FLOW,
   schema: archFlowSchema,
+  summary: "what calls what at runtime, and what data passes between them",
   guide: [
     "### `arch-flow`",
     "Use to show what calls what while the system is running, and what data passes between",
@@ -123,6 +124,7 @@ export type ArchLayersBlock = z.infer<typeof archLayersSchema>;
 export const archLayersDef: BlockDef<typeof archLayersSchema> = {
   type: ARCH_LAYERS,
   schema: archLayersSchema,
+  summary: "which layer each part belongs to, stacked top to bottom",
   guide: [
     "### `arch-layers`",
     "Use to show which layer of the system each part belongs to — API, domain, storage, and",
@@ -194,6 +196,7 @@ export type ArchBoundariesBlock = z.infer<typeof archBoundariesSchema>;
 export const archBoundariesDef: BlockDef<typeof archBoundariesSchema> = {
   type: ARCH_BOUNDARIES,
   schema: archBoundariesSchema,
+  summary: "what lives inside the system and what sits outside it (C4 containers)",
   guide: [
     "### `arch-boundaries`",
     "Use to show what lives inside the system and what sits outside it (the container level",

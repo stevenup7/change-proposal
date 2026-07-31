@@ -11,7 +11,7 @@ import {
   type DocumentKind,
 } from "../shared/document";
 import { renderDigest } from "../shared/digest";
-import { authoringGuide, describeGuide, jsonSchema } from "../shared/guide";
+import { authoringGuide, blockSpec, describeGuide, jsonSchema } from "../shared/guide";
 import { exampleDocument, exampleDescription } from "../shared/example";
 import { DEFAULT_FILES, TOOL_NAMES } from "../shared/skill";
 import { VERSION } from "../shared/version";
@@ -29,7 +29,7 @@ interface Mode {
   name: string;
   description: string;
   defaultFile: string;
-  guide: () => string;
+  guide: (full?: boolean) => string;
   example: () => ChangeProposalDocument;
   exampleNoun: string;
   reviewHeading: string;
@@ -63,13 +63,29 @@ export function buildProgram(kind: DocumentKind): Command {
   program.name(mode.name).description(mode.description).version(VERSION);
 
   // --- author: emit the versioned contract the agent authors against --------
+  // Disclosed in layers: the guide + block catalog by default, a block's spec on
+  // request, the full schema only if asked. The agent loads what it will use.
   program
     .command("author")
-    .description("Print the versioned authoring guide + JSON schema (the skill fetches this)")
-    .option("--schema", "print only the JSON schema")
-    .action((opts: { schema?: boolean }) => {
+    .description("Print the versioned authoring guide + block catalog (the skill fetches this)")
+    .option("--block <types>", "print the spec for these blocks instead (comma-separated)")
+    .option("--schema", "print only the full JSON schema")
+    .option("--full", "print the guide with every block spec and the schema inline")
+    .action((opts: { block?: string; schema?: boolean; full?: boolean }) => {
+      if (opts.block) {
+        const types = opts.block.split(",").map((t) => t.trim()).filter(Boolean);
+        try {
+          process.stdout.write(blockSpec(types) + "\n");
+        } catch (e) {
+          console.error(`✗ ${(e as Error).message}`);
+          process.exit(1);
+        }
+        return;
+      }
       process.stdout.write(
-        opts.schema ? JSON.stringify(jsonSchema(), null, 2) + "\n" : mode.guide() + "\n",
+        opts.schema
+          ? JSON.stringify(jsonSchema(), null, 2) + "\n"
+          : mode.guide(opts.full ?? false) + "\n",
       );
     });
 

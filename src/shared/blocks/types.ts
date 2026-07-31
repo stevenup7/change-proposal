@@ -16,6 +16,12 @@ export interface BlockDef<S extends z.ZodTypeAny = z.ZodTypeAny> {
    * to the registry's BlockDef[].)
    */
   check?(block: z.infer<S>, ctx: z.RefinementCtx): void;
+  /**
+   * One line for the block catalog: what this block is for. The catalog is all the agent
+   * loads up front — it reads `guide` (and the schema fragment) only for the blocks it
+   * decides to use. Keep it to a single short sentence, no backticks, no trailing stop.
+   */
+  summary: string;
   /** Markdown guidance the skill shows the agent: what this block is and when to use it. */
   guide: string;
 }

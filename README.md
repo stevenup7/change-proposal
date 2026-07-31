@@ -39,7 +39,7 @@ committing — the first cut shipped with known vulnerabilities, so a clean audi
 | `npm run build` | Build the SPA to `dist/web/` — **required before `review` can serve the UI**. |
 | `npm test` | Run the deterministic-reducer golden tests (`src/web/state.test.ts`) and block schema-validation tests (`src/shared/blocks/blocks.test.ts`). |
 | `npm run typecheck` | `tsc --noEmit`. |
-| `npm run cli -- author` | Print the versioned authoring guide + JSON schema (what the skill fetches). Add `--schema` for just the schema. Use `--silent` on `npm run` to keep stdout clean. |
+| `npm run cli -- author` | Print the versioned authoring guide + block catalog (what the skill fetches). `--block <type>[,<type>]` prints a block's spec, `--schema` the full JSON Schema, `--full` everything inline. Use `--silent` on `npm run` to keep stdout clean. |
 | `npm run cli -- example proposal.json` | Write a sample proposal you can adapt. |
 | `npm run cli -- validate proposal.json` | Validate a proposal against the schema + version. |
 | `npm run cli -- review proposal.json` | Validate, serve the UI on `:4179`, and block until you finalize in the browser. |

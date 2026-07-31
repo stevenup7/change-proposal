@@ -15,6 +15,7 @@ export type MarkdownBlock = z.infer<typeof markdownSchema>;
 export const markdownDef: BlockDef<typeof markdownSchema> = {
   type: MARKDOWN,
   schema: markdownSchema,
+  summary: "explanation in prose: what changes, why, and what it means",
   guide: [
     "### `markdown`",
     "Use when the point is explanation: what changes, why, and what it means for the reader.",

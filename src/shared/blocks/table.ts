@@ -52,6 +52,7 @@ export const tableDef: BlockDef<typeof tableSchema> = {
   type: TABLE,
   schema: tableSchema,
   check: (block, ctx) => checkTableContent(block, ctx),
+  summary: "a grid, for the same few facts repeated across several items",
   guide: [
     "### `table`",
     "Use when the same few facts repeat across several items: column lists, decision tables,",

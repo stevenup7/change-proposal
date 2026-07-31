@@ -91,6 +91,7 @@ export const erDef: BlockDef<typeof erSchema> = {
   type: ER,
   schema: erSchema,
   check: checkErBlock,
+  summary: "a data model: entities, their fields, and the relations joining them",
   guide: [
     "### `er`",
     "Use for a data model: `entities` (tables or models) listing their fields, joined by",
