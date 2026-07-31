@@ -10,6 +10,28 @@ section, leaves per-section comments, answers the agent's questions, and resolve
 conflicts — all routed back to the agent via a single JSON file. **The review page itself
 is the product**; the sample payload (a Google Tasks 3-way-merge fix) is just an example.
 
+## Two faces, one package
+
+The document carries a `kind`, and the same CLI, schema, blocks and page serve both. Each
+face has its own bin and its own skill; a file of the wrong kind is refused, not coerced.
+
+| | `change-proposal` | `describe-architecture` |
+| --- | --- | --- |
+| The agent presents | a change it proposes to make | the system as it is today |
+| The human does | approve or request changes, per section | mark each section clear, or ask for clarification |
+| Per-section verdict | `approved` / `rejected` | `clear` / `needs-clarification` |
+| Outcome | `approved` (agree & proceed) or `discuss` (save & iterate) | `understood` (shared context) or `clarify` (another round) |
+| Default file | `proposal.json` | `architecture.json` |
+| In-repo script | `npm run cli -- …` | `npm run describe -- …` |
+
+`describe-architecture` is the loop for agreeing on how the system works today, before
+anyone proposes changing it: the agent writes up its understanding — usually `arch-flow`,
+`arch-layers`, `arch-boundaries` and `er` blocks with `markdown` around them — and anything
+it could not verify from the code goes in `questions` instead of being asserted. The human
+marks each section clear or asks for clarification; the questions come back as `dialog`
+threads the agent answers in the next round, until you both hold the same model of the
+system. All kind-dependent wording lives in `src/web/copy.ts`.
+
 ## Requirements
 
 - **Node ≥ 20** (developed on Node 26; Vite 6 needs a modern Node).
@@ -37,13 +59,40 @@ committing — the first cut shipped with known vulnerabilities, so a clean audi
 | Command | What it does |
 | --- | --- |
 | `npm run build` | Build the SPA to `dist/web/` — **required before `review` can serve the UI**. |
-| `npm test` | Run the deterministic-reducer golden tests (`src/web/state.test.ts`) and block schema-validation tests (`src/shared/blocks/blocks.test.ts`). |
+| `npm test` | Run the deterministic-reducer golden tests (`src/web/state.test.ts`), the block schema-validation tests (`src/shared/blocks/blocks.test.ts`) and the guide/skill contract tests. |
 | `npm run typecheck` | `tsc --noEmit`. |
-| `npm run cli -- author` | Print the versioned authoring guide + block catalog (what the skill fetches). `--block <type>[,<type>]` prints a block's spec, `--schema` the full JSON Schema, `--full` everything inline. Use `--silent` on `npm run` to keep stdout clean. |
+| `npm run cli -- author` | Print the versioned authoring guide + block catalog (what the skill fetches). See [The authoring contract](#the-authoring-contract). Use `--silent` on `npm run` to keep stdout clean. |
 | `npm run cli -- example proposal.json` | Write a sample proposal you can adapt. |
 | `npm run cli -- validate proposal.json` | Validate a proposal against the schema + version. |
 | `npm run cli -- review proposal.json` | Validate, serve the UI on `:4179`, and block until you finalize in the browser. |
+| `npm run cli -- result proposal.json` | Re-print the agent-readable digest of a finished round (ids joined back to labels). |
+| `npm run cli -- iterate proposal.json` | Start the next round: archive the response into `history`, keep `dialog`, bump `round`. |
 | `npm run cli -- install-skill --all` | Install the agent skills into `~/.claude/skills/` (see below). |
+
+Every command above has a `describe-architecture` twin — same verbs, same flags, on the
+other kind:
+
+```bash
+npm run describe -- author                       # the description authoring guide
+npm run describe -- example architecture.json    # a sample description to adapt
+npm run describe -- review architecture.json     # serve the page, wait for the human
+```
+
+## The authoring contract
+
+`author` is what an agent reads before writing a document, and it is disclosed in layers so
+the agent loads only what it needs — the whole contract inline is ~52KB, three quarters of
+it schema for blocks a given document never contains.
+
+| Command | Prints | Size |
+| --- | --- | --- |
+| `author` | The guide — rules, document shape, sections, questions, dialog, iterating, reading the result — plus a one-line-per-block catalog. | 5–7KB |
+| `author --block <type>[,<type>]` | One block's spec: its guidance, a JSON example, and its schema fragment. An unknown type is an error naming the known ones. | 0.7–6.8KB each |
+| `author --schema` | The full JSON Schema, on its own. | ~40KB |
+| `author --full` | The guide with every block spec and the schema inline. | ~52KB |
+
+A typical pass costs ~9KB instead of ~52KB. `validate` names every problem by path, so the
+schema does not have to be in the agent's context for it to author against.
 
 ## Installing the skills
 
@@ -110,14 +159,18 @@ skill  →  CLI (author / review)  →  dumb self-terminating Hono server  →  
 ```
 
 - **`src/shared/`** — the single source of truth. Zod schemas derive the JSON Schema, the
-  TS types, and the skill's authoring guide. Node-safe (no React).
+  TS types, the block catalog and the skill's authoring guide. Node-safe (no React).
+- **`src/shared/blocks/`** — one module per block: schema, cross-field `check`, catalog
+  `summary` and authoring guide, all registered in `registry.ts`. Adding a block means
+  adding a module there and a renderer keyed by the same `type` in `src/web/blocks/`.
 - **`src/web/state.ts`** — a pure reducer (no React, no time, no I/O); `finalizedAt` is
   stamped by the server, never the reducer. Pinned by the golden tests.
 - **`src/server/` + `src/cli/`** — a dumb I/O server that guards the proposal region as
-  byte-identical read-only, plus the `author`/`review` CLI.
-- **`.claude/skills/change-proposal/`** — the accompanying Claude Code skill that drives
-  the flow. Generated from `src/shared/skill.ts`; `install-skill` writes the same text
-  elsewhere with the invocation rewritten.
+  byte-identical read-only, plus the CLI. `buildProgram(kind)` builds both faces from one
+  program, so the two bins can't drift apart.
+- **`.claude/skills/change-proposal/` and `.claude/skills/describe-architecture/`** — the
+  two skills that drive the flow. Generated from `src/shared/skill.ts`; `install-skill`
+  writes the same text elsewhere with the invocation rewritten.
 
 ## Docs
 
@@ -142,6 +195,8 @@ decision table too), `er` (the DB-diagram block: an auto-laid-out entity-relatio
 diagram with PK/FK/UQ/IDX field rows, a green changed-entity treatment, FK-hover
 highlighting, cardinality glyphs at the connector ends, and an optional `columns` table
 that enables the Diagram/Columns tabs), and three architecture diagrams (`arch-flow`,
-`arch-layers`, `arch-boundaries`). A second document `kind`, `architecture-description`,
-drives the `describe-architecture` face. The handoff's modal conflict treatment remains
-deferred.
+`arch-layers`, `arch-boundaries`). A second document `kind`,
+`architecture-description`, drives the `describe-architecture` face — same file format
+and blocks, a clarification loop instead of an approval gate. The authoring contract is
+disclosed in layers (`author` → `author --block <type>`), so an agent loads the specs for
+the blocks it will actually use. The handoff's modal conflict treatment remains deferred.
