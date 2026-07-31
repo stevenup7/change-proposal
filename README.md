@@ -1,28 +1,44 @@
 # show-me
 
-An interface for coding assistants to **show a person their work** instead of describing it
-in a wall of markdown — diagrams, diffs, tables and decision blocks in a page that person
-reads and answers, section by section.
+The goal of this project was to allow me to process what my coding agent was telling me. 
 
-The agent breaks what it has to say into sections plus open questions; the human works
-through them one at a time, leaves per-section comments, answers the questions, and picks
-sides on the decisions — all routed back to the agent through a single JSON file. **The
-page itself is the product**; the sample payloads are just examples.
+I had started to find that walls of markdown were too much to read, and the repo was
+slipping out of my understanding. I am not an LLM, I don't have a million token context
+window. This skill/cli/ui is to help the coding agent break down complex changes and
+architecture into manageable chunks and use diagrams where appropriate.
 
-Two things to show, so two commands: `show-proposal` for a change the agent proposes to
-make, and `show-architecture` for how a system works today.
+It works like this.
+
+ 1. install cli
+ 2. install skills (the skills are lightweight to save context, the cli covers the install)
+ 3. call skill
+  - 3.1 agent calls cli, gets the authoring guide (progressive disclosure — it only pulls
+    the spec for the blocks it is actually going to use)
+  - 3.2 agent writes one JSON file and checks it with the cli
+  - 3.3 agent runs review, a page opens in my browser, and the agent sits and waits
+ 4. I read it a section at a time
+  - 4.1 approve a section, or send it back with a comment
+  - 4.2 answer the questions it asked, and pick a side on the decisions it couldn't make
+    on its own
+ 5. I press one of the two buttons at the top
+  - 5.1 agree, and the agent goes ahead
+  - 5.2 save and discuss, and the agent replies, revises, and shows me the next round
+
+There are two things I want shown to me, so there are two skills. `show-proposal` for a
+change the agent wants to make. `show-architecture` for how something already works — the
+same page, but nothing is being approved; I mark each section clear or ask for another
+pass until I actually understand it.
+
+It all goes back to the agent through that one JSON file. Nothing is hidden in a chat
+log, and I can re-read a round later. **The page itself is the product**; the examples in
+this repo are only here to show it working.
+
 
 ## What it looks like
 
 Both pages below are real output from this repo — a proposal about the tool's own
-authoring contract, and a description of the tool's own architecture. The documents behind
-them are in `docs/examples/`, so you can open either one yourself:
+authoring contract.
 
-```bash
-npm run build                                                              # once
-npm run show-proposal -- review docs/examples/layered-contract.proposal.json
-npm run show-architecture -- review docs/examples/current-architecture.description.json
-```
 
 The page writes the human's side back into the file it was given, so copy one out of
 `docs/examples/` before clicking through it if you want to keep the original.
