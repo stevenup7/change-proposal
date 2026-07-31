@@ -1,0 +1,208 @@
+{
+  "version": "0.8.0",
+  "kind": "architecture-description",
+  "status": "pending",
+  "round": 1,
+  "proposal": {
+    "title": "How change-proposal works today",
+    "description": "My understanding of this package as it stands at v0.8.0, so we can agree on it before anyone proposes changing it. Mark each section clear, or ask me to clarify — I have flagged the two things I could not settle from the code.",
+    "sections": [
+      {
+        "id": "overview",
+        "title": "What the package is made of",
+        "badge": "ARCH",
+        "accent": "blue",
+        "summary": "One shared schema layer, two CLI faces, a dumb server and a deterministic SPA.",
+        "blocks": [
+          {
+            "type": "markdown",
+            "text": "Everything derives from `src/shared/`: the Zod schemas produce the JSON Schema, the TypeScript types, the block catalog and the skill text. The CLI, the server and the browser all import the same module, so none of them can hold a different idea of the format."
+          },
+          {
+            "type": "arch-boundaries",
+            "boundary": "change-proposal",
+            "actors": [
+              { "label": "Coding agent", "note": "authors the JSON, reads the digest" },
+              { "label": "Human reviewer", "note": "in a browser, on :4179" }
+            ],
+            "containers": [
+              {
+                "label": "src/cli",
+                "tech": "commander",
+                "children": [
+                  { "label": "program.ts", "children": [{ "label": "buildProgram(kind)" }] },
+                  { "label": "install-skill.ts" }
+                ]
+              },
+              {
+                "label": "src/server",
+                "tech": "hono",
+                "children": [{ "label": "server.ts" }]
+              },
+              {
+                "label": "src/web",
+                "tech": "react spa",
+                "children": [
+                  { "label": "state.ts", "children": [{ "label": "pure reducer" }] },
+                  { "label": "components" },
+                  { "label": "blocks" }
+                ]
+              }
+            ],
+            "foundation": {
+              "label": "src/shared",
+              "tech": "zod",
+              "children": [
+                { "label": "document.ts" },
+                { "label": "blocks/registry.ts" },
+                { "label": "guide.ts" },
+                { "label": "skill.ts" }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "flow",
+        "title": "What happens during a review",
+        "badge": "FLOW",
+        "accent": "violet",
+        "summary": "The agent writes a file, the CLI serves it, the browser writes back, the CLI returns.",
+        "blocks": [
+          {
+            "type": "arch-flow",
+            "nodes": [
+              { "id": "file", "label": "proposal.json", "note": "authored by the agent", "kind": "file" },
+              { "id": "server", "label": "CLI + server", "note": ":4179, self-terminating" },
+              { "id": "spa", "label": "React SPA", "note": "src/web, pure reducer" }
+            ],
+            "edges": [
+              { "from": "file", "to": "server", "label": "validated" },
+              { "from": "server", "to": "spa", "label": "GET" },
+              { "from": "spa", "to": "server", "label": "PUT" },
+              { "from": "server", "to": "file", "label": "writes response" }
+            ]
+          },
+          {
+            "type": "callout",
+            "tone": "info",
+            "title": "The server holds no logic",
+            "text": "It reads the file, serves the built SPA, accepts a whole document back, and guards the proposal region as byte-identical. Every decision about state lives in the browser's pure reducer."
+          }
+        ]
+      },
+      {
+        "id": "layers",
+        "title": "Where the code sits",
+        "badge": "LAYERS",
+        "accent": "green",
+        "summary": "shared → cli/server → web, with nothing pointing back up.",
+        "blocks": [
+          {
+            "type": "arch-layers",
+            "layers": [
+              {
+                "label": "Skill",
+                "sublabel": "generated SKILL.md",
+                "accent": "amber",
+                "items": [{ "label": "change-proposal" }, { "label": "describe-architecture" }],
+                "connector": "runs the CLI"
+              },
+              {
+                "label": "CLI",
+                "sublabel": "two faces, one program",
+                "accent": "blue",
+                "items": [
+                  { "label": "author" },
+                  { "label": "validate" },
+                  { "label": "review" },
+                  { "label": "iterate" },
+                  { "label": "result" }
+                ],
+                "connector": "serves the document"
+              },
+              {
+                "label": "Server",
+                "sublabel": "hono, self-terminating",
+                "accent": "violet",
+                "items": [{ "label": "GET /api/proposal" }, { "label": "PUT /api/document" }],
+                "connector": "hydrates the page"
+              },
+              {
+                "label": "Web",
+                "sublabel": "deterministic SPA",
+                "accent": "green",
+                "items": [{ "label": "state.ts (reducer)" }, { "label": "components" }, { "label": "blocks" }]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "contract",
+        "title": "The file is the whole contract",
+        "badge": "DATA",
+        "accent": "amber",
+        "summary": "One JSON file is both the input and the output of a round.",
+        "blocks": [
+          {
+            "type": "markdown",
+            "text": "The agent authors the `proposal` region and never touches the rest. The human's page writes `response`, appends to `dialog`, and on finalize sets `status` and `outcome`. `iterate` archives the finished round into `history` and bumps `round`, keeping the dialog so a section reads as one conversation across rounds."
+          },
+          {
+            "type": "table",
+            "caption": "regions of the document",
+            "columns": ["region", "written by", "notes"],
+            "rows": [
+              { "cells": ["proposal", "agent", "read-only in the UI; guarded byte-identical"], "tone": "default" },
+              { "cells": ["response", "human", "verdicts, answers, resolutions, outcome"], "tone": "default" },
+              { "cells": ["dialog", "both", "per-section thread, carried across rounds"], "tone": "default" },
+              { "cells": ["history", "iterate", "archived rounds"], "tone": "faint" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "unsure",
+        "title": "What I could not verify",
+        "badge": "GAPS",
+        "accent": "red",
+        "summary": "Two things I read as intent rather than as fact.",
+        "blocks": [
+          {
+            "type": "callout",
+            "tone": "warn",
+            "title": "Concurrency",
+            "text": "The server assumes one reviewer on one document. I found nothing that would stop two browsers editing the same file, and nothing that says it must."
+          },
+          {
+            "type": "callout",
+            "tone": "warn",
+            "title": "The port",
+            "text": "`:4179` is the default and `--port` overrides it. I could not tell whether anything downstream depends on that number."
+          }
+        ]
+      }
+    ],
+    "questions": [
+      {
+        "id": "scope",
+        "prompt": "Is a review meant to be a single-user, single-document session, or should the server expect more than one reviewer?",
+        "kind": "choice",
+        "options": [
+          { "id": "single", "label": "Single user, single document — by design" },
+          { "id": "multi", "label": "More than one reviewer is expected eventually" }
+        ],
+        "allowOther": true
+      },
+      {
+        "id": "history",
+        "prompt": "Is `history` meant to be read by anything, or is it an audit trail the agent only consults when asked?",
+        "kind": "text",
+        "allowOther": false
+      }
+    ]
+  },
+  "dialog": {},
+  "history": []
+}

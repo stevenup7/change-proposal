@@ -1,0 +1,179 @@
+{
+  "version": "0.8.0",
+  "kind": "change-proposal",
+  "status": "pending",
+  "round": 1,
+  "proposal": {
+    "title": "Load the authoring contract in layers, not all at once",
+    "description": "Every time an agent opens this tool it reads the whole contract — the guide, all nine block specs and the full JSON Schema — before writing a single line. That is 52KB, and three quarters of it describes blocks the document will never contain. This proposes printing a short guide plus a catalog of what exists, and letting the agent fetch the spec for the two or three blocks it actually uses.",
+    "sections": [
+      {
+        "id": "contract",
+        "title": "Split `author` into three layers",
+        "badge": "CLI",
+        "accent": "blue",
+        "summary": "A typical authoring pass drops from ~52KB to ~9KB.",
+        "blocks": [
+          {
+            "type": "markdown",
+            "text": "`author` stays the one command an agent runs first, but it now prints only what is always needed: the rules, the document shape, and a one-line catalog of the blocks available. The detail moves behind flags the agent calls when it knows what it is writing."
+          },
+          {
+            "type": "table",
+            "caption": "what each layer prints",
+            "columns": ["command", "prints", "size"],
+            "rows": [
+              { "cells": ["author", "guide + one-line-per-block catalog", "5–7KB"], "tone": "add" },
+              { "cells": ["author --block <type>", "one block's guidance, example and schema", "0.7–6.8KB"], "tone": "add" },
+              { "cells": ["author --schema", "the full JSON Schema, on its own", "40KB"], "tone": "faint" },
+              { "cells": ["author --full", "everything inline (today's output)", "52KB"], "tone": "faint" }
+            ]
+          },
+          {
+            "type": "callout",
+            "tone": "info",
+            "title": "The trade",
+            "text": "One or two extra CLI calls per document, in exchange for roughly 11k fewer tokens of context. `validate` already names every problem by path, so the schema does not have to be in front of the agent for it to author."
+          }
+        ]
+      },
+      {
+        "id": "catalog",
+        "title": "Every block declares a one-line summary",
+        "badge": "SCHEMA",
+        "accent": "violet",
+        "summary": "`BlockDef` gains `summary`; the catalog is generated from the registry.",
+        "blocks": [
+          {
+            "type": "markdown",
+            "text": "The catalog has to be derived, not hand-written, or it drifts the first time someone adds a block. Each block module already owns its schema, its cross-field check and its guide — the summary joins them there."
+          },
+          {
+            "type": "diff",
+            "filename": "src/shared/blocks/types.ts",
+            "patch": "@@ -6,6 +6,12 @@ export interface BlockDef<S extends z.ZodTypeAny = z.ZodTypeAny> {\n   /** Zod schema for this block (a strict object with `type: z.literal(...)`). */\n   schema: S;\n+  /**\n+   * One line for the block catalog: what this block is for. The catalog is all the\n+   * agent loads up front — it reads `guide` only for the blocks it decides to use.\n+   */\n+  summary: string;\n   /** Markdown guidance the skill shows the agent: what this block is and when to use it. */\n   guide: string;\n }"
+          },
+          {
+            "type": "diff",
+            "filename": "src/shared/blocks/registry.ts",
+            "patch": "@@ -55,3 +55,15 @@ export function blockGuide(): string {\n   return blockDefs.map((b) => b.guide).join(\"\\n\\n\");\n }\n+\n+/** One line per registered block — the catalog the agent loads up front. */\n+export function blockCatalog(): string {\n+  return blockDefs.map((b) => `- \\`${b.type}\\` — ${b.summary}`).join(\"\\n\");\n+}\n+\n+/** Look up one block def by `type`. Unknown types are an error — no fallbacks. */\n+export function blockDefFor(type: string): BlockDef {\n+  const def = blockDefs.find((d) => d.type === type);\n+  if (!def) throw new Error(`unknown block type '${type}'`);\n+  return def;\n+}"
+          }
+        ]
+      },
+      {
+        "id": "envelope",
+        "title": "What stays in the first layer",
+        "badge": "DECISION",
+        "accent": "amber",
+        "summary": "Whether the agent still gets a schema before it starts writing.",
+        "blocks": [
+          {
+            "type": "markdown",
+            "text": "The document envelope — sections, questions, dialog, history, response — is 18KB of schema on its own. The prose already describes the shape an agent has to author. The question is whether dropping it makes authoring self-sufficient or merely cheap."
+          },
+          {
+            "type": "conflict",
+            "id": "layer1",
+            "title": "First-layer contents",
+            "fields": [
+              {
+                "id": "envelope",
+                "label": "Does `author` include an envelope schema?",
+                "description": "Both options print the same prose and catalog. The difference is whether the agent can author a valid document without a `validate` round-trip to correct it.",
+                "allowOther": true,
+                "sides": [
+                  {
+                    "id": "prose",
+                    "label": "Prose only",
+                    "value": "no schema in layer 1 (~6.6KB)",
+                    "note": "Smallest first load. Mistakes surface as a validate failure with an exact path, one round-trip later."
+                  },
+                  {
+                    "id": "trimmed",
+                    "label": "Trimmed schema",
+                    "value": "envelope minus response/history/dialog (~13KB)",
+                    "note": "Roughly doubles the first load, and covers only the parts the agent authors — it never writes the response region."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "skill",
+        "title": "The skill runbook gains a step",
+        "badge": "SKILL",
+        "accent": "green",
+        "summary": "Both faces: fetch the contract, then fetch the specs for the blocks you will use.",
+        "blocks": [
+          {
+            "type": "markdown",
+            "text": "The skill is a runbook, not a copy of the contract, so it only needs to say when to fetch what. An already-installed old skill keeps working: it runs `author`, and the new output itself tells it to fetch block specs."
+          },
+          {
+            "type": "diff",
+            "filename": "src/shared/skill.ts",
+            "patch": "@@ -95,8 +95,11 @@ function proposalBody(run, buildNote) {\n-1. **Contract:** run `author` — the authoring guide + JSON schema\n-   for the installed version. It carries the rules, the writing guidance,\n-   and every block's spec.\n+1. **Contract:** run `author` — the authoring guide for the installed\n+   version: the rules, the writing guidance, and a catalog of the blocks.\n+2. **Block specs:** pick the blocks this proposal needs, then run\n+   `author --block <type>,<type>` for their fields, examples and schema.\n+   Fetch only the ones you will use; never author a block from memory."
+          },
+          {
+            "type": "callout",
+            "tone": "warn",
+            "title": "The failure mode to watch",
+            "text": "An agent that reads the catalog and writes a block from memory instead of fetching its spec. The strict schema turns that into a validate failure rather than a bad page, but it costs a round-trip."
+          }
+        ]
+      },
+      {
+        "id": "shape",
+        "title": "Where this sits in the tool",
+        "badge": "ARCH",
+        "accent": "neutral",
+        "summary": "Only the CLI's `author` face changes; the file contract is untouched.",
+        "blocks": [
+          {
+            "type": "arch-flow",
+            "nodes": [
+              { "id": "skill", "label": "SKILL.md", "note": "the agent's runbook", "kind": "file" },
+              { "id": "author", "label": "author", "note": "guide + catalog", "status": "modified" },
+              { "id": "block", "label": "author --block", "note": "one block's spec", "status": "added" },
+              { "id": "doc", "label": "proposal.json", "note": "then validate, review", "kind": "file" }
+            ],
+            "edges": [
+              { "from": "skill", "to": "author", "label": "step 1" },
+              { "from": "skill", "to": "block", "label": "step 2" },
+              { "from": "author", "to": "doc", "label": "authored against" },
+              { "from": "block", "to": "doc", "label": "authored against" }
+            ]
+          },
+          {
+            "type": "callout",
+            "tone": "add",
+            "title": "Nothing else moves",
+            "text": "The document format, the version and the round-trip are unchanged. A proposal written before this change still validates and still opens."
+          }
+        ]
+      }
+    ],
+    "questions": [
+      {
+        "id": "version",
+        "prompt": "The document format does not change — bumping the version would reject in-flight files. Bump anyway?",
+        "kind": "choice",
+        "options": [
+          { "id": "keep", "label": "Keep 0.8.0 — the file contract is identical" },
+          { "id": "minor", "label": "Bump to 0.9.0 — the CLI surface changed" }
+        ],
+        "allowOther": true
+      },
+      {
+        "id": "catalog-detail",
+        "prompt": "Is one line per block enough for an agent to pick the right block, or should the catalog also say what each one costs to fetch?",
+        "kind": "text",
+        "allowOther": false
+      }
+    ]
+  },
+  "dialog": {},
+  "history": []
+}

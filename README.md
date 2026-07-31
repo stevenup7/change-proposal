@@ -13,7 +13,17 @@ is the product**; the sample payload (a Google Tasks 3-way-merge fix) is just an
 ## What it looks like
 
 Both pages below are real output from this repo — a proposal about the tool's own
-authoring contract, and a description of the tool's own architecture.
+authoring contract, and a description of the tool's own architecture. The documents behind
+them are in `docs/examples/`, so you can open either one yourself:
+
+```bash
+npm run build                                                              # once
+npm run cli -- review docs/examples/layered-contract.proposal.json
+npm run describe -- review docs/examples/current-architecture.description.json
+```
+
+The page writes the human's side back into the file it was given, so copy one out of
+`docs/examples/` before clicking through it if you want to keep the original.
 
 ![A change proposal open in the review page, dark theme](docs/screenshots/change-proposal-dark.png)
 
