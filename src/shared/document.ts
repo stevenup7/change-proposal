@@ -198,7 +198,7 @@ export const documentSchema = documentObjectSchema.superRefine((doc, ctx) => {
   checkResponse(doc.response, ["response"]);
   doc.history.forEach((h, i) => checkResponse(h, ["history", i]));
 });
-export type ChangeProposalDocument = z.infer<typeof documentSchema>;
+export type ReviewDocument = z.infer<typeof documentSchema>;
 
 /** A fresh, empty response region (used when authoring or resetting a round). */
 export function emptyResponse(): ResponseRegion {
@@ -211,7 +211,7 @@ export function emptyResponse(): ResponseRegion {
  * (it carries its own per-entry round), so the conversation survives iteration.
  * Pure — the agent/CLI calls this before re-authoring the proposal for round N+1.
  */
-export function startNextRound(doc: ChangeProposalDocument): ChangeProposalDocument {
+export function startNextRound(doc: ReviewDocument): ReviewDocument {
   return {
     ...doc,
     round: doc.round + 1,
@@ -222,7 +222,7 @@ export function startNextRound(doc: ChangeProposalDocument): ChangeProposalDocum
 }
 
 /** Parse + validate unknown JSON into a document. Throws ZodError on failure. */
-export function parseDocument(data: unknown): ChangeProposalDocument {
+export function parseDocument(data: unknown): ReviewDocument {
   return documentSchema.parse(data);
 }
 
@@ -233,6 +233,6 @@ export interface VersionCheck {
 }
 
 /** Strict version match — no fallbacks, force upgrade. */
-export function checkVersion(doc: ChangeProposalDocument): VersionCheck {
+export function checkVersion(doc: ReviewDocument): VersionCheck {
   return { ok: doc.version === VERSION, docVersion: doc.version, toolVersion: VERSION };
 }

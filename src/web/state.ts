@@ -1,4 +1,4 @@
-import type { ChangeProposalDocument, DialogEntry, Outcome, Resolution, Verdict } from "../shared/document";
+import type { ReviewDocument, DialogEntry, Outcome, Resolution, Verdict } from "../shared/document";
 import { OTHER_CHOICE } from "../shared/document";
 import { CONFLICT, type ConflictBlock } from "../shared/blocks/conflict";
 
@@ -18,12 +18,12 @@ export type Action =
   | { kind: "finalize"; outcome: Outcome };
 
 /** Mark the round in-progress once the human touches anything (pending -> in-progress). */
-function touched(doc: ChangeProposalDocument): ChangeProposalDocument {
+function touched(doc: ReviewDocument): ReviewDocument {
   if (doc.status === "pending") return { ...doc, status: "in-progress" };
   return doc;
 }
 
-export function reduce(doc: ChangeProposalDocument, action: Action): ChangeProposalDocument {
+export function reduce(doc: ReviewDocument, action: Action): ReviewDocument {
   switch (action.kind) {
     case "toggleVerdict": {
       const review = { ...doc.response.review };
@@ -82,17 +82,17 @@ export function reduce(doc: ChangeProposalDocument, action: Action): ChangePropo
 
 // --- Derived selectors (pure) ---------------------------------------------
 
-export function reviewedCount(doc: ChangeProposalDocument): number {
+export function reviewedCount(doc: ReviewDocument): number {
   return doc.proposal.sections.filter((s) => doc.response.review[s.id]).length;
 }
 
-export function reviewProgress(doc: ChangeProposalDocument): number {
+export function reviewProgress(doc: ReviewDocument): number {
   const total = doc.proposal.sections.length;
   return total === 0 ? 1 : reviewedCount(doc) / total;
 }
 
 /** The full conversation for a section, oldest first. Spans every round (dialog is never wiped). */
-export function sectionThread(doc: ChangeProposalDocument, sectionId: string): DialogEntry[] {
+export function sectionThread(doc: ReviewDocument, sectionId: string): DialogEntry[] {
   return doc.dialog[sectionId] ?? [];
 }
 
@@ -108,7 +108,7 @@ function isAnswered(a: { choice?: string; other?: string; text?: string } | unde
   return (a.choice ?? "").length > 0;
 }
 
-export function answeredCount(doc: ChangeProposalDocument): number {
+export function answeredCount(doc: ReviewDocument): number {
   return doc.proposal.questions.filter((q) => isAnswered(doc.response.answers[q.id])).length;
 }
 
@@ -129,7 +129,7 @@ function isResolved(r: { side: string; text?: string } | undefined): boolean {
 }
 
 /** Every conflict-field key across the proposal, in document order. Walks the blocks. */
-export function conflictKeys(doc: ChangeProposalDocument): string[] {
+export function conflictKeys(doc: ReviewDocument): string[] {
   const keys: string[] = [];
   for (const section of doc.proposal.sections) {
     for (const block of section.blocks) {
@@ -142,14 +142,14 @@ export function conflictKeys(doc: ChangeProposalDocument): string[] {
 }
 
 /** How many conflict fields are resolved vs. total — drives the "N / M chosen" counter and the nudge. */
-export function conflictStats(doc: ChangeProposalDocument): { resolved: number; total: number } {
+export function conflictStats(doc: ReviewDocument): { resolved: number; total: number } {
   const keys = conflictKeys(doc);
   const resolved = keys.filter((k) => isResolved(doc.response.resolutions[k])).length;
   return { resolved, total: keys.length };
 }
 
 /** True when every conflict field has a pick (vacuously true when there are none). */
-export function conflictsResolved(doc: ChangeProposalDocument): boolean {
+export function conflictsResolved(doc: ReviewDocument): boolean {
   const { resolved, total } = conflictStats(doc);
   return resolved === total;
 }

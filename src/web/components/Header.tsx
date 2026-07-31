@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { ChangeProposalDocument, Outcome } from "../../shared/document";
+import type { ReviewDocument, Outcome } from "../../shared/document";
 import { reviewedCount, reviewProgress } from "../state";
 import { renderMarkdown } from "../markdown";
 import type { KindCopy } from "../copy";
 
 interface Props {
-  doc: ChangeProposalDocument;
+  doc: ReviewDocument;
   copy: KindCopy;
   theme: "dark" | "light";
   saveState: "idle" | "saving" | "saved" | "error";

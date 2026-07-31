@@ -1,20 +1,20 @@
 {
-  "name": "change-proposal",
+  "name": "show-me",
   "version": "0.8.0",
-  "description": "Interactive change-proposal review page for coding agents",
+  "description": "Coding agents show their work to a person: diagrams, diffs and decision blocks in a page they read and answer",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "change-proposal": "./bin/change-proposal.js",
-    "describe-architecture": "./bin/describe-architecture.js"
+    "show-proposal": "./bin/show-proposal.js",
+    "show-architecture": "./bin/show-architecture.js"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "cli": "tsx src/cli/index.ts",
-    "describe": "tsx src/cli/describe.ts",
+    "show-proposal": "tsx src/cli/index.ts",
+    "show-architecture": "tsx src/cli/architecture.ts",
     "example": "tsx src/cli/index.ts example proposal.json",
     "validate": "tsx src/cli/index.ts validate proposal.json",
     "review": "tsx src/cli/index.ts review proposal.json",

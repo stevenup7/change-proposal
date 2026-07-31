@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { exampleDocument, exampleDescription } from "./example";
 import { renderDigest } from "./digest";
-import { OTHER_CHOICE, type ChangeProposalDocument } from "./document";
+import { OTHER_CHOICE, type ReviewDocument } from "./document";
 
 // The digest's whole job is the id → label join; these pin each join kind.
 describe("renderDigest", () => {
   it("joins every response id back to its authored label", () => {
-    const doc: ChangeProposalDocument = {
+    const doc: ReviewDocument = {
       ...exampleDocument(),
       status: "finalized",
       dialog: { logic: [{ round: 1, author: "human", text: "Converge feels risky for dates." }] },
@@ -44,7 +44,7 @@ describe("renderDigest", () => {
 
   it("speaks the description kind's outcome language", () => {
     const base = exampleDescription();
-    const doc: ChangeProposalDocument = {
+    const doc: ReviewDocument = {
       ...base,
       status: "finalized",
       response: {

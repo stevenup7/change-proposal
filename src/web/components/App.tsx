@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChangeProposalDocument, Outcome, Verdict } from "../../shared/document";
+import type { ReviewDocument, Outcome, Verdict } from "../../shared/document";
 import { reduce, sectionThread, conflictStats, type Action } from "../state";
 import { saveDocument } from "../api";
 import { KIND_COPY } from "../copy";
@@ -11,7 +11,7 @@ import { Composer } from "./Composer";
 type SaveState = "idle" | "saving" | "saved" | "error";
 type Theme = "dark" | "light";
 
-export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
+export function App({ initialDoc }: { initialDoc: ReviewDocument }) {
   const [doc, setDoc] = useState(initialDoc);
   const [theme, setTheme] = useState<Theme>("dark");
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() =>

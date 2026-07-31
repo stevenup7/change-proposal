@@ -35,13 +35,13 @@ describe("generated skill documents", () => {
   it.each(KINDS)("an installed %s skill invokes the CLI, never the npm scripts", (kind) => {
     const doc = skillDoc(kind, {
       mode: "installed",
-      command: "/opt/change-proposal/bin/tool.js",
-      packageDir: "/opt/change-proposal",
+      command: "/opt/show-me/bin/tool.js",
+      packageDir: "/opt/show-me",
     });
     expect(doc).not.toContain("npm run --silent");
-    expect(doc).toContain("/opt/change-proposal/bin/tool.js author");
-    expect(doc).toContain("/opt/change-proposal/bin/tool.js review");
+    expect(doc).toContain("/opt/show-me/bin/tool.js author");
+    expect(doc).toContain("/opt/show-me/bin/tool.js review");
     // Installed skills run from the agent's cwd, so the build hint must name the package dir.
-    expect(doc).toContain("run `npm run build` once in `/opt/change-proposal`");
+    expect(doc).toContain("run `npm run build` once in `/opt/show-me`");
   });
 });

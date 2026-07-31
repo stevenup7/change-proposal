@@ -1,7 +1,7 @@
 import {
   OTHER_CHOICE,
   type Answer,
-  type ChangeProposalDocument,
+  type ReviewDocument,
   type Question,
   type Resolution,
 } from "./document";
@@ -23,7 +23,7 @@ const OUTCOME_LINES: Record<string, string> = {
     "OUTCOME: clarify — expand the sections marked needs-clarification (their dialog has the questions), iterate, and present again.",
 };
 
-export function renderDigest(doc: ChangeProposalDocument): string {
+export function renderDigest(doc: ReviewDocument): string {
   const r = doc.response;
   const lines: string[] = [];
 
