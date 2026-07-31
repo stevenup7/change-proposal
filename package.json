@@ -1,18 +1,20 @@
 {
   "name": "change-proposal",
-  "version": "0.6.0",
-  "description": "Interactive change-proposal review surface for coding agents",
+  "version": "0.8.0",
+  "description": "Interactive change-proposal review page for coding agents",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "change-proposal": "./bin/change-proposal.js"
+    "change-proposal": "./bin/change-proposal.js",
+    "describe-architecture": "./bin/describe-architecture.js"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "cli": "tsx src/cli/index.ts",
+    "describe": "tsx src/cli/describe.ts",
     "example": "tsx src/cli/index.ts example proposal.json",
     "validate": "tsx src/cli/index.ts validate proposal.json",
     "review": "tsx src/cli/index.ts review proposal.json",

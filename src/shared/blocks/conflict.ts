@@ -24,7 +24,7 @@ export const conflictFieldSchema = z
             note: z
               .string()
               .optional()
-              .describe("Short implication of choosing this side (the trade-off). Keep editorializing here, not in `value`."),
+              .describe("What choosing this side means — the trade-off. Put opinion here, never in `value`."),
           })
           .strict(),
       )
@@ -50,13 +50,15 @@ export type ConflictBlock = z.infer<typeof conflictSchema>;
 export const conflictDef: BlockDef<typeof conflictSchema> = {
   type: CONFLICT,
   schema: conflictSchema,
+  summary: "a side-by-side choice between competing values; the only block that collects an answer",
   guide: [
     "### `conflict`",
-    "A structured decision: per field, the human picks one of two-or-more candidate values",
-    "(e.g. a 3-way-merge collision). Unlike other blocks it collects input — the pick lands",
-    "in `response.resolutions[\"<blockId>.<fieldId>\"]` as `{ side, text? }`.",
-    "Give the block a stable `id`, each field a stable `id`, and set `allowOther: true` to",
-    "offer a free-text write-in beside the sides. It never blocks finalize (soft gate).",
+    "Use when you need the human to choose between specific competing values — for example a",
+    "3-way-merge collision. This is the only block that collects an answer: each pick lands in",
+    "`response.resolutions[\"<blockId>.<fieldId>\"]` as `{ side, text? }`. Give the block and",
+    "every field a stable `id`, and set `allowOther: true` to let the human type their own",
+    "value instead. The human can finalize without answering; unanswered fields come back",
+    "unresolved, for you to decide.",
     "",
     "**Explain before you ask.** Don't make the human infer the decision from bare values:",
     "- Give each field a `description` — a sentence or two on what's being decided and why.",

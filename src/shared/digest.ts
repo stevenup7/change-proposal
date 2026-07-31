@@ -13,6 +13,16 @@ import { CONFLICT, type ConflictBlock, type ConflictField } from "./blocks/confl
  * labels, prompts, and side values — the digest does that join once, here, so the
  * agent never has to re-parse the document. The JSON stays the source of truth.
  */
+// One line per outcome token, both document kinds — the digest never guesses a kind.
+const OUTCOME_LINES: Record<string, string> = {
+  approved: "OUTCOME: approved — the human agrees. Go ahead with what this proposal was gating.",
+  discuss: "OUTCOME: discuss — do NOT go ahead. Reply in the dialog, iterate, and send another round.",
+  understood:
+    "OUTCOME: understood — the description is confirmed. Rely on it as shared, human-verified context.",
+  clarify:
+    "OUTCOME: clarify — expand the sections marked needs-clarification (their dialog has the questions), iterate, and present again.",
+};
+
 export function renderDigest(doc: ChangeProposalDocument): string {
   const r = doc.response;
   const lines: string[] = [];
@@ -21,15 +31,15 @@ export function renderDigest(doc: ChangeProposalDocument): string {
   lines.push("");
   if (doc.status !== "finalized") {
     lines.push(`STATUS: ${doc.status} — the human has not finalized this round yet.`);
-  } else if (r.outcome === "discuss") {
-    lines.push("OUTCOME: discuss — do NOT go ahead. Reply in the dialog, iterate, and send another round.");
   } else {
-    lines.push("OUTCOME: approved — the human agrees. Go ahead with what this proposal was gating.");
+    lines.push(
+      OUTCOME_LINES[r.outcome ?? ""] ?? `OUTCOME: ${r.outcome ?? "(none recorded)"}`,
+    );
   }
 
   lines.push("", "## Section verdicts");
   if (Object.keys(r.review).length === 0) {
-    lines.push("(none given — with an approved outcome, silence means no objection)");
+    lines.push("(none recorded — the human marked no individual section. Use the outcome above.)");
   } else {
     for (const s of doc.proposal.sections) {
       lines.push(`- ${s.title} [${s.id}]: ${r.review[s.id] ?? "no verdict"}`);

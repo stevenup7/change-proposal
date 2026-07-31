@@ -1,26 +1,7 @@
 import { describe, it, expect } from "vitest";
-import type { z } from "zod";
 import { blockSchema } from "./registry";
-import type { schemaSchema } from "./schema";
 import { documentSchema } from "../document";
 import { exampleDocument } from "../example";
-
-const validSchemaBlock: z.input<typeof schemaSchema> = {
-  type: "schema",
-  entities: [
-    { id: "user", name: "User", fields: [{ name: "id", key: "pk" }] },
-    {
-      id: "task",
-      name: "Task",
-      emphasis: "changed",
-      fields: [
-        { name: "userId", key: "fk", ref: "user" },
-        { name: "externalTitle", type: "String?", status: "new" },
-      ],
-    },
-  ],
-  edges: [{ from: "user", to: "task", label: "owns", fromEnd: "1", toEnd: "∞" }],
-};
 
 const validTableBlock = {
   type: "table",
@@ -32,54 +13,73 @@ const validTableBlock = {
   ],
 };
 
-describe("schema block", () => {
+const validErBlock = {
+  type: "er",
+  entities: [
+    {
+      id: "task",
+      label: "Task",
+      status: "modified",
+      fields: [
+        { name: "id", type: "uuid", tags: ["PK"] },
+        { name: "syncedAt", type: "timestamptz", status: "added" },
+      ],
+    },
+  ],
+  relations: [],
+};
+
+describe("er block", () => {
   it("parses a valid diagram and applies defaults", () => {
-    const block = blockSchema.parse(validSchemaBlock);
-    if (block.type !== "schema") throw new Error("wrong type");
-    expect(block.entities[0].emphasis).toBe("plain");
-    expect(block.entities[1].fields[1].status).toBe("new");
-    expect(block.edges[0].style).toBe("solid");
-    expect(block.edges[0].tone).toBe("primary");
+    const block = blockSchema.parse(validErBlock);
+    if (block.type !== "er") throw new Error("wrong type");
+    expect(block.entities[0].fields[0].tags).toEqual(["PK"]);
+    expect(block.entities[0].fields[1].status).toBe("added");
+    expect(block.relations).toEqual([]);
+    expect(block.columns).toBeUndefined();
   });
 
   it("parses with an embedded columns table", () => {
-    const block = blockSchema.parse({ ...validSchemaBlock, columns: { columns: ["a"], rows: [{ cells: ["x"] }] } });
-    if (block.type !== "schema") throw new Error("wrong type");
+    const block = blockSchema.parse({ ...validErBlock, columns: { columns: ["a"], rows: [{ cells: ["x"] }] } });
+    if (block.type !== "er") throw new Error("wrong type");
     expect(block.columns?.rows[0].tone).toBe("default");
   });
 
-  it("rejects an edge referencing an unknown entity", () => {
-    const bad = { ...validSchemaBlock, edges: [{ from: "user", to: "ghost", label: "owns" }] };
-    expect(() => blockSchema.parse(bad)).toThrow(/unknown entity id 'ghost'/);
-  });
-
-  it("rejects an edge between non-adjacent entities", () => {
-    const bad = {
-      ...validSchemaBlock,
-      entities: [
-        ...validSchemaBlock.entities,
-        { id: "google", name: "GoogleTaskItem", emphasis: "external", fields: [{ name: "id" }] },
-      ],
-      edges: [{ from: "user", to: "google", label: "skips" }],
-    };
-    expect(() => blockSchema.parse(bad)).toThrow(/adjacent/);
-  });
-
-  it("rejects a field ref to an unknown entity", () => {
-    const bad = structuredClone(validSchemaBlock);
-    bad.entities[1].fields[0].ref = "ghost";
-    expect(() => blockSchema.parse(bad)).toThrow(/unknown entity id 'ghost'/);
-  });
-
-  it("rejects a ref on a non-fk field", () => {
-    const bad = structuredClone(validSchemaBlock);
-    bad.entities[0].fields[0] = { name: "id", ref: "task" };
-    expect(() => blockSchema.parse(bad)).toThrow(/key='fk'/);
-  });
-
   it("rejects ragged rows in the embedded columns table", () => {
-    const bad = { ...validSchemaBlock, columns: { columns: ["a", "b"], rows: [{ cells: ["only one"] }] } };
+    const bad = { ...validErBlock, columns: { columns: ["a", "b"], rows: [{ cells: ["only one"] }] } };
     expect(() => blockSchema.parse(bad)).toThrow(/1 cells but the table has 2 columns/);
+  });
+
+  it("accepts an FK field whose ref names a known entity", () => {
+    const block = blockSchema.parse({
+      type: "er",
+      entities: [
+        { id: "user", label: "User", fields: [{ name: "id", type: "uuid", tags: ["PK"] }] },
+        {
+          id: "task",
+          label: "Task",
+          fields: [{ name: "userId", type: "uuid", tags: ["FK"], ref: "user" }],
+        },
+      ],
+    });
+    if (block.type !== "er") throw new Error("wrong type");
+    expect(block.entities[1].fields[0].ref).toBe("user");
+  });
+
+  it("rejects a ref on a non-FK field", () => {
+    const bad = {
+      type: "er",
+      entities: [{ id: "task", label: "Task", fields: [{ name: "id", type: "uuid", tags: ["PK"], ref: "task" }] }],
+    };
+    expect(() => blockSchema.parse(bad)).toThrow(/only meaningful on an FK-tagged field/);
+  });
+
+  it("rejects an FK ref to an unknown entity", () => {
+    const bad = {
+      type: "er",
+      entities: [{ id: "task", label: "Task", fields: [{ name: "userId", type: "uuid", tags: ["FK"], ref: "ghost" }] }],
+    };
+    expect(() => blockSchema.parse(bad)).toThrow(/unknown entity id 'ghost'/);
   });
 });
 

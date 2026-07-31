@@ -4,9 +4,11 @@ import { threadRounds } from "../state";
 import { accentVars } from "../theme";
 import { renderMarkdown } from "../markdown";
 import { BlockView } from "../blocks/registry";
+import { VERDICT_PILL, type KindCopy } from "../copy";
 
 interface Props {
   section: SectionT;
+  copy: KindCopy;
   verdict: Verdict | undefined;
   thread: DialogEntry[];
   expanded: boolean;
@@ -17,14 +19,9 @@ interface Props {
   onResolve: (key: string, side: string, text?: string) => void;
 }
 
-const VERDICT_PILL: Record<Verdict, { label: string; cls: string }> = {
-  approved: { label: "approved", cls: "pill-add" },
-  rejected: { label: "rejected", cls: "pill-del" },
-  "changes-requested": { label: "changes", cls: "pill-mod" },
-};
-
 export function Section({
   section,
+  copy,
   verdict,
   thread,
   expanded,
@@ -79,20 +76,20 @@ export function Section({
             </svg>
           </button>
           <button
-            className={`act ${verdict === "approved" ? "act-approved" : ""}`}
-            title="Approve"
-            onClick={() => onToggleVerdict("approved")}
+            className={`act ${verdict === copy.positiveVerdict ? "act-approved" : ""}`}
+            title={copy.positiveAction}
+            onClick={() => onToggleVerdict(copy.positiveVerdict)}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="4 12.5 9.5 18 20 6" />
             </svg>
           </button>
           <button
-            className={`act ${verdict === "rejected" ? "act-rejected" : ""}`}
-            title="Request changes"
-            onClick={() => onToggleVerdict("rejected")}
+            className={`act ${verdict === copy.negativeVerdict ? "act-rejected" : ""}`}
+            title={copy.negativeAction}
+            onClick={() => onToggleVerdict(copy.negativeVerdict)}
           >
-            ✕
+            {copy.negativeGlyph}
           </button>
         </div>
       </div>
@@ -107,7 +104,7 @@ export function Section({
 
           <div className="card-foot">
             <span className="card-foot-label">
-              {reviewed ? `You marked this ${VERDICT_PILL[verdict!].label}` : "Reviewed this section?"}
+              {reviewed ? `You marked this ${VERDICT_PILL[verdict!].label}` : copy.footPrompt}
             </span>
             <div className="card-foot-actions">
               <button className="foot-btn" onClick={() => setCommenting((c) => !c)}>
@@ -117,19 +114,19 @@ export function Section({
                 Comment
               </button>
               <button
-                className={`foot-btn foot-approve ${verdict === "approved" ? "is-active" : ""}`}
-                onClick={() => onToggleVerdict("approved")}
+                className={`foot-btn foot-approve ${verdict === copy.positiveVerdict ? "is-active" : ""}`}
+                onClick={() => onToggleVerdict(copy.positiveVerdict)}
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="4 12.5 9.5 18 20 6" />
                 </svg>
-                Approve
+                {copy.positiveAction}
               </button>
               <button
-                className={`foot-btn foot-reject ${verdict === "rejected" ? "is-active" : ""}`}
-                onClick={() => onToggleVerdict("rejected")}
+                className={`foot-btn foot-reject ${verdict === copy.negativeVerdict ? "is-active" : ""}`}
+                onClick={() => onToggleVerdict(copy.negativeVerdict)}
               >
-                ✕ Request changes
+                {copy.negativeGlyph} {copy.negativeAction}
               </button>
             </div>
           </div>
@@ -164,7 +161,7 @@ export function Section({
               <textarea
                 autoFocus
                 value={draft}
-                placeholder="Leave a note on this section for the agent…"
+                placeholder={copy.commentPlaceholder}
                 onChange={(e) => setDraft(e.target.value)}
               />
               <div className="comment-box-actions">

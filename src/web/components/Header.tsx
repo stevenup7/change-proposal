@@ -2,9 +2,11 @@ import { useState } from "react";
 import type { ChangeProposalDocument, Outcome } from "../../shared/document";
 import { reviewedCount, reviewProgress } from "../state";
 import { renderMarkdown } from "../markdown";
+import type { KindCopy } from "../copy";
 
 interface Props {
   doc: ChangeProposalDocument;
+  copy: KindCopy;
   theme: "dark" | "light";
   saveState: "idle" | "saving" | "saved" | "error";
   unresolvedConflicts: number;
@@ -17,6 +19,7 @@ const SAVE_LABEL = { idle: "", saving: "saving…", saved: "saved", error: "save
 
 export function Header({
   doc,
+  copy,
   theme,
   saveState,
   unresolvedConflicts,
@@ -28,8 +31,8 @@ export function Header({
   const reviewed = reviewedCount(doc);
   const pct = Math.round(reviewProgress(doc) * 100);
 
-  // Soft gate: unresolved conflicts never *block* finalize, but the first "Agree &
-  // proceed" click surfaces them and asks for one confirming click. UI-only — the
+  // Soft gate: unresolved conflicts never *block* finalize, but the first positive-
+  // finalize click surfaces them and asks for one confirming click. UI-only — the
   // reducer's `finalize` stays unconditional.
   const [confirming, setConfirming] = useState(false);
   const approve = () => {
@@ -37,7 +40,7 @@ export function Header({
       setConfirming(true);
       return;
     }
-    onFinalize("approved");
+    onFinalize(copy.finalizePositive.outcome);
   };
 
   return (
@@ -63,22 +66,26 @@ export function Header({
             <div className="progress-fill" style={{ width: `${pct}%` }} />
           </div>
           <span className="progress-text">
-            {reviewed} / {total} flagged
+            {reviewed} / {total} {copy.progressNoun}
           </span>
           <span className="save-state">{SAVE_LABEL[saveState]}</span>
           <div className="header-buttons">
             <button className="btn btn-ghost" onClick={onOpenFeedback}>
               Send feedback
             </button>
-            <button className="btn btn-outline" onClick={() => onFinalize("discuss")} title="Save my notes and send it back for another round — the agent won't go ahead yet">
-              Save &amp; discuss
+            <button
+              className="btn btn-outline"
+              onClick={() => onFinalize(copy.finalizeNegative.outcome)}
+              title={copy.finalizeNegative.title}
+            >
+              {copy.finalizeNegative.label}
             </button>
             <button
               className="btn btn-primary"
               onClick={approve}
-              title="I agree — the agent goes ahead with the proposed next step"
+              title={copy.finalizePositive.title}
             >
-              {confirming ? "Proceed anyway" : "Agree & proceed"}
+              {confirming ? "Proceed anyway" : copy.finalizePositive.label}
             </button>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeProposalDocument, Outcome, Verdict } from "../../shared/document";
 import { reduce, sectionThread, conflictStats, type Action } from "../state";
 import { saveDocument } from "../api";
+import { KIND_COPY } from "../copy";
 import { Header } from "./Header";
 import { Section } from "./Section";
 import { Questions } from "./Questions";
@@ -50,18 +51,17 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  const copy = KIND_COPY[doc.kind];
+
   if (finalized) {
-    const discuss = doc.response.outcome === "discuss";
+    const done =
+      doc.response.outcome === copy.finalizeNegative.outcome ? copy.done.negative : copy.done.positive;
     return (
       <div className="done-screen" data-theme={theme}>
         <div className="done-card">
-          <div className="done-check">{discuss ? "💬" : "✓"}</div>
-          <h2>{discuss ? "Saved for discussion" : "Agreed — sent to the agent"}</h2>
-          <p>
-            {discuss
-              ? "Your notes are saved. The agent will reply and send back another round before going ahead."
-              : "The agent will go ahead with the proposed next step. You can close this tab and return to your agent."}
-          </p>
+          <div className="done-check">{done.icon}</div>
+          <h2>{done.title}</h2>
+          <p>{done.body}</p>
         </div>
       </div>
     );
@@ -75,6 +75,7 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
     <div className="app">
       <Header
         doc={doc}
+        copy={copy}
         theme={theme}
         saveState={saveState}
         unresolvedConflicts={unresolvedConflicts}
@@ -88,6 +89,7 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
           <Section
             key={section.id}
             section={section}
+            copy={copy}
             verdict={doc.response.review[section.id]}
             thread={sectionThread(doc, section.id)}
             expanded={expanded[section.id] ?? true}
@@ -121,6 +123,7 @@ export function App({ initialDoc }: { initialDoc: ChangeProposalDocument }) {
       <Composer
         open={composerOpen}
         initial={doc.response.feedback}
+        placeholder={copy.composerPlaceholder}
         onClose={() => setComposerOpen(false)}
         onSubmit={(text) => {
           dispatch({ kind: "setFeedback", text });

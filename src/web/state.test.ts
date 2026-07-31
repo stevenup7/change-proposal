@@ -12,7 +12,7 @@ import {
   OTHER_CHOICE,
   type Action,
 } from "./state";
-import { exampleDocument } from "../shared/example";
+import { exampleDocument, exampleDescription } from "../shared/example";
 import { startNextRound } from "../shared/document";
 
 const run = (actions: Action[]) => actions.reduce((d, a) => reduce(d, a), exampleDocument());
@@ -83,6 +83,34 @@ describe("reducer is deterministic and pure", () => {
       { kind: "setAnswerChoice", questionId: "due-date-strategy", choice: "local" },
     ];
     expect(JSON.stringify(run(seq))).toBe(JSON.stringify(run(seq)));
+  });
+});
+
+describe("architecture-description clarification loop", () => {
+  const runDesc = (actions: Action[]) =>
+    actions.reduce((d, a) => reduce(d, a), exampleDescription());
+
+  it("approveAll uses the kind's positive verdict: clear, not approved", () => {
+    const d = runDesc([{ kind: "approveAll" }]);
+    for (const s of d.proposal.sections) expect(d.response.review[s.id]).toBe("clear");
+    expect(reviewedCount(d)).toBe(d.proposal.sections.length);
+  });
+
+  it("toggles needs-clarification on and off like any verdict", () => {
+    const on = reduce(exampleDescription(), {
+      kind: "toggleVerdict",
+      sectionId: "arch",
+      verdict: "needs-clarification",
+    });
+    expect(on.response.review.arch).toBe("needs-clarification");
+    const off = reduce(on, { kind: "toggleVerdict", sectionId: "arch", verdict: "needs-clarification" });
+    expect(off.response.review.arch).toBeUndefined();
+  });
+
+  it("finalizes with the description outcomes", () => {
+    const d = runDesc([{ kind: "finalize", outcome: "clarify" }]);
+    expect(d.status).toBe("finalized");
+    expect(d.response.outcome).toBe("clarify");
   });
 });
 
