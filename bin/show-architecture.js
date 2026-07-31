@@ -1,18 +1,18 @@
 #!/usr/bin/env node
-// Dev launcher for the describe-architecture face of the CLI — same mechanics as
-// bin/change-proposal.js (resolve tsx from THIS package so a globally-linked bin
-// works from any directory), pointed at the describe entry.
+// Dev launcher for the show-architecture face of the CLI — same mechanics as
+// bin/show-proposal.js (resolve tsx from THIS package so a globally-linked bin
+// works from any directory), pointed at the architecture entry.
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const entry = resolve(here, "..", "src", "cli", "describe.ts");
+const entry = resolve(here, "..", "src", "cli", "architecture.ts");
 const tsxBin = resolve(here, "..", "node_modules", ".bin", "tsx");
 
 if (!existsSync(tsxBin)) {
-  console.error(`✗ tsx not found at ${tsxBin}. Run \`npm install\` in the change-proposal package.`);
+  console.error(`✗ tsx not found at ${tsxBin}. Run \`npm install\` in the show-me package.`);
   process.exit(1);
 }
 

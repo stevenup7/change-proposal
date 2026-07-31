@@ -1,11 +1,12 @@
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { documentSchema } from "./document";
 import { blockCatalog, blockDefFor, blockGuide } from "./blocks/registry";
+import { TOOL_NAMES } from "./skill";
 import { VERSION } from "./version";
 
 /** The JSON Schema the agent should author against (and the CLI validates against). */
 export function jsonSchema(): object {
-  return zodToJsonSchema(documentSchema, { name: "ChangeProposalDocument" });
+  return zodToJsonSchema(documentSchema, { name: "ReviewDocument" });
 }
 
 // Progressive disclosure: the guide is what the agent always needs, and the block
@@ -61,14 +62,15 @@ function schemaSection(tool: string, full: boolean): string[] {
 }
 
 /**
- * The full authoring guide emitted by `change-proposal author`. This is the versioned
+ * The full authoring guide emitted by `show-proposal author`. This is the versioned
  * contract — the thin skill fetches it at runtime, so it can never drift from the tool.
  */
 export function authoringGuide(full = false): string {
+  const tool = TOOL_NAMES["change-proposal"];
   return [
     `# Change Proposal — authoring guide (v${VERSION})`,
     "",
-    '(For describing the CURRENT state of a system instead of proposing a change, use the sibling tool `describe-architecture` — same file format, `kind: "architecture-description"`.)',
+    '(For describing the CURRENT state of a system instead of proposing a change, use the sibling tool `show-architecture` — same file format, `kind: "architecture-description"`.)',
     "",
     "You are producing a `proposal.json` for a human to review interactively instead of",
     "reading a markdown plan. Break the change into sections the human can approve one by one.",
@@ -129,7 +131,7 @@ export function authoringGuide(full = false): string {
     "- `summary`: optional one-line summary.",
     "- `blocks`: ordered content blocks (below).",
     "",
-    ...blocksSection("change-proposal", full),
+    ...blocksSection(tool, full),
     "",
     "## Questions (optional)",
     "Ask the human for decisions. `kind: 'choice'` with `options: [{id,label}]` (set",
@@ -142,13 +144,13 @@ export function authoringGuide(full = false): string {
     "conversation across the whole review. Leave `dialog: {}` on a first-round proposal.",
     "",
     "## Iterating (round 2+)",
-    "Don't hand-reset the response. Run `change-proposal iterate <file>` — it archives the",
+    `Don't hand-reset the response. Run \`${tool} iterate <file>\` — it archives the`,
     "current `response` into `history`, resets the live response, keeps the `dialog`, and",
     "bumps `round`. Then revise the `proposal`, optionally add `author: \"agent\"` dialog",
     "replies to sections you changed, and run `review` again.",
     "",
     "## Reading the result",
-    "`review` prints a digest when it returns; `change-proposal result <file>` re-prints it.",
+    `\`review\` prints a digest when it returns; \`${tool} result <file>\` re-prints it.`,
     "It joins every id back to its label — prefer it to the raw JSON.",
     "",
     "On finalize, `status` becomes `finalized`. Read `response.outcome` FIRST; per-section",
@@ -163,20 +165,21 @@ export function authoringGuide(full = false): string {
     "Unresolved fields were left for you to decide.",
     "",
     "## After authoring",
-    "Write the JSON to a file, then run `change-proposal review <file>`.",
+    `Write the JSON to a file, then run \`${tool} review <file>\`.`,
     "",
-    ...schemaSection("change-proposal", full),
+    ...schemaSection(tool, full),
   ].join("\n");
 }
 
 /**
- * The authoring guide emitted by `describe-architecture author`. Same file format and
- * versioned contract as change-proposal; a different kind with a different loop: the
+ * The authoring guide emitted by `show-architecture author`. Same file format and
+ * versioned contract as show-proposal; a different kind with a different loop: the
  * agent describes the CURRENT system, the human confirms or asks for clarification.
  */
 export function describeGuide(full = false): string {
+  const tool = TOOL_NAMES["architecture-description"];
   return [
-    `# Describe Architecture — authoring guide (v${VERSION})`,
+    `# Architecture Description — authoring guide (v${VERSION})`,
     "",
     "You are producing an `architecture.json` — your understanding of a system's CURRENT",
     "state (architecture, data model, app state, APIs) as an interactive page instead of a",
@@ -224,7 +227,7 @@ export function describeGuide(full = false): string {
     "  `arch-layers` / `arch-boundaries`; for the data model use `er`; for written explanation",
     "  use `markdown`; for known gaps or things that are easy to get wrong use `callout`.",
     "",
-    ...blocksSection("describe-architecture", full),
+    ...blocksSection(tool, full),
     "",
     "## Questions (optional)",
     "Ask the human to confirm what you could not verify from the code. `kind: 'choice'`",
@@ -237,13 +240,13 @@ export function describeGuide(full = false): string {
     '`author: "agent"` when authoring the next round. Leave `dialog: {}` on round 1.',
     "",
     "## Iterating (round 2+)",
-    "Don't hand-reset the response. Run `describe-architecture iterate <file>` — it",
+    `Don't hand-reset the response. Run \`${tool} iterate <file>\` — it`,
     "archives the current `response` into `history`, resets the live response, keeps the",
     "`dialog`, and bumps `round`. Then clarify/expand the sections that were flagged,",
     'reply in `dialog` with `author: "agent"` entries, and run `review` again.',
     "",
     "## Reading the result",
-    "`review` prints a digest when it returns; `describe-architecture result <file>` re-prints",
+    `\`review\` prints a digest when it returns; \`${tool} result <file>\` re-prints`,
     "it. It joins every id back to its label — prefer it to the raw JSON.",
     "",
     "On finalize, `status` becomes `finalized`. Read `response.outcome` FIRST:",
@@ -255,8 +258,8 @@ export function describeGuide(full = false): string {
     "Then `response.answers` (your questions) and `response.feedback` (global note).",
     "",
     "## After authoring",
-    "Write the JSON to a file, then run `describe-architecture review <file>`.",
+    `Write the JSON to a file, then run \`${tool} review <file>\`.`,
     "",
-    ...schemaSection("describe-architecture", full),
+    ...schemaSection(tool, full),
   ].join("\n");
 }

@@ -7,7 +7,7 @@ import {
   documentSchema,
   checkVersion,
   startNextRound,
-  type ChangeProposalDocument,
+  type ReviewDocument,
   type DocumentKind,
 } from "../shared/document";
 import { renderDigest } from "../shared/digest";
@@ -19,7 +19,7 @@ import { startReviewServer, WEB_DIR } from "../server/server";
 import { installSkill, type InstallOptions } from "./install-skill";
 import { openBrowser } from "./open-browser";
 
-// One CLI, two faces: `change-proposal` and `describe-architecture` are the same
+// One CLI, two faces: `show-proposal` and `show-architecture` are the same
 // program built for different document kinds. The kind selects the bin name, the
 // authoring guide, the example, and the finalize messaging — and is hard-checked
 // against the document's own `kind` (a proposal can't be served by the describe
@@ -30,7 +30,7 @@ interface Mode {
   description: string;
   defaultFile: string;
   guide: (full?: boolean) => string;
-  example: () => ChangeProposalDocument;
+  example: () => ReviewDocument;
   exampleNoun: string;
   reviewHeading: string;
 }
@@ -38,22 +38,22 @@ interface Mode {
 const MODES: Record<DocumentKind, Mode> = {
   "change-proposal": {
     name: TOOL_NAMES["change-proposal"],
-    description: "Interactive change-proposal review page for coding agents",
+    description: "Show a proposed change as a page a person reads and answers",
     defaultFile: DEFAULT_FILES["change-proposal"],
     guide: authoringGuide,
     example: exampleDocument,
     exampleNoun: "proposal",
-    reviewHeading: "Change Proposal — reviewing",
+    reviewHeading: "Change proposal — reviewing",
   },
   "architecture-description": {
     name: TOOL_NAMES["architecture-description"],
     description:
-      "Interactive architecture-description page — the agent describes the current system, the human runs a clarification loop",
+      "Show how a system works today as a page a person reads and answers",
     defaultFile: DEFAULT_FILES["architecture-description"],
     guide: describeGuide,
     example: exampleDescription,
     exampleNoun: "description",
-    reviewHeading: "Architecture Description — presenting",
+    reviewHeading: "Architecture description — presenting",
   },
 };
 
@@ -103,7 +103,7 @@ export function buildProgram(kind: DocumentKind): Command {
     .option("--user", "install for your user — e.g. ~/.claude/skills (default)")
     .option("--project", "install into this project — e.g. ./.claude/skills")
     .option("--dir <path>", "install into an explicit skills directory")
-    .option("--all", "install both skills (change-proposal and describe-architecture)")
+    .option("--all", "install both skills (show-proposal and show-architecture)")
     .option("--command <cmd>", "command the skill should invoke (default: this package's bin)")
     .option("--local", "emit the in-repo npm-script form (regenerates this repo's own skills)")
     .option("--force", "overwrite an existing SKILL.md whose content differs")
@@ -193,7 +193,7 @@ export function buildProgram(kind: DocumentKind): Command {
 
   // --- helpers --------------------------------------------------------------
 
-  async function loadOrExit(file: string, expectedKind: DocumentKind): Promise<ChangeProposalDocument> {
+  async function loadOrExit(file: string, expectedKind: DocumentKind): Promise<ReviewDocument> {
     const path = resolve(process.cwd(), file);
     if (!existsSync(path)) {
       console.error(`✗ file not found: ${path}`);
@@ -206,7 +206,7 @@ export function buildProgram(kind: DocumentKind): Command {
       console.error(`✗ not valid JSON: ${(e as Error).message}`);
       process.exit(1);
     }
-    let doc: ChangeProposalDocument;
+    let doc: ReviewDocument;
     try {
       doc = documentSchema.parse(raw);
     } catch (e) {

@@ -1,12 +1,12 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import type { ChangeProposalDocument } from "../shared/document";
+import type { ReviewDocument } from "../shared/document";
 import { fetchProposal } from "./api";
 import { App } from "./components/App";
 import "./styles.css";
 
 function Boot() {
-  const [doc, setDoc] = useState<ChangeProposalDocument | null>(null);
+  const [doc, setDoc] = useState<ReviewDocument | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

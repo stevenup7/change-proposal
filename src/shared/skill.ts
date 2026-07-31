@@ -6,10 +6,14 @@ import type { DocumentKind } from "./document";
 // the repo's. The only thing that varies is how the skill invokes the tool: in-repo it goes
 // through the npm scripts, installed it calls the CLI by name (or absolute path).
 
-/** Per-kind command/skill/file names. The CLI's two faces reuse these. */
+/**
+ * Per-kind command/skill/file names. The CLI's two faces reuse these. The command
+ * names are the human's verb — `/show-proposal`, `/show-architecture` — while the
+ * `kind` tokens name the document itself; the two are deliberately not the same string.
+ */
 export const TOOL_NAMES: Record<DocumentKind, string> = {
-  "change-proposal": "change-proposal",
-  "architecture-description": "describe-architecture",
+  "change-proposal": "show-proposal",
+  "architecture-description": "show-architecture",
 };
 
 export const DEFAULT_FILES: Record<DocumentKind, string> = {
@@ -19,8 +23,8 @@ export const DEFAULT_FILES: Record<DocumentKind, string> = {
 
 /** The npm script that fronts each face when working inside this repo. */
 const NPM_SCRIPTS: Record<DocumentKind, string> = {
-  "change-proposal": "npm run --silent cli --",
-  "architecture-description": "npm run --silent describe --",
+  "change-proposal": "npm run --silent show-proposal --",
+  "architecture-description": "npm run --silent show-architecture --",
 };
 
 // One line each, for a human scanning the command list. There is no "use when…" clause:
@@ -61,7 +65,7 @@ export function skillDoc(kind: DocumentKind, target: SkillTarget): string {
     "---",
     `name: ${skillName(kind)}`,
     `description: ${DESCRIPTIONS[kind]}`,
-    // Explicit invocation only: the human types `/change-proposal`, the agent never decides
+    // Explicit invocation only: the human types `/show-proposal`, the agent never decides
     // to open a review on its own. Both faces start a blocking server and take over the
     // human's browser, which is exactly the side-effecting case this field is for. Claude
     // Code and Cursor spell it the same way.

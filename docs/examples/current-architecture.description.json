@@ -4,7 +4,7 @@
   "status": "pending",
   "round": 1,
   "proposal": {
-    "title": "How change-proposal works today",
+    "title": "How show-me works today",
     "description": "My understanding of this package as it stands at v0.8.0, so we can agree on it before anyone proposes changing it. Mark each section clear, or ask me to clarify — I have flagged the two things I could not settle from the code.",
     "sections": [
       {
@@ -20,7 +20,7 @@
           },
           {
             "type": "arch-boundaries",
-            "boundary": "change-proposal",
+            "boundary": "show-me",
             "actors": [
               { "label": "Coding agent", "note": "authors the JSON, reads the digest" },
               { "label": "Human reviewer", "note": "in a browser, on :4179" }
@@ -105,7 +105,7 @@
                 "label": "Skill",
                 "sublabel": "generated SKILL.md",
                 "accent": "amber",
-                "items": [{ "label": "change-proposal" }, { "label": "describe-architecture" }],
+                "items": [{ "label": "show-proposal" }, { "label": "show-architecture" }],
                 "connector": "runs the CLI"
               },
               {

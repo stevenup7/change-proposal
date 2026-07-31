@@ -1,6 +1,6 @@
-import type { ChangeProposalDocument } from "../shared/document";
+import type { ReviewDocument } from "../shared/document";
 
-export async function fetchProposal(): Promise<ChangeProposalDocument> {
+export async function fetchProposal(): Promise<ReviewDocument> {
   const r = await fetch("/api/proposal");
   if (!r.ok) throw new Error(`failed to load proposal (${r.status})`);
   return r.json();
@@ -12,7 +12,7 @@ export interface SaveResult {
   error?: string;
 }
 
-export async function saveDocument(doc: ChangeProposalDocument): Promise<SaveResult> {
+export async function saveDocument(doc: ReviewDocument): Promise<SaveResult> {
   const r = await fetch("/api/document", {
     method: "PUT",
     headers: { "content-type": "application/json" },

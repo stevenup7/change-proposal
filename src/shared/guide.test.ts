@@ -40,8 +40,8 @@ describe("block spec", () => {
 });
 
 describe.each([
-  ["change-proposal", authoringGuide],
-  ["describe-architecture", describeGuide],
+  ["show-proposal", authoringGuide],
+  ["show-architecture", describeGuide],
 ])("%s guide", (tool, guide) => {
   it("carries the catalog, not every block's spec", () => {
     const text = guide();

@@ -4,7 +4,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, resolve, extname, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { documentSchema, type ChangeProposalDocument } from "../shared/document";
+import { documentSchema, type ReviewDocument } from "../shared/document";
 
 const here = dirname(fileURLToPath(import.meta.url));
 // Built SPA. `review` requires `npm run build` to have produced this.
@@ -35,13 +35,13 @@ async function serveAsset(pathname: string): Promise<Response> {
 export interface ReviewServer {
   url: string;
   /** Resolves with the finalized document once the user finalizes; server self-terminates. */
-  finished: Promise<ChangeProposalDocument>;
+  finished: Promise<ReviewDocument>;
   close: () => void;
 }
 
 export interface StartOptions {
   file: string;
-  doc: ChangeProposalDocument;
+  doc: ReviewDocument;
   port: number;
 }
 
@@ -50,8 +50,8 @@ export async function startReviewServer(opts: StartOptions): Promise<ReviewServe
   // The proposal region is read-only; keep the original to reject any UI that mutates it.
   const originalProposal = JSON.stringify(doc.proposal);
 
-  let resolveFinished!: (d: ChangeProposalDocument) => void;
-  const finished = new Promise<ChangeProposalDocument>((res) => (resolveFinished = res));
+  let resolveFinished!: (d: ReviewDocument) => void;
+  const finished = new Promise<ReviewDocument>((res) => (resolveFinished = res));
 
   const app = new Hono();
 

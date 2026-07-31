@@ -1,4 +1,4 @@
-# Change Proposal — Design Spec
+# show-me — Design Spec
 
 > Status: **v0.6.0** — past the §7 first cut. The first cut is implemented and passing
 > (tests, typecheck, build, CLI, and full server round-trip verified); since then the tool
@@ -249,7 +249,7 @@ dark/light token swap.
 **Resolved since the first cut:**
 - *Zod shapes* — settled in `src/shared/` (block modules, `document.ts`).
 - *CLI commands* — `author` / `example` / `validate` / `review` / `iterate`; the skill lives
-  at `.claude/skills/change-proposal/` and fetches the guide from `author` at runtime.
+  at `.claude/skills/show-proposal/` and fetches the guide from `author` at runtime.
 - *Testing* — golden tests of `(input JSON + scripted interactions) → output JSON` over the
   pure reducer (`src/web/state.test.ts`).
 - *Repo/distribution* — a single npm package; the dev launcher (`bin/`) runs the TS CLI via

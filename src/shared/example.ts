@@ -1,9 +1,9 @@
 import { VERSION } from "./version";
-import type { ChangeProposalDocument } from "./document";
+import type { ReviewDocument } from "./document";
 import { emptyResponse } from "./document";
 
-/** A representative sample proposal — used by `change-proposal example` and by tests. */
-export function exampleDocument(): ChangeProposalDocument {
+/** A representative sample proposal — used by `show-proposal example` and by tests. */
+export function exampleDocument(): ReviewDocument {
   return {
     version: VERSION,
     kind: "change-proposal",
@@ -294,8 +294,8 @@ export function exampleDocument(): ChangeProposalDocument {
   };
 }
 
-/** A representative sample architecture description — used by `describe-architecture example`. */
-export function exampleDescription(): ChangeProposalDocument {
+/** A representative sample architecture description — used by `show-architecture example`. */
+export function exampleDescription(): ReviewDocument {
   return {
     version: VERSION,
     kind: "architecture-description",
